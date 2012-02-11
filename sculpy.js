@@ -91,11 +91,22 @@ Sculpy.makeGetterSetter = function(obj, propname)
 		}
 		this.attributesPrev[propname] = this.attributes[propname];
 		this.attributes[propname] = arguments["0"];
+		var silent = false;
+		if (arguments.length > 1)
+			silent = arguments["1"];
 		this.dirty = true;
-		bean.fire(this, 'change:'+propname);
-		bean.fire(this, 'change');
+		if (!silent)
+		{
+			bean.fire(this, 'change:'+propname);
+			bean.fire(this, 'change');
+		}
 	};
 	obj.prototype[propname] = result;
+};
+
+Sculpy.prototype.toJSON = function()
+{
+	return JSON.stringify(this.attributes);
 };
 
 Sculpy.prototype.watch = function(target, event, callback)
@@ -116,73 +127,88 @@ Sculpy.prototype.constructURL = function()
 	return this.root() + '/' + this.id;
 }
 
-Sculpy.prototype.update = function(attr)
+Sculpy.prototype.update = function(attr, silent)
 {
+	// Note: doesn't handle calculated properties.
 	var self = this;
 	var events = ['change'];
-	vv.each(attr, function(k)
+	for (k in attr)
 	{
-		self.__proto__[k].call(self, attr[k]);
-		events.push['change:'+k];
-	});
-	vv.each(events, function(e)
+		if (attr.hasOwnProperty(k) && (self.__proto__.properties.indexOf(k) >= 0))
+		{
+			self.__proto__[k].call(self, attr[k], true);
+			events.push('change:'+k);
+		}
+	}
+	if (!silent)
 	{
-		bean.fire(this, e);
-	});
+		vv.each(events, function(e)
+		{
+			bean.fire(self, e);
+		});
+	}
 };
 
 Sculpy.prototype.save = function()
 {
-	var arglen = arguments.length;
+	var self = this;
 	var failure, success, proplist;
 
-	if (arglen == 3)
-	{
+	if (arguments.length == 1)
 		proplist = arguments["0"];
-		success = arguments["1"];
-		failure = arguments["2"];
-	}
-	else if (arglen == 2)
-	{
-		proplist = this.__proto__.properties;
-		success = arguments["0"];
-		failure = arguments["1"];
-	}
 	else
-		throw("save() called with "+arglen+" arguments; exactly 2 or 3 required");
+		proplist = self.__proto__.properties;
 
 	var props = {};
 	for (var i=0, len=proplist.length; i<len; i++)
-		props[proplist[i]] = this.attributes[proplist[i]];
+		props[proplist[i]] = self.attributes[proplist[i]];
 
-	var method = (this.id === undefined) ? 'POST' : 'PUT';
+	var method = (self.id === undefined) ? 'POST' : 'PUT';
 	
-	var winning = function()
+	var winning = function(data, textStatus, jqXHR)
 	{
-		
+		self.dirty = false;
+		self.attributesPrev = {};
+		self.update(data);
+		if (data.id !== undefined)
+			self.id = data.id;
+	};
+	
+	var losing = function(jqXHR, textStatus, errorThrown)
+	{
+		// TODO
+	};
+	
+	$.ajax(
+	{
+		url: self.constructURL(),
+		type: method,
+		data: props,
+		success: winning,
+		error: losing
+	});
+};
+
+Sculpy.prototype.destroy = function(success, failure)
+{
+	var self = this;
+	var winning = function(data, textStatus, jqXHR)
+	{
+		bean.fire(self, 'destroy');
+	};
+	
+	var losing = function(jqXHR, textStatus, errorThrown)
+	{
+		// TODO
 	};
 	
 	$.ajax(
 	{
 		url: this.constructURL(),
-		type: method,
-		data: props,
-		success: success,
-		error: failure
+		type: 'DELETE',
+		success: winning,
+		error: losing
 	});
-	return this;
-};
-
-Sculpy.prototype.destroy = function(success, failure)
-{
-	$.ajax(
-	{
-		url: this.constructURL(),
-		type: method,
-		success: success,
-		error: failure
-	});
-	return this;
 };
 
 Sculpy.prototype.load = function(success, failure)
@@ -190,12 +216,23 @@ Sculpy.prototype.load = function(success, failure)
 	if (this.id === undefined)
 		throw('cannot load object without an id');
 
+	var winning = function(data, textStatus, jqXHR)
+	{
+		self.update(data);
+		bean.fire(self, 'load');
+	};
+	
+	var losing = function(jqXHR, textStatus, errorThrown)
+	{
+		// TODO
+	};
+
 	$.ajax(
 	{
 		url: this.constructURL(),
 		type: 'GET',
-		success: success,
-		error: failure
+		success: winning,
+		error: losing
 	});
 
 	return this;

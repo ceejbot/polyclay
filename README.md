@@ -8,3 +8,25 @@ ender build bean valentine
 ```
 
 Include the resulting library in your pages along with sculpy.
+
+```javascript
+var Foo = Sculpy.extend({
+	properties: {
+		name: ['string', ''],
+		swizzle: ['string', 'stick'],
+		created: ['date', undefined],
+		count: ['number', 0],
+		mine: ['boolean', true]
+	},
+	calculatedProperties: ['rendered', ],
+	initialize: function()
+	{
+		this.watch(this, 'change:name', this.updateCalculated);
+	},
+});
+
+Foo.prototype.updateCalculated = function()
+{
+	this.rendered(this.name() + ' has '+this.count() + ' ' + this.swizzle());
+};
+```

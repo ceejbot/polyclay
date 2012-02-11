@@ -4,7 +4,7 @@
 		<title>Sculpy models test</title>
 		<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
 		<script src="ender.min.js" type="text/javascript"></script>
-		<script src="sculpy.js" type="text/javascript"></script>
+		<script src="../sculpy.js" type="text/javascript"></script>
 	</head>
 	<body>
 	
@@ -14,20 +14,23 @@
 	var Foo = Sculpy.extend({
 		properties: {
 			name: ['string', ''],
-			swizzle: ['string', 'stick']
+			swizzle: ['string', 'stick'],
+			count: ['number', 0],
 		},
-		calculatedProperties: ['rendered', ],
+		calculated: ['report', ],
 		initialize: function()
 		{
-			this.watch(this, 'change:name', this.bleat);
+			this.watch(this, 'change:name', this.updateCalculated);
+			this.watch(this, 'change:count', this.updateCalculated);
 		},
 	});
 	
-	Foo.prototype.bleat = function()
+	Foo.prototype.updateCalculated = function()
 	{
-		console.log("BLEAT! name changed: "+this.name());
+		this.report(this.name() + ' has '+this.count() + ' ' + this.swizzle());
+		console.log(this.report());
 	};
-	
+
 	var bleat = new Foo();
 	console.log(bleat);
 	
@@ -36,10 +39,10 @@
 	console.log(bleat.swizzle());
 	bleat.swizzle('sparkle');
 	console.log(bleat.swizzle());
+	bleat.count(bleat.count() + 2);
 	
-	bleat.update({name: 'my new name', swizzle: 'no more swizz'});
-	console.log(bleat.name());
-	console.log(bleat.swizzle());
+	bleat.update({name: 'my new name', swizzle: 'no more swizz'}, false);
+	console.log(bleat.toJSON());
 
 	var Bar = Sculpy.extend({
 		properties: {
