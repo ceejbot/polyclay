@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Sculpy models test</title>
+		<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+		<script src="ender.min.js" type="text/javascript"></script>
+		<script src="sculpy.js" type="text/javascript"></script>
+	</head>
+	<body>
+	
+<script type="text/javascript">
+	var bean = require('bean');
+
+	var Foo = Sculpy.extend({
+		properties: {
+			name: ['string', ''],
+			swizzle: ['string', 'stick']
+		},
+		calculatedProperties: ['rendered', ],
+		initialize: function()
+		{
+			this.watch(this, 'change:name', this.bleat);
+		},
+	});
+	
+	Foo.prototype.bleat = function()
+	{
+		console.log("BLEAT! name changed: "+this.name());
+	};
+	
+	var bleat = new Foo();
+	console.log(bleat);
+	
+	bleat.name('can haz name');
+	console.log(bleat.name());
+	console.log(bleat.swizzle());
+	bleat.swizzle('sparkle');
+	console.log(bleat.swizzle());
+	
+	bleat.update({name: 'my new name', swizzle: 'no more swizz'});
+	console.log(bleat.name());
+	console.log(bleat.swizzle());
+
+	var Bar = Sculpy.extend({
+		properties: {
+			created: ['date', undefined],
+			count: ['number', 0],
+			mine: ['boolean', true]
+		},
+		urlroot: '/bars'
+	});
+	
+	var bar = new Bar();
+	bar.created("invalid");
+	console.log(bar.mine());
+	console.log(bar.valid());
+	console.log(bar.errors);
+	
+
+</script>
+	
+	</body>
+</html>
