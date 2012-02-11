@@ -3,8 +3,9 @@
 	<head>
 		<title>Sculpy models test</title>
 		<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
-		<script src="ender.min.js" type="text/javascript"></script>
-		<script src="ICanHaz.js" type="text/javascript"></script>
+		<script src="jquery-1.7.1.min.js" type="text/javascript"></script>
+		<script src="ICanHaz.min.js" type="text/javascript"></script>
+		<script src="ender.js" type="text/javascript"></script>
 		<script src="../sculpy.js" type="text/javascript"></script>
 	</head>
 	<body>
@@ -20,15 +21,6 @@
 </script>
 
 <script type="text/javascript">
-	var bean = require('bean');
-	var bonzo = require('bonzo');
-	var qwery = require('qwery');
-
-	function $select(selector)
-	{
-  		return bonzo(qwery(selector));
-	}
-
 	var Foo = Sculpy.Model.extend({
 		properties: {
 			name: ['string', ''],
@@ -83,7 +75,7 @@
 		console.log(data);
 		var bleatbox = ICH.foobox(data);
 		console.log(bleatbox);
-		$select('#putfoohere').append(bleatbox);
+		$('#putfoohere').append(bleatbox);
 	});
 	
 </script>

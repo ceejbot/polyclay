@@ -1,5 +1,6 @@
 var vv = require('valentine');
 var bean = require('bean');
+var ender = $.noConflict(); // return '$' back to its original owner
 
 var Sculpy = function(){};
 
@@ -99,8 +100,8 @@ Sculpy.Model.makeGetterSetter = function(obj, propname)
 		this.dirty = true;
 		if (!silent)
 		{
-			bean.fire(this, 'change:'+propname);
-			bean.fire(this, 'change');
+			this.fire('change:'+propname);
+			this.fire('change');
 		}
 	};
 	obj.prototype[propname] = result;
@@ -114,6 +115,11 @@ Sculpy.Model.prototype.toJSON = function()
 Sculpy.Model.prototype.watch = function(target, event, callback)
 {
 	bean.add(target, event, callback);
+};
+
+Sculpy.Model.prototype.fire = function(event)
+{
+	bean.fire(this, event);
 };
 
 Sculpy.Model.prototype.root = function()
@@ -146,7 +152,7 @@ Sculpy.Model.prototype.update = function(attr, silent)
 	{
 		vv.each(events, function(e)
 		{
-			bean.fire(self, e);
+			self.fire(e);
 		});
 	}
 };
@@ -196,7 +202,7 @@ Sculpy.Model.prototype.destroy = function(success, failure)
 	var self = this;
 	var winning = function(data, textStatus, jqXHR)
 	{
-		bean.fire(self, 'destroy');
+		self.fire('destroy');
 	};
 	
 	var losing = function(jqXHR, textStatus, errorThrown)
@@ -221,7 +227,7 @@ Sculpy.Model.prototype.load = function(success, failure)
 	var winning = function(data, textStatus, jqXHR)
 	{
 		self.update(data);
-		bean.fire(self, 'load');
+		self.fire('load');
 	};
 	
 	var losing = function(jqXHR, textStatus, errorThrown)
