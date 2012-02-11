@@ -1,11 +1,13 @@
 var vv = require('valentine');
 var bean = require('bean');
 
-var Sculpy = function()
+var Sculpy = function(){};
+
+Sculpy.Model = function()
 {
 };
 
-Sculpy.extend = function(options)
+Sculpy.Model.extend = function(options)
 {
 	var sub = function()
 	{
@@ -14,7 +16,7 @@ Sculpy.extend = function(options)
 			this.initialize();
 	};
 
-	sub.prototype = new Sculpy;
+	sub.prototype = new Sculpy.Model;
 	sub.prototype.constructor = sub;
 	sub.prototype.properties = [];
 	sub.prototype.calculated = [];
@@ -25,12 +27,12 @@ Sculpy.extend = function(options)
 	var props = options.properties;
 	vv.each(props, function(k)
 	{
-		Sculpy.addProperty(sub, k, props[k][0], props[k][1]);
+		Sculpy.Model.addProperty(sub, k, props[k][0], props[k][1]);
 	});
 	props = options.calculated;
 	vv.each(props, function(k)
 	{
-		Sculpy.addCalculatedProperty(sub, k);
+		Sculpy.Model.addCalculatedProperty(sub, k);
 	});
 	
 	sub.prototype.urlroot = options.urlroot;
@@ -38,7 +40,7 @@ Sculpy.extend = function(options)
 	return sub;
 };
 
-Sculpy.prototype.construct = function()
+Sculpy.Model.prototype.construct = function()
 {
 	this.id = undefined;
 	this.errors = {};
@@ -58,7 +60,7 @@ Sculpy.validation = {
 	'hash': vv.is.obj
 };
 
-Sculpy.addProperty = function(obj, name, type, defaultVal)
+Sculpy.Model.addProperty = function(obj, name, type, defaultVal)
 {
 	// If you name a property with an invalid identifier you get what you deserve.
 	if (Sculpy.validTypes.indexOf(type) < 0)
@@ -67,18 +69,18 @@ Sculpy.addProperty = function(obj, name, type, defaultVal)
 	obj.prototype.properties.push(name);
 	obj.prototype.types[name] = type;
 	obj.prototype.defaults[name] = defaultVal;
-	Sculpy.makeGetterSetter(obj, name);
+	Sculpy.Model.makeGetterSetter(obj, name);
 };
 
-Sculpy.addCalculatedProperty = function(obj, name)
+Sculpy.Model.addCalculatedProperty = function(obj, name)
 {
 	obj.prototype.calculated.push(name);
-	Sculpy.makeGetterSetter(obj, name);
+	Sculpy.Model.makeGetterSetter(obj, name);
 };
 
 // prop() is getter
 // prop(newval) is setter
-Sculpy.makeGetterSetter = function(obj, propname)
+Sculpy.Model.makeGetterSetter = function(obj, propname)
 {
 	var result = function()
 	{
@@ -104,22 +106,22 @@ Sculpy.makeGetterSetter = function(obj, propname)
 	obj.prototype[propname] = result;
 };
 
-Sculpy.prototype.toJSON = function()
+Sculpy.Model.prototype.toJSON = function()
 {
 	return JSON.stringify(this.attributes);
 };
 
-Sculpy.prototype.watch = function(target, event, callback)
+Sculpy.Model.prototype.watch = function(target, event, callback)
 {
 	bean.add(target, event, callback);
 };
 
-Sculpy.prototype.root = function()
+Sculpy.Model.prototype.root = function()
 {
 	return this.__proto__.urlroot;
 };
 
-Sculpy.prototype.constructURL = function()
+Sculpy.Model.prototype.constructURL = function()
 {
 	if (this.id === undefined)
 		return this.root();
@@ -127,7 +129,7 @@ Sculpy.prototype.constructURL = function()
 	return this.root() + '/' + this.id;
 }
 
-Sculpy.prototype.update = function(attr, silent)
+Sculpy.Model.prototype.update = function(attr, silent)
 {
 	// Note: doesn't handle calculated properties.
 	var self = this;
@@ -149,7 +151,7 @@ Sculpy.prototype.update = function(attr, silent)
 	}
 };
 
-Sculpy.prototype.save = function()
+Sculpy.Model.prototype.save = function()
 {
 	var self = this;
 	var failure, success, proplist;
@@ -189,7 +191,7 @@ Sculpy.prototype.save = function()
 	});
 };
 
-Sculpy.prototype.destroy = function(success, failure)
+Sculpy.Model.prototype.destroy = function(success, failure)
 {
 	var self = this;
 	var winning = function(data, textStatus, jqXHR)
@@ -211,7 +213,7 @@ Sculpy.prototype.destroy = function(success, failure)
 	});
 };
 
-Sculpy.prototype.load = function(success, failure)
+Sculpy.Model.prototype.load = function(success, failure)
 {
 	if (this.id === undefined)
 		throw('cannot load object without an id');
@@ -238,7 +240,7 @@ Sculpy.prototype.load = function(success, failure)
 	return this;
 };
 
-Sculpy.prototype.valid = function()
+Sculpy.Model.prototype.valid = function()
 {
 	var valid = true;
 	var props = this.__proto__.properties;
@@ -256,3 +258,6 @@ Sculpy.prototype.valid = function()
 	}
 	return valid;
 };
+
+Sculpy.Collection = function(){};
+

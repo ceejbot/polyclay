@@ -11,7 +11,7 @@
 <script type="text/javascript">
 	var bean = require('bean');
 
-	var Foo = Sculpy.extend({
+	var Foo = Sculpy.Model.extend({
 		properties: {
 			name: ['string', ''],
 			swizzle: ['string', 'stick'],
@@ -44,7 +44,7 @@
 	bleat.update({name: 'my new name', swizzle: 'no more swizz'}, false);
 	console.log(bleat.toJSON());
 
-	var Bar = Sculpy.extend({
+	var Bar = Sculpy.Model.extend({
 		properties: {
 			created: ['date', undefined],
 			count: ['number', 0],
