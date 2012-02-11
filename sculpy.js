@@ -108,7 +108,7 @@ Sculpy.Model.makeGetterSetter = function(obj, propname)
 
 Sculpy.Model.prototype.toJSON = function()
 {
-	return JSON.stringify(this.attributes);
+	return this.attributes;
 };
 
 Sculpy.Model.prototype.watch = function(target, event, callback)

@@ -4,12 +4,30 @@
 		<title>Sculpy models test</title>
 		<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
 		<script src="ender.min.js" type="text/javascript"></script>
+		<script src="ICanHaz.js" type="text/javascript"></script>
 		<script src="../sculpy.js" type="text/javascript"></script>
 	</head>
 	<body>
+<div id="putfoohere"></div>
 	
+<script id="foobox" type="text/html">
+<p>
+<b>Name:</b> {{name}}<br />
+<b>Swizzling:</b> {{swizzle}}<br />
+<b>Count:</b> {{count}}<br />
+<b>Report:</b> {{report}}
+</p>
+</script>
+
 <script type="text/javascript">
 	var bean = require('bean');
+	var bonzo = require('bonzo');
+	var qwery = require('qwery');
+
+	function $select(selector)
+	{
+  		return bonzo(qwery(selector));
+	}
 
 	var Foo = Sculpy.Model.extend({
 		properties: {
@@ -41,8 +59,7 @@
 	console.log(bleat.swizzle());
 	bleat.count(bleat.count() + 2);
 	
-	bleat.update({name: 'my new name', swizzle: 'no more swizz'}, false);
-	console.log(bleat.toJSON());
+	bleat.update({name: 'my new name', swizzle: 'sparklestick'}, false);
 
 	var Bar = Sculpy.Model.extend({
 		properties: {
@@ -59,7 +76,16 @@
 	console.log(bar.valid());
 	console.log(bar.errors);
 	
-
+	var ICH = window.ich;
+	$(document).ready(function()
+	{
+		var data = bleat.toJSON();
+		console.log(data);
+		var bleatbox = ICH.foobox(data);
+		console.log(bleatbox);
+		$select('#putfoohere').append(bleatbox);
+	});
+	
 </script>
 	
 	</body>
