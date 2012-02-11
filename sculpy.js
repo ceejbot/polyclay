@@ -222,6 +222,7 @@ Sculpy.Model.prototype.load = function(success, failure)
 {
 	if (this.id === undefined)
 		throw('cannot load object without an id');
+	var self = this;
 
 	var winning = function(data, textStatus, jqXHR)
 	{
@@ -241,8 +242,6 @@ Sculpy.Model.prototype.load = function(success, failure)
 		success: winning,
 		error: losing
 	});
-
-	return this;
 };
 
 Sculpy.Collection = function(){};
@@ -293,11 +292,11 @@ Sculpy.Collection.prototype.unshift = function(item, silent)
 Sculpy.Collection.prototype.reset = function(data, silent)
 {
 	var item;
-	this.__items.clear();
+	this.__items.length = 0;
 	for (var i=0,len=data.length; i<len; i++)
 	{
-		item = this.__model();
-		item.update(data);
+		item = new this.__model();
+		item.update(data[i]);
 		this.__items.push(item);
 	}
 	if (!silent) this.fire('reset');
@@ -322,6 +321,29 @@ Sculpy.Collection.prototype.url = function()
 		this.__url = arguments["0"];
 	else
 		return this.__url;
+};
+
+Sculpy.Collection.prototype.fetch = function(success, failure)
+{
+	var self = this;
+
+	var winning = function(data, textStatus, jqXHR)
+	{
+		self.reset(data);
+	};
+
+	var losing = function(jqXHR, textStatus, errorThrown)
+	{
+		// TODO
+	};
+
+	$.ajax(
+	{
+		url: this.url(),
+		type: 'GET',
+		success: winning,
+		error: losing
+	});
 };
 
 Sculpy.Collection.prototype.element = function()
