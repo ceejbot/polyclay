@@ -23,9 +23,9 @@
 <script type="text/javascript">
 	var Foo = Sculpy.Model.extend({
 		properties: {
-			name: ['string', ''],
-			swizzle: ['string', 'stick'],
-			count: ['number', 0],
+			name: '',
+			swizzle: 'stick',
+			count: 0,
 		},
 		calculated: ['report', ],
 		initialize: function()
@@ -55,9 +55,9 @@
 
 	var Bar = Sculpy.Model.extend({
 		properties: {
-			created: ['date', undefined],
-			count: ['number', 0],
-			mine: ['boolean', true]
+			created: '',
+			count: 0,
+			mine: true
 		},
 		urlroot: '/bars'
 	});
@@ -65,8 +65,6 @@
 	var bar = new Bar();
 	bar.created("invalid");
 	console.log(bar.mine());
-	console.log(bar.valid());
-	console.log(bar.errors);
 	
 	var ICH = window.ich;
 	$(document).ready(function()

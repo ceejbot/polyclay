@@ -21,14 +21,13 @@ Sculpy.Model.extend = function(options)
 	sub.prototype.constructor = sub;
 	sub.prototype.properties = [];
 	sub.prototype.calculated = [];
-	sub.prototype.types = {};
 	sub.prototype.defaults = {};
 	sub.prototype.initialize = options.initialize;
 	
 	var props = options.properties;
 	vv.each(props, function(k)
 	{
-		Sculpy.Model.addProperty(sub, k, props[k][0], props[k][1]);
+		Sculpy.Model.addProperty(sub, k, props[k]);
 	});
 	props = options.calculated;
 	vv.each(props, function(k)
@@ -44,31 +43,15 @@ Sculpy.Model.extend = function(options)
 Sculpy.Model.prototype.construct = function()
 {
 	this.id = undefined;
-	this.errors = {};
 	this.attributes = {};
 	this.attributesPrev = {};
 	this.isNew =  true;
 	this.dirty = false;
 };
 
-Sculpy.validTypes = ['string', 'array', 'number', 'boolean', 'date', 'hash'];
-Sculpy.validation = {
-	'string': vv.is.str,
-	'array': vv.is.arr, 
-	'number': vv.is.num, 
-	'boolean': vv.is.bool, 
-	'date': vv.is.dat, 
-	'hash': vv.is.obj
-};
-
-Sculpy.Model.addProperty = function(obj, name, type, defaultVal)
+Sculpy.Model.addProperty = function(obj, name, defaultVal)
 {
-	// If you name a property with an invalid identifier you get what you deserve.
-	if (Sculpy.validTypes.indexOf(type) < 0)
-		throw('type '+type+' invalid; see documentation for types');
-
 	obj.prototype.properties.push(name);
-	obj.prototype.types[name] = type;
 	obj.prototype.defaults[name] = defaultVal;
 	Sculpy.Model.makeGetterSetter(obj, name);
 };
@@ -244,25 +227,6 @@ Sculpy.Model.prototype.load = function(success, failure)
 	});
 
 	return this;
-};
-
-Sculpy.Model.prototype.valid = function()
-{
-	var valid = true;
-	var props = this.__proto__.properties;
-	var types = this.__proto__.types;
-	
-	this.errors = {};
-	for (var i=0, len=props.length; i<len; i++)
-	{
-		var p = props[i];
-		if (!Sculpy.validation[types[p]](this.attributes[p]))
-		{
-			this.errors[p] = true;
-			valid = false;
-		}
-	}
-	return valid;
 };
 
 Sculpy.Collection = function(){};
