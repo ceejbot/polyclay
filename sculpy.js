@@ -18,7 +18,7 @@ Sculpy.Model.extend = function(options, methods)
 			this.initialize.apply(this, arguments);
 	};
 
-	sub.prototype = new Sculpy.Model;
+	sub.prototype = new Sculpy.Model();
 	sub.prototype.constructor = sub;
 	sub.prototype.__urlroot = options.urlroot;
 	sub.prototype.__template = options.template;
@@ -78,7 +78,7 @@ Sculpy.Model.makeGetterSetter = function(obj, propname)
 {
 	var result = function()
 	{
-		if (arguments.length == 0)
+		if (arguments.length === 0)
 		{
 			if (this.attributes[propname] === undefined)
 				return this.__defaults[propname];
@@ -120,7 +120,7 @@ Sculpy.Model.prototype.toJSON = function()
 
 Sculpy.Model.prototype.root = function()
 {
-	if (arguments.length == 1)
+	if (arguments.length === 1)
 		this.__urlroot = arguments["0"];
 	else
 		return this.__urlroot;
@@ -132,18 +132,18 @@ Sculpy.Model.prototype.constructURL = function()
 		return this.root();
 
 	return this.root() + '/' + this.id;
-}
+};
 
 Sculpy.Model.prototype.update = function(attr, silent)
 {
 	// Note: doesn't handle calculated properties.
 	var self = this;
 	var events = ['change'];
-	for (k in attr)
+	for (var k in attr)
 	{
 		if (attr.hasOwnProperty(k) && (self.__properties.indexOf(k) >= 0))
 		{
-			self.__proto__[k].call(self, attr[k], true);
+			self[k].call(self, attr[k], true);
 			events.push('change:'+k);
 		}
 	}
@@ -161,7 +161,7 @@ Sculpy.Model.prototype.save = function()
 	var self = this;
 	var failure, success, proplist;
 
-	if (arguments.length == 1)
+	if (arguments.length === 1)
 		proplist = arguments["0"];
 	else
 		proplist = self.__properties;
@@ -255,7 +255,7 @@ Sculpy.Collection.extend = function(options, methods)
 			this.initialize.apply(this, arguments);
 	};
 
-	sub.prototype = new Sculpy.Collection;
+	sub.prototype = new Sculpy.Collection();
 	sub.prototype.constructor = sub;
 	sub.prototype.__urlroot = options.urlroot;
 	sub.prototype.__model = options.model;
@@ -311,13 +311,13 @@ Sculpy.Collection.prototype.remove = function(item, silent)
 
 Sculpy.Collection.prototype.insert = function(item, index, silent)
 {
-	this.__items.splice(idx, 0, item);
+	this.__items.splice(index, 0, item);
 	if (!silent) this.fire('add');
 };
 
 Sculpy.Collection.prototype.url = function()
 {
-	if (arguments.length == 1)
+	if (arguments.length === 1)
 		this.__url = arguments["0"];
 	else
 		return this.__url;
@@ -348,7 +348,7 @@ Sculpy.Collection.prototype.fetch = function(success, failure)
 
 Sculpy.Collection.prototype.element = function()
 {
-	if (arguments.length == 1)
+	if (arguments.length === 1)
 		this.__element = arguments['0'];
 	else
 		return this.__element;
