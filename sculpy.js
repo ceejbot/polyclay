@@ -1,6 +1,7 @@
+var hasJquery = !(window.jQuery === undefined);
 var vv = require('valentine');
 var bean = require('bean');
-var ender = $.noConflict();
+var ender = hasJquery ? $.noConflict() : $;
 
 var Sculpy = function(){};
 
@@ -113,7 +114,7 @@ Sculpy.Model.prototype.render = function(element, tmpl)
 		tmpl = this.template();
 	if (element === undefined)
 		element = this.element();	
-	var rendered = ich[tmpl](this.toJSON());
+	var rendered = beam[tmpl](this.toJSON());
 	if (element !== undefined)
 	{
 		$(element).empty();
