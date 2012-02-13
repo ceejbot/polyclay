@@ -38,8 +38,8 @@
 		initialize: function(shoutit)
 		{
 			console.log(shoutit);
-			this.watch(this, 'change:name', this.updateCalculated);
-			this.watch(this, 'change:count', this.updateCalculated);
+			this.watch('change:name', this.updateCalculated);
+			this.watch('change:count', this.updateCalculated);
 		},
 		updateCalculated: function()
 		{
@@ -70,8 +70,8 @@
 		initialize: function(element)
 		{
 			this.element(element);
-			this.watch(this, 'reset', this.render);
-			this.watch(this, 'add', this.render);
+			this.watch('reset', this.render);
+			this.watch('add', this.render);
 		},
 	});
 	

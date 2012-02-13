@@ -1,7 +1,6 @@
 var vv = require('valentine');
 var bean = require('bean');
-var ender = $.noConflict(); // return '$' back to its original owner
-// assumes you already have ICanHaz loaded. That requires jquery.
+var ender = $.noConflict();
 
 var Sculpy = function(){};
 
@@ -102,15 +101,26 @@ Sculpy.Model.makeGetterSetter = function(obj, propname)
 
 Sculpy.Model.prototype.template = function()
 {
-	// override to return something different
-	return this.__template;
+	if (arguments.length === 1)
+		this.__template = arguments["0"];
+	else
+		return this.__template;
 };
 
-Sculpy.Model.prototype.render = function(tmpl)
+Sculpy.Model.prototype.render = function(element, tmpl)
 {
 	if (tmpl === undefined)
 		tmpl = this.template();
-	return ich[tmpl](this.toJSON());
+	if (element === undefined)
+		element = this.element();	
+	var rendered = ich[tmpl](this.toJSON());
+	if (element !== undefined)
+	{
+		$(element).empty();
+		$(element).append(rendered);
+	}
+	else
+		return rendered;
 };
 
 Sculpy.Model.prototype.toJSON = function()
@@ -190,6 +200,7 @@ Sculpy.Model.prototype.save = function()
 	{
 		url: self.constructURL(),
 		type: method,
+		dataType: 'json',
 		data: props,
 		success: winning,
 		error: losing
@@ -213,6 +224,7 @@ Sculpy.Model.prototype.destroy = function(success, failure)
 	{
 		url: this.constructURL(),
 		type: 'DELETE',
+		dataType: 'json',
 		success: winning,
 		error: losing
 	});
@@ -234,13 +246,11 @@ Sculpy.Model.prototype.load = function(success, failure)
 	{
 		// TODO
 	};
-
-	$.ajax(
+	
+	$.getJSON(this.constructURL() + '.json', function(data, textStatus, jqXHR)
 	{
-		url: this.constructURL(),
-		type: 'GET',
-		success: winning,
-		error: losing
+		self.update(data);
+		self.fire('load');
 	});
 };
 
@@ -346,14 +356,6 @@ Sculpy.Collection.prototype.fetch = function(success, failure)
 	});
 };
 
-Sculpy.Collection.prototype.element = function()
-{
-	if (arguments.length === 1)
-		this.__element = arguments['0'];
-	else
-		return this.__element;
-};
-
 Sculpy.Collection.prototype.render = function()
 {
 	var into = this.element();
@@ -368,12 +370,20 @@ Sculpy.Collection.prototype.render = function()
 // methods both prototypes have in common
 Sculpy.Common = function(){};
 
-Sculpy.Common.prototype.watch = function(target, event, callback)
+Sculpy.Common.prototype.watch = function(event, callback)
 {
-	bean.add(target, event, callback);
+	bean.add(this, event, callback);
 };
 
 Sculpy.Common.prototype.fire = function(event)
 {
 	bean.fire(this, event);
 };
+Sculpy.Common.prototype.element = function()
+{
+	if (arguments.length === 1)
+		this.__element = arguments['0'];
+	else
+		return this.__element;
+};
+
