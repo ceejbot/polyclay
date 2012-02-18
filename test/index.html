@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>Sculpy models test</title>
+		<title>PolyClay models test</title>
 		<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
 		<script src="ender.min.js" type="text/javascript"></script>
 		<script src="mote.js" type="text/javascript"></script>
 		<script src="../beam.js" type="text/javascript"></script>
-		<script src="../sculpy.js" type="text/javascript"></script>
+		<script src="../polyclay.js" type="text/javascript"></script>
 	</head>
 	<body>
 <p>Really horribly inadequate testing, I know. That's why this isn't released.</p>
 
-<h3>Sans sculpy tests</h3>
+<h3>Beam-specific tests</h3>
 
 <script type="text/html" id="test1">
 <div><i>Hello,</i> {{last}} {{first}} {{last}}.</div>
@@ -47,7 +47,7 @@ var greet = mote.compile('Greetings, {{name}}.');
 var test = greet({name: 'Arthur Dent'}); //=> 'Greetings, Arthur Dent.'
 console.log(test);
 
-var Foo = Sculpy.Model.extend({
+var Foo = PolyClay.Model.extend({
 	properties: {
 		name: '',
 		swizzle: 'stick',
@@ -84,7 +84,7 @@ bleat.count(bleat.count() + 2);
 
 bleat.update({name: 'my new name', swizzle: 'sparklestick'}, false);	
 
-var FooCollection = Sculpy.Collection.extend({
+var FooCollection = PolyClay.Collection.extend({
 	model: Foo,
 	urlroot: '/foos',
 },

@@ -1,47 +1,64 @@
-## sculpy
+## PolyClay
 
 Polymer modeling clay for the browser. RESTful persistence, usable properties, collections, and change events. As simple as I can get away with and no simpler.
 
-Requires [ender](http://ender.no.de/) modules [bean](https://github.com/fat/bean) and [valentine](https://github.com/ded/valentine) for events & validation respectively. Install ender using npm, then build the modules:
+Requires [ender](http://ender.no.de/) modules [bean](https://github.com/fat/bean) and [valentine](https://github.com/ded/valentine) for events & iteration respectively. Will probably remove the dependency on valentine soon. Install ender using npm, then build the modules:
 
 ```
 npm install -g ender
 ender build bean valentine
 ```
 
-Include the resulting library in your pages along with sculpy.
+Include the resulting library in your pages along with PolyClay.
 
 ### Example
 
 ```javascript
-var Foo = Sculpy.extend({
+var Play = PolyClay.Model.extend({
+	// fields
 	properties: {
-		name: ['string', ''],
-		swizzle: ['string', 'stick'],
-		created: ['date', undefined],
-		count: ['number', 0],
-		mine: ['boolean', true]
+		author: '',
+		title: '',
+		characters: [],
+		acts: [],
+		published: new Date()
 	},
-	calculatedProperties: ['rendered', ],
-	initialize: function()
+	calculated: ['report', ],
+	element: '#playView',
+	template: '#playTmpl',
+	urlroot: '/plays'
+},{
+	// methods
+	initialize: function(id)
 	{
-		this.watch(this, 'change:name', this.updateCalculated);
+		this.id = id;
+		this.watch('change', this.render);
 	},
 });
 
-Foo.prototype.updateCalculated = function()
-{
-	this.rendered(this.name() + ' has '+this.count() + ' ' + this.swizzle());
-};
-```
+var PlayList = PolyClay.Collection.extend({
+	model: Play,
+	element: '#list_of_plays',
+	url: '/plays'
+});
 
-### API
+### Fields
+
+Calculated properties are available to templates but not synced using ajax.
+
+### Events
+
+### PolyClay.Model API
 
 TBD.
 
-## beam
+### PolyClay.Collection API
 
-Because I was sick of writing template-rendering boilerplate, sculpy requires [mote.js](http://satchmorun.github.com/mote/) and the convenience wrapper Beam.
+TBD.
+
+## Beam
+
+Because I was sick of writing template-rendering boilerplate, PolyClay requires [mote.js](http://satchmorun.github.com/mote/) and the convenience wrapper Beam.
 
 Beam is [ICanHaz](http://icanhazjs.com/) rewritten for mote. It caches the compiled templates instead of the string source. Also, it is more agnostic than ICanHaz about its optional libraries. It will pick up anything claiming that it is __$__ in the global namespace and assume it works like jquery/zepto. This allows you to use Ender instead of jquery by adding some more packages to your ender build:
 

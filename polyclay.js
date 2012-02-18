@@ -1,15 +1,15 @@
-var hasJquery = !(window.jQuery === undefined);
+var hasJquery = (window.jQuery !== undefined);
 var vv = require('valentine');
 var bean = require('bean');
 var ender = hasJquery ? $.noConflict() : $;
 
-var Sculpy = function(){};
+var PolyClay = function(){};
 
-Sculpy.Model = function()
+PolyClay.Model = function()
 {
 };
 
-Sculpy.Model.extend = function(options, methods)
+PolyClay.Model.extend = function(options, methods)
 {
 	var sub = function()
 	{
@@ -18,7 +18,7 @@ Sculpy.Model.extend = function(options, methods)
 			this.initialize.apply(this, arguments);
 	};
 
-	sub.prototype = new Sculpy.Model();
+	sub.prototype = new PolyClay.Model();
 	sub.prototype.constructor = sub;
 	sub.prototype.__urlroot = options.urlroot;
 	sub.prototype.__template = options.template;
@@ -29,17 +29,17 @@ Sculpy.Model.extend = function(options, methods)
 	var props = options.properties;
 	vv.each(props, function(k)
 	{
-		Sculpy.Model.addProperty(sub, k, props[k]);
+		PolyClay.Model.addProperty(sub, k, props[k]);
 	});
 	props = options.calculated;
 	vv.each(props, function(k)
 	{
-		Sculpy.Model.addCalculatedProperty(sub, k);
+		PolyClay.Model.addCalculatedProperty(sub, k);
 	});
 
-	vv.each(Sculpy.Common.prototype, function(k)
+	vv.each(PolyClay.Common.prototype, function(k)
 	{
-		sub.prototype[k] = Sculpy.Common.prototype[k];
+		sub.prototype[k] = PolyClay.Common.prototype[k];
 	});
 
 	vv.each(methods, function(k)
@@ -50,7 +50,7 @@ Sculpy.Model.extend = function(options, methods)
 	return sub;
 };
 
-Sculpy.Model.prototype.construct = function()
+PolyClay.Model.prototype.construct = function()
 {
 	this.id = undefined;
 	this.attributes = {};
@@ -59,22 +59,22 @@ Sculpy.Model.prototype.construct = function()
 	this.dirty = false;
 };
 
-Sculpy.Model.addProperty = function(obj, name, defaultVal)
+PolyClay.Model.addProperty = function(obj, name, defaultVal)
 {
 	obj.prototype.__properties.push(name);
 	obj.prototype.__defaults[name] = defaultVal;
-	Sculpy.Model.makeGetterSetter(obj, name);
+	PolyClay.Model.makeGetterSetter(obj, name);
 };
 
-Sculpy.Model.addCalculatedProperty = function(obj, name)
+PolyClay.Model.addCalculatedProperty = function(obj, name)
 {
 	obj.prototype.__calculated.push(name);
-	Sculpy.Model.makeGetterSetter(obj, name);
+	PolyClay.Model.makeGetterSetter(obj, name);
 };
 
 // prop() is getter
 // prop(newval) is setter
-Sculpy.Model.makeGetterSetter = function(obj, propname)
+PolyClay.Model.makeGetterSetter = function(obj, propname)
 {
 	var result = function()
 	{
@@ -100,7 +100,7 @@ Sculpy.Model.makeGetterSetter = function(obj, propname)
 	obj.prototype[propname] = result;
 };
 
-Sculpy.Model.prototype.template = function()
+PolyClay.Model.prototype.template = function()
 {
 	if (arguments.length === 1)
 		this.__template = arguments["0"];
@@ -108,12 +108,14 @@ Sculpy.Model.prototype.template = function()
 		return this.__template;
 };
 
-Sculpy.Model.prototype.render = function(element, tmpl)
+PolyClay.Model.prototype.render = function(element, tmpl)
 {
 	if (tmpl === undefined)
 		tmpl = this.template();
+	if (tmpl === undefined)
+		return;
 	if (element === undefined)
-		element = this.element();	
+		element = this.element();
 	var rendered = beam[tmpl](this.toJSON());
 	if (element !== undefined)
 	{
@@ -124,12 +126,12 @@ Sculpy.Model.prototype.render = function(element, tmpl)
 		return rendered;
 };
 
-Sculpy.Model.prototype.toJSON = function()
+PolyClay.Model.prototype.toJSON = function()
 {
 	return this.attributes;
 };
 
-Sculpy.Model.prototype.root = function()
+PolyClay.Model.prototype.root = function()
 {
 	if (arguments.length === 1)
 		this.__urlroot = arguments["0"];
@@ -137,7 +139,7 @@ Sculpy.Model.prototype.root = function()
 		return this.__urlroot;
 };
 
-Sculpy.Model.prototype.constructURL = function()
+PolyClay.Model.prototype.constructURL = function()
 {
 	if (this.id === undefined)
 		return this.root();
@@ -145,7 +147,7 @@ Sculpy.Model.prototype.constructURL = function()
 	return this.root() + '/' + this.id;
 };
 
-Sculpy.Model.prototype.update = function(attr, silent)
+PolyClay.Model.prototype.update = function(attr, silent)
 {
 	// Note: doesn't handle calculated properties.
 	var self = this;
@@ -167,7 +169,7 @@ Sculpy.Model.prototype.update = function(attr, silent)
 	}
 };
 
-Sculpy.Model.prototype.save = function()
+PolyClay.Model.prototype.save = function()
 {
 	var self = this;
 	var failure, success, proplist;
@@ -208,7 +210,7 @@ Sculpy.Model.prototype.save = function()
 	});
 };
 
-Sculpy.Model.prototype.destroy = function(success, failure)
+PolyClay.Model.prototype.destroy = function(success, failure)
 {
 	var self = this;
 	var winning = function(data, textStatus, jqXHR)
@@ -231,7 +233,7 @@ Sculpy.Model.prototype.destroy = function(success, failure)
 	});
 };
 
-Sculpy.Model.prototype.load = function(success, failure)
+PolyClay.Model.prototype.load = function(success, failure)
 {
 	if (this.id === undefined)
 		throw('cannot load object without an id');
@@ -255,9 +257,9 @@ Sculpy.Model.prototype.load = function(success, failure)
 	});
 };
 
-Sculpy.Collection = function(){};
+PolyClay.Collection = function(){};
 
-Sculpy.Collection.extend = function(options, methods)
+PolyClay.Collection.extend = function(options, methods)
 {
 	var sub = function()
 	{
@@ -266,14 +268,14 @@ Sculpy.Collection.extend = function(options, methods)
 			this.initialize.apply(this, arguments);
 	};
 
-	sub.prototype = new Sculpy.Collection();
+	sub.prototype = new PolyClay.Collection();
 	sub.prototype.constructor = sub;
 	sub.prototype.__urlroot = options.urlroot;
 	sub.prototype.__model = options.model;
 
-	vv.each(Sculpy.Common.prototype, function(k)
+	vv.each(PolyClay.Common.prototype, function(k)
 	{
-		sub.prototype[k] = Sculpy.Common.prototype[k];
+		sub.prototype[k] = PolyClay.Common.prototype[k];
 	});
 	vv.each(methods, function(k)
 	{
@@ -283,24 +285,24 @@ Sculpy.Collection.extend = function(options, methods)
 	return sub;
 };
 
-Sculpy.Collection.prototype.construct = function()
+PolyClay.Collection.prototype.construct = function()
 {
 	this.__items = [];
 };
 
-Sculpy.Collection.prototype.push = function(item, silent)
+PolyClay.Collection.prototype.push = function(item, silent)
 {
 	this.__items.push(item);
 	if (!silent) this.fire('add');
 };
 
-Sculpy.Collection.prototype.unshift = function(item, silent)
+PolyClay.Collection.prototype.unshift = function(item, silent)
 {
 	this.__items.unshift(item);
 	if (!silent) this.fire('add');
 };
 
-Sculpy.Collection.prototype.reset = function(data, silent)
+PolyClay.Collection.prototype.reset = function(data, silent)
 {
 	var item;
 	this.__items.length = 0;
@@ -313,20 +315,20 @@ Sculpy.Collection.prototype.reset = function(data, silent)
 	if (!silent) this.fire('reset');
 };
 
-Sculpy.Collection.prototype.remove = function(item, silent)
+PolyClay.Collection.prototype.remove = function(item, silent)
 {
 	var idx = this.__items.indexOf(item);
 	this.__items.splice(idx, 1);
 	if (!silent) this.fire('remove');
 };
 
-Sculpy.Collection.prototype.insert = function(item, index, silent)
+PolyClay.Collection.prototype.insert = function(item, index, silent)
 {
 	this.__items.splice(index, 0, item);
 	if (!silent) this.fire('add');
 };
 
-Sculpy.Collection.prototype.url = function()
+PolyClay.Collection.prototype.url = function()
 {
 	if (arguments.length === 1)
 		this.__url = arguments["0"];
@@ -334,7 +336,7 @@ Sculpy.Collection.prototype.url = function()
 		return this.__url;
 };
 
-Sculpy.Collection.prototype.fetch = function(success, failure)
+PolyClay.Collection.prototype.fetch = function(success, failure)
 {
 	var self = this;
 
@@ -357,7 +359,7 @@ Sculpy.Collection.prototype.fetch = function(success, failure)
 	});
 };
 
-Sculpy.Collection.prototype.render = function()
+PolyClay.Collection.prototype.render = function()
 {
 	var into = this.element();
 	if (into === undefined) return;
@@ -369,18 +371,18 @@ Sculpy.Collection.prototype.render = function()
 };
 
 // methods both prototypes have in common
-Sculpy.Common = function(){};
+PolyClay.Common = function(){};
 
-Sculpy.Common.prototype.watch = function(event, callback)
+PolyClay.Common.prototype.watch = function(event, callback)
 {
 	bean.add(this, event, callback);
 };
 
-Sculpy.Common.prototype.fire = function(event)
+PolyClay.Common.prototype.fire = function(event)
 {
 	bean.fire(this, event);
 };
-Sculpy.Common.prototype.element = function()
+PolyClay.Common.prototype.element = function()
 {
 	if (arguments.length === 1)
 		this.__element = arguments['0'];
