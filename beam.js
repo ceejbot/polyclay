@@ -9,10 +9,8 @@ var beam = ((typeof module !== 'undefined') && module.exports) || {};
     }
 	beam = {
 		templates: {},
-		
 		// jquery, zepto, or ender's qwery/bonzo
 		$: $,
-		
 		addTemplate: function(name, tmplstr)
 		{
 			if (typeof name === 'object')

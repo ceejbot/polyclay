@@ -113,6 +113,11 @@ $(document).ready(function()
 	
 	var listthing = new FooCollection('#collectionhere');
 	listthing.push(bleat);
+
+	listthing.reset([
+		{name: 'reset1', swizzle: 'spider', count: 3},
+		{name: 'reset2', swizzle: 'spider', count: 4}
+	]);
 	
 	var another = new Foo();
 	another.name('Another One');
@@ -125,6 +130,7 @@ $(document).ready(function()
 	another.swizzle('drumsticks');
 	another.count(100);
 	listthing.push(another);
+	
 });
 
 </script>
