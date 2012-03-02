@@ -59,7 +59,64 @@ var beam = ((typeof module !== 'undefined') && module.exports) || {};
 			}
 			for (i=0,len=trash.length; i<len; i++)
 				trash[i].parentNode.removeChild(trash[i]);
-		}
+		},
+		fetch: function(tmpl, callback)
+		{
+			var date;
+			var cached = lscache.get(tmpl);
+			if (cached && cached.date)
+				date = cached.date;
+			else
+				date = undefined;
+			$.ajax(
+			{
+				url: beam.templateURL + tmpl,
+				method: 'GET',
+			  	headers: {  'If-Modified-Since': date },
+				type: 'text',
+				success: function(req)
+				{
+					lscache.set(tmpl, { tmpl: req.response, date: (new Date()).toUTCString() });
+					beam.addTemplate(tmpl, req.response);
+					if (callback) callback();
+				},
+				error: function(err)
+				{
+					if (err.status == 304)
+						beam.addTemplate(tmpl, cached.tmpl);
+					if (callback) callback();
+				},
+			});
+		},
+		preload: function(tmpllist)
+		{
+			for (var i=0, len=tmpllist.length; i<len; i++)
+			{
+				var tmpl = tmpllist[i];
+				if (beam[tmpl] === undefined)
+					beam.fetch(tmpl, undefined);
+			}
+		},
+		render: function(tmpl, data, callback)
+		{
+			if (beam[tmpl] === undefined)
+			{
+				beam.fetch(tmpl, function()
+				{
+					callback(beam[tmpl](data));
+				});
+			}
+			else
+				callback(beam[tmpl](data));
+		},
+		renderInto: function(tmpl, data, element)
+		{
+			beam.render(tmpl, data, function(rendered)
+			{
+				element.empty();
+				element.append(rendered);
+			});
+		},
 	};
 	if (typeof document !== 'undefined')
 	{

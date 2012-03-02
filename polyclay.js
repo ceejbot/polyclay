@@ -24,7 +24,7 @@ PolyClay.Model.extend = function(options, methods)
 	sub.prototype.__template = options.template;
 	sub.prototype.__properties = [];
 	sub.prototype.__calculated = [];
-	sub.prototype.__defaults = {};
+	sub.prototype.__types = {};
 	sub.prototype.__collections = {};
 
 	var props = options.properties;
@@ -71,10 +71,54 @@ PolyClay.Model.prototype.construct = function()
 	});
 };
 
-PolyClay.Model.addProperty = function(obj, name, defaultVal)
+PolyClay.validTypes = ['string', 'array', 'number', 'boolean', 'date', 'hash'];
+PolyClay.validate = {
+	'string': vv.is.str,
+	'array': vv.is.arr, 
+	'number': vv.is.num, 
+	'boolean': vv.is.bool, 
+	'date': vv.is.dat, 
+	'object': vv.is.obj
+};
+PolyClay.defaults = function(type)
 {
+	switch(type)
+	{
+		case 'string': return '';
+		case 'array': return []; 
+		case 'number': return 0;
+		case 'boolean': return false;
+		case 'date': return new Date();
+		case 'object': return {};
+	}
+	return undefined;
+};
+
+PolyClay.Model.prototype.valid = function()
+{
+	var valid = true;
+	var props = this.prototype.__properties ;
+	var types = this.prototype.__types;
+	this.errors = {};
+	for (var i=0, len=props.length; i<len; i++)
+	{
+		var p = props[i];
+		if (!PolyClay.validate[types[p]](this.attributes[p]))
+		{
+			this.errors[p] = true;
+			valid = false;
+		}
+	}
+	return valid;
+};
+
+PolyClay.Model.addProperty = function(obj, name, type)
+{
+	if (PolyClay.validTypes.indexOf(type) < 0)
+		throw('type '+type+' invalid; see documentation for types');
+
 	obj.prototype.__properties.push(name);
-	obj.prototype.__defaults[name] = defaultVal;
+	obj.prototype.__types[name] = type;
 	PolyClay.Model.makeGetterSetter(obj, name);
 };
 
@@ -90,13 +134,15 @@ PolyClay.Model.makeGetterSetter = function(obj, propname)
 {
 	var result = function()
 	{
+		// getter
 		if (arguments.length === 0)
 		{
 			if (this.attributes[propname] === undefined)
-				return this.__defaults[propname];
+				return PolyClay.defaults(obj.prototype.__types[propname]);
 			else
 				return this.attributes[propname];
 		}
+		// setter
 		this.attributesPrev[propname] = this.attributes[propname];
 		this.attributes[propname] = arguments["0"];
 		var silent = false;
@@ -125,22 +171,27 @@ PolyClay.Model.prototype.template = function()
 		return this.__template;
 };
 
-PolyClay.Model.prototype.render = function(element, tmpl)
+PolyClay.Model.prototype.render = function(element, tmpl, append)
 {
-	if (tmpl === undefined)
-		tmpl = this.template();
-	if (tmpl === undefined)
+	var self = this;
+	var template = tmpl ? tmpl : this.template();
+	var destination = element ? element : this.element();
+	if (!template || !destination)
 		return;
-	if (element === undefined)
-		element = this.element();
-	var rendered = beam[tmpl](this.toJSON());
-	if (element !== undefined)
+	
+	beam.render(template, this.toJSON(), function(rendered)
 	{
-		$(element).empty();
-		$(element).append(rendered);
-	}
-	else
-		return rendered;
+		if (!append) $(destination).empty();
+		$(destination).append(rendered);
+		self.fire('render');
+	});
+};
+
+PolyClay.Model.prototype.renderToString = function(tmpl)
+{
+	var template = tmpl ? tmpl : this.template();
+	if (!template) return '';
+	return beam[template](this.toJSON());
 };
 
 PolyClay.Model.prototype.toJSON = function()
@@ -166,12 +217,14 @@ PolyClay.Model.prototype.constructURL = function()
 
 PolyClay.Model.prototype.update = function(attr, silent)
 {
-	// Note: doesn't handle calculated properties.
+	// Note: doesn't handle calculated properties. Special handling for id is hacky.
 	var self = this;
 	var events = ['change'];
 	for (var k in attr)
 	{
-		if (attr.hasOwnProperty(k) && (self[k] !== undefined))
+		if (k === 'id')
+			self.id = attr[k];
+		else if (attr.hasOwnProperty(k) && (self[k] !== undefined))
 		{
 			self[k].call(self, attr[k], true);
 			events.push('change:'+k);
@@ -202,13 +255,11 @@ PolyClay.Model.prototype.save = function()
 
 	var method = (self.id === undefined) ? 'POST' : 'PUT';
 
-	var winning = function(data, textStatus, jqXHR)
+	var winning = function(req)
 	{
 		self.dirty = false;
 		self.attributesPrev = {};
-		self.update(data);
-		if (data.id !== undefined)
-			self.id = data.id;
+		self.update(req);
 		self.fire('save');
 	};
 
@@ -220,9 +271,9 @@ PolyClay.Model.prototype.save = function()
 	$.ajax(
 	{
 		url: self.constructURL(),
-		type: method,
-		dataType: 'json',
-		data: props,
+		method: method,
+		type: 'json',
+		data: JSON.stringify(props),
 		success: winning,
 		error: losing
 	});
@@ -244,8 +295,8 @@ PolyClay.Model.prototype.destroy = function(success, failure)
 	$.ajax(
 	{
 		url: this.constructURL(),
-		type: 'DELETE',
-		dataType: 'json',
+		method: 'DELETE',
+		type: 'json',
 		success: winning,
 		error: losing
 	});
@@ -256,24 +307,19 @@ PolyClay.Model.prototype.load = function(success, failure)
 	if (this.id === undefined)
 		throw('cannot load object without an id');
 	var self = this;
-
-	var winning = function(data, textStatus, jqXHR)
+	$.ajax(
 	{
-		self.update(data);
-		self.fire('load');
-	};
-
-	var losing = function(jqXHR, textStatus, errorThrown)
-	{
-		// TODO
-	};
-	
-	$.getJSON(this.constructURL() + '.json', function(data, textStatus, jqXHR)
-	{
-		self.update(data);
-		self.fire('load');
+		url: this.constructURL() + '.json',
+		type: 'json',
+		success: function(req)
+		{
+			self.update(req);
+			self.fire('load');
+		}
 	});
 };
+
+//----------- Collection
 
 PolyClay.Collection = function(){};
 
@@ -305,44 +351,44 @@ PolyClay.Collection.extend = function(options, methods)
 
 PolyClay.Collection.prototype.construct = function()
 {
-	this.__items = [];
+	this.items = [];
 };
 
 PolyClay.Collection.prototype.push = function(item, silent)
 {
-	this.__items.push(item);
+	this.items.push(item);
 	if (!silent) this.fire('add');
 };
 
 PolyClay.Collection.prototype.unshift = function(item, silent)
 {
-	this.__items.unshift(item);
+	this.items.unshift(item);
 	if (!silent) this.fire('add');
 };
 
 PolyClay.Collection.prototype.reset = function(data, silent)
 {
 	var item;
-	this.__items.length = 0;
+	this.items.length = 0;
 	for (var i=0,len=data.length; i<len; i++)
 	{
 		item = new this.__model();
 		item.update(data[i]);
-		this.__items.push(item);
+		this.items.push(item);
 	}
 	if (!silent) this.fire('reset');
 };
 
 PolyClay.Collection.prototype.remove = function(item, silent)
 {
-	var idx = this.__items.indexOf(item);
-	this.__items.splice(idx, 1);
+	var idx = this.items.indexOf(item);
+	this.items.splice(idx, 1);
 	if (!silent) this.fire('remove');
 };
 
 PolyClay.Collection.prototype.insert = function(item, index, silent)
 {
-	this.__items.splice(index, 0, item);
+	this.items.splice(index, 0, item);
 	if (!silent) this.fire('add');
 };
 
@@ -372,7 +418,8 @@ PolyClay.Collection.prototype.fetch = function(success, failure)
 	$.ajax(
 	{
 		url: this.url(),
-		type: 'GET',
+		method: 'GET',
+		type: 'json',
 		success: winning,
 		error: losing
 	});
@@ -382,21 +429,26 @@ PolyClay.Collection.prototype.render = function()
 {
 	var into = this.element();
 	if (into === undefined) return;
-	$(into).empty();
-	for (var i=0, len=this.__items.length; i<len; i++)
+	var el = $(into);
+	el.empty();
+	for (var i=0, len=this.items.length; i<len; i++)
 	{
-		$(into).append(this.__items[i].render());
+		this.items[i].render(into, this.items[i].template(), true);
 	}
 };
 
-// methods both prototypes have in common
+//-----------  methods both prototypes have in common
+
 PolyClay.Common = function(){};
 
 PolyClay.Common.prototype.watch = function(event, callback)
 {
 	bean.add(this, event, callback);
 };
-
+PolyClay.Common.prototype.unwatch = function(event)
+{
+	bean.remove(this, event);
+};
 PolyClay.Common.prototype.fire = function(event)
 {
 	bean.fire(this, event);
@@ -407,4 +459,11 @@ PolyClay.Common.prototype.element = function()
 		this.__element = arguments['0'];
 	else
 		return this.__element;
+};
+PolyClay.Common.prototype.$ = function(child)
+{
+	if (child)
+		return $(this.element() + ' '+ child);
+	else
+		return $(this.element());
 };

@@ -11,6 +11,12 @@
 	<body>
 <p>Really horribly inadequate testing, I know. That's why this isn't released.</p>
 
+<div>
+	<button id="bleat">Bleat</button>
+</div>
+
+<p><img id="octocat" src="" alt="image src setting test" height="200" /></p>
+
 <h3>Beam-specific tests</h3>
 
 <script type="text/html" id="test1">
@@ -43,15 +49,23 @@
 </script>
 
 <script type="text/javascript">
+var bean = require('bean');
+var qwery = require('qwery');
+
 var greet = mote.compile('Greetings, {{name}}.');
 var test = greet({name: 'Arthur Dent'}); //=> 'Greetings, Arthur Dent.'
 console.log(test);
 
+var catsrc = "http://octodex.github.com/images/orderedlistocat.jpg";
+
+
+
 var Foo = PolyClay.Model.extend({
 	properties: {
-		name: '',
-		swizzle: 'stick',
-		count: 0,
+		name: 'string',
+		swizzle: 'string',
+		count: 'number',
+		isCool: 'boolean',
 	},
 	calculated: ['report', ],
 	template: 'foobox',
@@ -62,10 +76,11 @@ var Foo = PolyClay.Model.extend({
 		console.log(shoutit);
 		this.watch('change:name', this.updateCalculated);
 		this.watch('change:count', this.updateCalculated);
+		this.watch('change:isCool', this.updateCalculated);
 	},
 	updateCalculated: function()
 	{
-		this.report(this.name() + ' has '+this.count() + ' ' + this.swizzle());
+		this.report(this.name() + ' has '+this.count() + ' ' + this.swizzle() + ' and is ' + (this.isCool() ? '' : 'not ') +'cool.');
 		console.log(this.report());
 	},
 });
@@ -83,6 +98,7 @@ console.log(bleat.report());
 bleat.count(bleat.count() + 2);
 
 bleat.update({name: 'my new name', swizzle: 'sparklestick'}, false);	
+bleat.isCool(true);
 
 var FooCollection = PolyClay.Collection.extend({
 	model: Foo,
@@ -99,6 +115,9 @@ var FooCollection = PolyClay.Collection.extend({
 
 $(document).ready(function()
 {
+	console.log("We expect an error in the console about an illegal template name.");
+	$('#octocat').attr('src', catsrc);
+
 	var rendered = beam.test1({ first: 'Arthur', last: 'Dent' });
 	$('#inserthere').append(rendered);
 
@@ -107,9 +126,7 @@ $(document).ready(function()
 	console.log(potatoes);
 	$('#inserthere').append(potatoes);
 
-
-
-	$('#putfoohere').append(bleat.render());
+	$('#putfoohere').append(bleat.renderToString());
 	
 	var listthing = new FooCollection('#collectionhere');
 	listthing.push(bleat);
@@ -128,9 +145,20 @@ $(document).ready(function()
 	var another = new Foo();
 	another.name('Three times is the charm');
 	another.swizzle('drumsticks');
-	another.count(100);
-	listthing.push(another);
+	another.count(100);	
+	listthing.insert(another, 1);
+
+	bean.add(qwery('#bleat'), 'click', function(e)
+	{
+		alert("bleat!");
+	});
 	
+	$('#bleat').click(function(e)
+	{
+		alert("bleat!");
+	});
+
+	bean.fire(qwery('#bleat'), 'click');
 });
 
 </script>
