@@ -122,12 +122,6 @@ PolyClay.Model.addProperty = function(obj, name, type)
 	PolyClay.Model.makeGetterSetter(obj, name);
 };
 
-PolyClay.Model.addCalculatedProperty = function(obj, name)
-{
-	obj.prototype.__calculated.push(name);
-	PolyClay.Model.makeGetterSetter(obj, name);
-};
-
 // prop() is getter
 // prop(newval) is setter
 PolyClay.Model.makeGetterSetter = function(obj, propname)
@@ -143,11 +137,15 @@ PolyClay.Model.makeGetterSetter = function(obj, propname)
 				return this.attributes[propname];
 		}
 		// setter
+		var newval = arguments["0"];
+		if (!PolyClay.validate[obj.prototype.__types[propname]](newval))
+		{
+			console.error('type of '+newval+' not '+obj.prototype.__types[propname]);
+			return;
+		}
 		this.attributesPrev[propname] = this.attributes[propname];
-		this.attributes[propname] = arguments["0"];
-		var silent = false;
-		if (arguments.length > 1)
-			silent = arguments["1"];
+		this.attributes[propname] = newval;
+		var silent = ( (arguments.length > 1) ? arguments["1"] : false);
 		this.dirty = true;
 		if (!silent)
 		{
@@ -157,6 +155,31 @@ PolyClay.Model.makeGetterSetter = function(obj, propname)
 	};
 	obj.prototype[propname] = result;
 };
+
+PolyClay.Model.addCalculatedProperty = function(obj, name)
+{
+	obj.prototype.__calculated.push(name);
+	PolyClay.Model.makeCalculatedGetterSetter(obj, name);
+};
+
+PolyClay.Model.makeCalculatedGetterSetter = function(obj, propname)
+{
+	var result = function()
+	{
+		// getter
+		if (arguments.length === 0)
+			return this.attributes[propname];
+		// setter
+		this.attributes[propname] = arguments["0"];
+		var silent = ( (arguments.length > 1) ? arguments["1"] : false);
+		if (!silent)
+		{
+			this.fire('change:'+propname);
+			this.fire('change');
+		}
+	};
+	obj.prototype[propname] = result;
+}
 
 PolyClay.Model.addCollection = function(obj, name, constructor)
 {
@@ -282,23 +305,15 @@ PolyClay.Model.prototype.save = function()
 PolyClay.Model.prototype.destroy = function(success, failure)
 {
 	var self = this;
-	var winning = function(data, textStatus, jqXHR)
-	{
-		self.fire('destroy');
-	};
-
-	var losing = function(jqXHR, textStatus, errorThrown)
-	{
-		// TODO
-	};
-
 	$.ajax(
 	{
 		url: this.constructURL(),
 		method: 'DELETE',
 		type: 'json',
-		success: winning,
-		error: losing
+		success: function(data, textStatus, jqXHR)
+		{
+			self.fire('destroy');
+		}
 	});
 };
 

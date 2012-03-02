@@ -58,8 +58,6 @@ console.log(test);
 
 var catsrc = "http://octodex.github.com/images/orderedlistocat.jpg";
 
-
-
 var Foo = PolyClay.Model.extend({
 	properties: {
 		name: 'string',
@@ -97,7 +95,9 @@ console.log(bleat.swizzle());
 console.log(bleat.report());
 bleat.count(bleat.count() + 2);
 
-bleat.update({name: 'my new name', swizzle: 'sparklestick'}, false);	
+bleat.update({name: 'my new name', swizzle: 'sparklestick'}, false);
+console.log("should see type error next");
+bleat.isCool(4);
 bleat.isCool(true);
 
 var FooCollection = PolyClay.Collection.extend({
