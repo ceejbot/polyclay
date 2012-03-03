@@ -5,9 +5,9 @@ var ender = hasJquery ? $.noConflict() : $;
 
 var PolyClay = function(){};
 
-PolyClay.Model = function()
-{
-};
+//----------- Model
+
+PolyClay.Model = function() { };
 
 PolyClay.Model.extend = function(options, methods)
 {
@@ -126,7 +126,7 @@ PolyClay.Model.addProperty = function(obj, name, type)
 // prop(newval) is setter
 PolyClay.Model.makeGetterSetter = function(obj, propname)
 {
-	var result = function()
+	var getterSetter = function()
 	{
 		// getter
 		if (arguments.length === 0)
@@ -138,9 +138,11 @@ PolyClay.Model.makeGetterSetter = function(obj, propname)
 		}
 		// setter
 		var newval = arguments["0"];
+		if ((obj.prototype.__types[propname] == 'date') && vv.is.str(newval))
+			newval = new Date(newval);
 		if (!PolyClay.validate[obj.prototype.__types[propname]](newval))
 		{
-			console.error('type of '+newval+' not '+obj.prototype.__types[propname]);
+			console.error(propname+': type of '+newval+' not '+obj.prototype.__types[propname]);
 			return;
 		}
 		this.attributesPrev[propname] = this.attributes[propname];
@@ -153,7 +155,7 @@ PolyClay.Model.makeGetterSetter = function(obj, propname)
 			this.fire('change');
 		}
 	};
-	obj.prototype[propname] = result;
+	obj.prototype[propname] = getterSetter;
 };
 
 PolyClay.Model.addCalculatedProperty = function(obj, name)
