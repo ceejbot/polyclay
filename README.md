@@ -67,7 +67,7 @@ var ProductionList = PolyClay.Collection.extend(
 		this.watch('add', this.render);
 	},
 });
-
+```
 
 ### Fields
 
@@ -89,7 +89,9 @@ Because I was sick of writing template-rendering boilerplate, PolyClay requires 
 
 Beam is [ICanHaz](http://icanhazjs.com/) rewritten for mote. It caches the compiled templates instead of the string source. Also, it is more agnostic than ICanHaz about its optional libraries. It will pick up anything claiming that it is __$__ in the global namespace and assume it works like jquery/zepto. This allows you to use Ender instead of jquery by adding some more packages to your ender build:
 
-`ender add bonzo qwery domready` 
+`ender add bonzo qwery domready`
+
+Also has a dependency on [lscache](https://github.com/pamelafox/lscache) for template caching in local storage.
 
 ### Usage
 
