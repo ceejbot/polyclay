@@ -2,7 +2,7 @@
 
 Polymer modeling clay for the browser. RESTful persistence, usable properties, collections, and change events. As simple as I can get away with and no simpler.
 
-Requires [ender](http://ender.no.de/) modules [bean](https://github.com/fat/bean) and [valentine](https://github.com/ded/valentine) for events & iteration respectively. Will probably remove the dependency on valentine soon. Install ender using npm, then build the modules:
+Requires [ender](http://ender.no.de/) modules [bean](https://github.com/fat/bean) and [valentine](https://github.com/ded/valentine) for events & iteration respectively. Install ender using npm, then build the modules:
 
 ```
 npm install -g ender
@@ -11,28 +11,40 @@ ender build bean valentine
 
 Include the resulting library in your pages along with PolyClay.
 
+Well, actually, don't: this isn't safe for use by anybody because I am writing this as a learning exercise and everything might change overnight as I suddenly realize what I have done horribly wrong. Do not eat. Do not apply to skin.
+
 ### Example
 
 ```javascript
 var Play = PolyClay.Model.extend({
-	// fields
+	// properties
 	properties: {
-		author: '',
-		title: '',
-		characters: [],
-		acts: [],
-		published: new Date()
+		author: 'string',
+		title: 'string',
+		characters: 'array',
+		acts: 'array',
+		published: 'date',
 	},
+	// list of calculated properties, provided to templates
 	calculated: ['report', ],
+	// the html element to render this into (optional)
 	element: '#playView',
-	template: '#playTmpl',
+	// the name of the mote template to render this with (optional)
+	template: 'playTmpl',
+	// root of the RESTish urls where this is persisted
 	urlroot: '/plays'
 },{
 	// methods
 	initialize: function(id)
 	{
+		// Called after construction for all models with whatever arguments
+		// are passed to the constructor.
 		this.id = id;
 		this.watch('change', this.render);
+	},
+	mymethod: function(yammer)
+	{
+		// your method here
 	},
 });
 
@@ -41,6 +53,21 @@ var PlayList = PolyClay.Collection.extend({
 	element: '#list_of_plays',
 	url: '/plays'
 });
+
+// mixed collection
+var ProductionList = PolyClay.Collection.extend(
+{
+	model: [['play', Play], ['musical', Musical]]
+}, {
+	initialize: function(urlroot, element)
+	{
+		this.url(urlroot);
+		this.element(element);
+		this.watch('reset', this.render);
+		this.watch('add', this.render);
+	},
+});
+
 
 ### Fields
 
@@ -104,3 +131,28 @@ Search the DOM for `<script type="text/html">` tags to make templates out of, th
 `beam.refresh()`
 
 Clear the cache and re-examine the DOM for new templates.
+
+### Rendering templates
+
+`beam.render(tmpl, data, callback)`
+
+Render the given template name with the passed-in data hash, and fire the callback with the rendering as the sole parameter.
+
+`beam.renderInto(templ, data, element)`
+
+Render into the specified css element. Fire and forget.
+
+### Fetching templates from a server
+
+Set `beam.templateURL` to a string with the url for templates.
+
+`beam.fetch(tmpl, callback)`
+
+Fetch `beam.templateURL/tmpl` using ajax, compile the result, and cache it in local storage.
+
+Beam will check local storage to see if it has a cached version of the template already. If it does, it will send an if-modified-since header along with the ajax request for the template.
+
+`beam.preload(tmpllist)`
+
+Pass a list of template names. Beam will fetch, compile, and cache whatever is returned by a fetch of `beam.templateURL/tmplname`, falling back to any locally cached versions if the server does not have anything newer.
+
