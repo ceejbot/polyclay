@@ -77,8 +77,9 @@ PolyClay.validate = {
 	'array': vv.is.arr, 
 	'number': vv.is.num, 
 	'boolean': vv.is.bool, 
-	'date': vv.is.dat, 
-	'object': vv.is.obj
+	'date': vv.is.dat,
+	'cromag': vv.is.dat,
+	'object': vv.is.obj,
 };
 PolyClay.defaults = function(type)
 {
@@ -89,6 +90,7 @@ PolyClay.defaults = function(type)
 		case 'number': return 0;
 		case 'boolean': return false;
 		case 'date': return new Date();
+		case 'cromag': return new Cromag();
 		case 'object': return {};
 	}
 	return undefined;
@@ -140,6 +142,8 @@ PolyClay.Model.makeGetterSetter = function(obj, propname)
 		var newval = arguments["0"];
 		if ((obj.prototype.__types[propname] == 'date') && vv.is.str(newval))
 			newval = new Date(newval);
+		if ((obj.prototype.__types[propname] == 'cromag') && vv.is.str(newval))
+			newval = new Cromag(newval);
 		if (!PolyClay.validate[obj.prototype.__types[propname]](newval))
 		{
 			console.error(propname+': type of '+newval+' not '+obj.prototype.__types[propname]);
@@ -242,7 +246,8 @@ PolyClay.Model.prototype.constructURL = function()
 
 PolyClay.Model.prototype.update = function(attr, silent)
 {
-	// Note: doesn't handle calculated properties. Special handling for id is hacky.
+	// Note: doesn't handle calculated properties on purpose. 
+	// TODO: Special handling for id is hacky.
 	var self = this;
 	var events = ['change'];
 	for (var k in attr)
@@ -288,11 +293,6 @@ PolyClay.Model.prototype.save = function()
 		self.fire('save');
 	};
 
-	var losing = function(jqXHR, textStatus, errorThrown)
-	{
-		// TODO
-	};
-
 	$.ajax(
 	{
 		url: self.constructURL(),
@@ -300,7 +300,6 @@ PolyClay.Model.prototype.save = function()
 		type: 'json',
 		data: JSON.stringify(props),
 		success: winning,
-		error: losing
 	});
 };
 
@@ -352,7 +351,20 @@ PolyClay.Collection.extend = function(options, methods)
 	sub.prototype = new PolyClay.Collection();
 	sub.prototype.constructor = sub;
 	sub.prototype.__urlroot = options.urlroot;
-	sub.prototype.__model = options.model;
+	if (vv.is.fun(options.model))
+	{
+		sub.prototype.__model = options.model;
+	}
+	else if (vv.is.arr(options.model))
+	{
+		// list of possible types: name, constructor pairs
+		sub.prototype.__model = {};
+		for (var i=0, len=options.model.length; i<len; i++)
+		{
+			var item = options.model[i];
+			sub.prototype.__model[item[0]] = item[1];
+		}
+	}
 
 	vv.each(PolyClay.Common.prototype, function(k)
 	{
@@ -385,11 +397,24 @@ PolyClay.Collection.prototype.unshift = function(item, silent)
 
 PolyClay.Collection.prototype.reset = function(data, silent)
 {
+	var isHomogenous = vv.is.fun(this.__model);
 	var item;
 	this.items.length = 0;
 	for (var i=0,len=data.length; i<len; i++)
 	{
-		item = new this.__model();
+		if (isHomogenous)
+			item = new this.__model();
+		else
+		{
+			var type = data[i].type;
+			if (!vv.is.fun(this.__model[type]))
+			{
+				console.error('collection does not know how to construct '+type);
+				continue;
+			}
+			item = new this.__model[type]();
+			delete data[i]['type'];
+		}
 		item.update(data[i]);
 		this.items.push(item);
 	}
