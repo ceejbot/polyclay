@@ -10,7 +10,7 @@
 	},
 	"scripts": 
 	{
-		"test": "mocha -R spec test/*"
+		"test": "mocha -R spec test/test-*.js"
 	},
 	"repository":
 	{
