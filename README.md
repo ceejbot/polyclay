@@ -8,7 +8,7 @@ But can probably work just fine with plain [underscore.js](http://underscorejs.c
 ### Property types
 
 properties
-: named properties with type enforcement in the provided getters and setters. If you 
+: named properties with type enforcement in the provided getters and setters. If you [[etc]]
 
 ### Valid data types
 
@@ -32,59 +32,71 @@ hash
 
 ### Ennumerables
 
+TBD
+
 ### Optional properties
+
+TBD
 
 ### Required properties
 
+TBD
+
 ## Persisting in Couch
 
-### Example
+TBD
+
+## Example
 
 ```javascript
-var Person = polyclay.Model.buildClass(
+var Comment = polyclay.Model.buildClass(
 {
 	properties:
 	{
 		_id: 'string', // couchdb key
 		version: 'number',
-		handle: 'string',
+		owner: 'reference',
+		owner_handle: 'string',
+		target: 'reference',
+		parent: 'reference',
 		created: 'date',
 		modified: 'date',
-		p_password: 'string',
-		email_primary: 'string',
-		email_addresses: 'array', // of string
-		email_validated: 'array', // of boolean
-		security_question: 'string',
-		security_answer: 'string',
-		icon: 'string',
-		profile: 'string',
-		last_login: 'date'
+		title: 'string',
+		content: 'string',
+		editable: 'boolean'
 	},
-	enumerables: {
-		authtype: ['password', 'persona']
+	enumerables:
+	{
+		state: ['visible', 'hidden', 'deleted', 'usergone']
 	},
 	optional: [ '_rev' ],
-	required: [ 'handle', 'authtype', 'email_primary' ],
+	required: [ 'owner_id', 'target_id', 'parent_id', 'state'],
 	_init: function()
 	{
-		this.authtype = 'password';
 		this.created = Date.now();
-		this.p_password = '';
-		this.last_login = new Date(0);
+		this.modified = this.created;
+		this.editable = true;
 		this.version = 1;
+		this.state = 0;
 	},
 });
 
-var person = new Person();
-console.log(person.authtype);
-person.version = "foo"; // throws an error
-person.version = 2; // sets the attribute
-person.authtype = 'unknown'; // throws an error
-person.modified = Date.now();
-console.log(person.__dirty); // true
+polyclay.persist(Comment);
 
-person.rollback(); // version is now 1 and modified undefined
-person.tempfield = 'whatever'; // not persisted in 
+var comment = new Comment();
+console.log(comment.state);
+comment.version = "foo"; // throws an error
+comment.version = 2; // sets the attribute
+comment.state = 'yoinks'; // throws an error
+comment.state = 'deleted';
+console.log(comment.state);
+comment.state = 1;
+console.log(comment.state);
+comment.modified = Date.now();
+console.log(comment.__dirty); // true
+
+comment.rollback(); // version is now 1 and modified undefined
+comment.tempfield = 'whatever'; // not persisted in couch
 ```
 
 

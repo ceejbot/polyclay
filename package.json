@@ -1,0 +1,43 @@
+{
+	"name": "polyclay",
+	"version": "0.0.1",
+	"description": "a schema-enforcing model class for node with optional couch persistence",
+	"main": "index.js",
+	"directories":
+	{
+		"example": "examples",
+		"test": "test"
+	},
+	"scripts": 
+	{
+		"test": "mocha -R spec test/*"
+	},
+	"repository":
+	{
+		"type": "git",
+		"url": "git://github.com/ceejbot/polyclay.git"
+	},
+	"dependencies":
+	{
+		"async": "*",
+		"cradle": "git://github.com/ceejbot/cradle.git",
+		"lodash": "*"
+	},
+	"devDependencies":
+	{
+		"mocha": "*",
+		"chai": "*"
+	},
+	"keywords":
+	[
+		"odm",
+		"model",
+		"couchdb",
+		"couch",
+		"schema"
+	],
+	"author": "C J Silverio <ceejceej@gmail.com>",
+	"license": "MIT",
+	"readmeFilename": "README.md",
+	"gitHead": "6041ad9b2276066ffeaa1efadfc4c7d0e6c2cff6"
+}

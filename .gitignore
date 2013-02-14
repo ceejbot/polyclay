@@ -1,5 +1,2 @@
-.DS_Store
-**log/*
 **node_modules
-test/ender.js
-test/jquery-1.7.1.min.js
+.DS_Store
