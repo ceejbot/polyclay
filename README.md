@@ -4,6 +4,8 @@ Polymer modeling clay for node.js. A model schema definition with type validatio
 
 The package.json requires [lodash](https://github.com/bestiejs/lodash) as a dependency, but it'll be perfectly fine with [underscore](https://github.com/documentcloud/underscore) instead.
 
+[![Build Status](https://secure.travis-ci.org/ceejbot/polyclay.png)](http://travis-ci.org/ceejbot/polyclay)
+
 ### Property types
 
 properties
