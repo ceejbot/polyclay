@@ -50,7 +50,7 @@ describe('persistence layer', function()
 	{
 		couch_host: 'localhost',
 		couch_port: 5984,
-		couch_db: 'sparky_tests'
+		couch_db: 'polyclay_tests'
 	};
 
 	var Model, instance, another;
@@ -88,6 +88,15 @@ describe('persistence layer', function()
 		{
 			should.not.exist(err);
 			response.should.be.an('object');
+			done();
+		});
+	});
+
+	it('can provision the database for the model', function(done)
+	{
+		Model.provision(function(err, res)
+		{
+			should.not.exist(err);
 			done();
 		});
 	});
