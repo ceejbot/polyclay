@@ -19,30 +19,30 @@ Valid options:
 `properties`
 : hash of named properties with types; see detailed discussion below
 
-`:optional`
+`optional`
 : Array of string names of properties the model might have. Optional properties don't have types, but they do have convenient getters & setters defined for you. They are also persisted in CouchDB if they are present. 
 
 `required`
 : Array of string names of properties that must be present. The model will not validate if required properties are missing.
 
 `enumerables`
-: Integer property that is constrained to values in the given array of strings. The provided setter accepts either integer or string name values. The provided getter returns the string. The value persisted in the database is an int.
+: enum; a property that is constrained to values in the given array of strings. The provided setter accepts either integer or string name values. The provided getter returns the string. The value persisted in the database is an int representing the position in the array.
 
 `methods`
 : Hash of methods to add to the object. You can instead decorate the returned constructor prototype with object methods. 
 
 `_init`
-: Function to call as the last step of the returned constructor. [[ say more ]]
+: Function to call as the last step of the returned constructor. The name is prefixed with a single underscore. (meh) Provide an implementation to do any custom initialization for your model.`this` will be the newly constructed object.
 
 ### Valid data types
 
 Polyclay properties must have types declared. Getters and setter functions will be defined for each that enforce the types. Supported types are:
 
 `string`
-: strings; undefined and null are disallowed; default is empty string
+: string; undefined and null are disallowed; default is empty string
 
 `array`
-: arrays; default is [] or new Array()
+: array; default is [] or new Array()
 
 `number`
 : any number; default is 0
@@ -63,6 +63,8 @@ Polyclay properties must have types declared. Getters and setter functions will 
 
 *Reference* properties are pointers to other Couch-persisted objects. When Polyclay builds a reference property, it provides two sets of getter/setters. First, it defines a `model.reference_id` property, which is a string property that tracks the `_id` of the referred-to object. It also defines `model.reference()` and `model.set_reference()` functions, used to define the js property `model.reference`. This provides runtime-only access to the pointed-to object. Inflating it later is an exercise for the application using this model and the persistence layer.
 
+In this example, widgets have an `owner` property that points to another object:
+
 ```javascript
 var Widget = polyclay.Model.buildClass({
     properties:
@@ -82,47 +84,63 @@ widget.save(function(err)
     var id = widget._id.
     Widget.get(id, function(err, dbwidget)
     {
+    	// the version from the db will have the id saved, 
+    	// but not the full fred object
         assert(dbwidget.owner_id === fred._id);
-        assert(!dbwidget.owner);
+        assert(dbwidget.owner === undefined);
     });
 });
 ```
 
+## Temporary fields
+
+You can set any other fields on an object that you with for run-time purposes. polyclay prefixes all of its internal properties with `__` (double underscore) to avoid conflicts with typical field names.
+
 ## Validation
 
-TBD
+Validate an object by calling `valid()`. This method returns a boolean: true if valid, false if not. It tests if all typed properties contain valid data and if all required properties. If your model prototype defines a `validator()` method, this method will be called by `valid()`.
 
-## API
+If an object has errors, an `errors` field will be set. This field is a hash. Keys are the names of invalid fields and values are textual descriptions of the problem with the field.
 
-`buildClass()`
+`invalid data`: property value does not match the required type  
+`missing`: required property is missing
 
-`valid()`
+
+## Methods added to model prototypes
+
+### obj.valid()
 
 Returns true if all required properties are present, the values of all typed properties are acceptable, and `validator()` (if defined on the model) returns true.
 
-`rollback()`
+### obj.rollback()
 
 Roll back the values of fields to the last stored value. (Probably could be better.)
 
-`serialize()`
+### obj.serialize()
 
 Serialize the model as a hash. Includes optional properties.
 
-`toJSON()`
+### obj.toJSON()
 
 Serialize the model as a string by calling `JSON.stringify()`. Includes optional properties.
 
-`clearDirty()`
+### clearDirty()
 
 Clears the dirty bit. The model cannot be rolled back after this is called. Is called by the persistence layer on a successful save.
 
 
-## Persisting in Couch
+## Persisting in CouchDB
+
+TBD
+
+## Attachments
 
 TBD
 
 
 ## Example
+
+Here's an example taken verbatim from the project I wrote this module for:
 
 ```javascript
 var Comment = polyclay.Model.buildClass(
@@ -183,6 +201,10 @@ comment.tempfield = 'whatever'; // not persisted in couch
 * Improve rollback behavior & write some vicious tests for it
 * Rethink that enumerable implementation
 * Consider removing the dependency on cradle
+* Persistence layer is tangled with model layer in a couple of places
+* Should add a way to specify a key/id attribute name to generalize away from couchdb a bit
+* Probably should just denormalize enums to make them less fragile
+* Nuke the underscore in `_init`.
 
 
 ## License
