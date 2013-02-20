@@ -203,6 +203,22 @@ describe('persistence layer', function()
 		});
 	});
 
+
+	it('can fetch in batches', function(done)
+	{
+		done();
+	});
+
+	it('can fetch all', function(done)
+	{
+		done();
+	});
+
+	it('has a test for merge()', function(done)
+	{
+		done();
+	});
+
 	it('can add an attachment type', function()
 	{
 		Model.defineAttachment('frogs', 'text/plain');
@@ -286,6 +302,15 @@ describe('persistence layer', function()
 		});
 	});
 
+	it('removes an attachment when its data is set to null', function(done)
+	{
+
+	});
+
+	it('caches an attachment after it is fetched', function(done)
+	{
+	});
+
 	it('can delete a document from the db', function(done)
 	{
 		instance.destroy(function(err, deleted)
@@ -296,17 +321,6 @@ describe('persistence layer', function()
 			done();
 		});
 	});
-
-	it('can fetch in batches', function(done)
-	{
-		done();
-	});
-
-	it('can fetch all', function(done)
-	{
-		done();
-	});
-
 });
 }.call(this));
 
