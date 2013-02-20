@@ -31,9 +31,14 @@ var modelDefinition =
 	},
 	optional: [ 'computed', 'ephemeral' ],
 	required: [ 'name', 'is_valid', 'required_prop'],
-	enumerables: {
+	enumerables:
+	{
 		enum1: ['zero', 'one', 'two'],
 		enum2: ['alpha', 'beta', 'gamma']
+	},
+	methods:
+	{
+		supplied: function() { return true; }
 	},
 	_init: function()
 	{
@@ -68,7 +73,14 @@ describe('polyclay', function()
 		delete instance.ran_init;
 	});
 
-	it('defines getters and setters', function()
+	it('adds any methods in the options to the prototype', function()
+	{
+		Model.prototype.should.have.property('supplied');
+		(typeof Model.prototype.supplied).should.equal('function');
+		instance.supplied().should.equal(true);
+	});
+
+	it('defines getters and setters for typed properties', function()
 	{
 		var property, name;
 		var checklist = Object.keys(modelDefinition.properties);
@@ -82,6 +94,17 @@ describe('polyclay', function()
 			property.should.have.property('get');
 			property.should.have.property('set');
 		}
+	});
+
+	it('throws when asked to build a property of an unknown type', function()
+	{
+		var buildBad = function()
+		{
+			var badModel = { properties: { foo: 'bar' } };
+			var MyBadClass = polyclay.Model.buildClass(badModel);
+		};
+
+		buildBad.should.throw(Error);
 	});
 
 	it('provides getters & setters for optional properties', function()
@@ -120,6 +143,40 @@ describe('polyclay', function()
 		instance.pointer = ref;
 		instance.pointer.should.be.an('object');
 		instance.pointer_id.should.equal('testref');
+	});
+
+	it('string setters turn nulls into empty strings', function()
+	{
+		var StringModel = polyclay.Model.buildClass({ properties: { description: 'string' } });
+		var obj = new StringModel();
+		obj.description = 'some text';
+		obj.description = null;
+		obj.description.should.be.a('string');
+		obj.description.should.equal('');
+	});
+
+	it('date setters handle numeric input', function()
+	{
+		var DateModel = polyclay.Model.buildClass({ properties: { timestamp: 'date' } });
+		var obj = new DateModel();
+		obj.timestamp = 1361326857895;
+		obj.timestamp.should.be.a('date');
+		obj.timestamp.toString().should.equal('Tue Feb 19 2013 18:20:57 GMT-0800 (PST)');
+	});
+
+	it('date setters parse string input', function()
+	{
+		var DateModel = polyclay.Model.buildClass({ properties: { timestamp: 'date' } });
+		var obj = new DateModel();
+		obj.timestamp = 'Tue Feb 19 2013 18:20:57 GMT-0800';
+		obj.timestamp.should.be.a('date');
+		obj.timestamp.toString().should.equal('Tue Feb 19 2013 18:20:57 GMT-0800 (PST)');
+	});
+
+	it('requires that references be strings', function()
+	{
+		var badSetter = function() { instance.pointer_id = {}; };
+		badSetter.should.throw(Error);
 	});
 
 	it('provides getters & setters for enumerables', function()
@@ -165,9 +222,24 @@ describe('polyclay', function()
 		instance.__attributes['enum2'].should.equal(1);
 	});
 
-	it('throws when attempting to set an enum to an illegal value', function()
+	it('setting an enum to empty string sets it to value 0', function()
+	{
+		var obj = new Model();
+		obj.enum1 = 'one';
+		obj.__attributes['enum1'].should.equal(1);
+		obj.enum1 = '';
+		obj.__attributes['enum1'].should.equal(0);
+	});
+
+	it('throws when attempting to set an enum to an illegal numeric value', function()
 	{
 		var invalidEnum = function() { instance.enum1 = 17; };
+		invalidEnum.should.throw(Error);
+	});
+
+	it('throws when attempting to set an enum to an illegal string value', function()
+	{
+		var invalidEnum = function() { instance.enum1 = 'jibberjabber'; };
 		invalidEnum.should.throw(Error);
 	});
 
@@ -185,8 +257,9 @@ describe('polyclay', function()
 	it('provides default values for each type', function()
 	{
 		var checklist = Object.keys(modelDefinition.properties);
+		var obj = new Model();
 		for (var i = 0; i < checklist.length; i++)
-			instance.should.have.property(checklist[i]);
+			obj.should.have.property(checklist[i]);
 	});
 
 	it('validates property types in setters', function()
@@ -228,6 +301,12 @@ describe('polyclay', function()
 		another.__dirty.should.be.true;
 		another.rollback().should.be.ok;
 		another.enum1.should.equal(initial);
+	});
+
+	it('rollback() returns false when there is nothing to roll back', function()
+	{
+		var another = new Model();
+		another.rollback().should.equal(false);
 	});
 
 	it('complains about missing required properties in valid()', function()
@@ -306,6 +385,22 @@ describe('polyclay', function()
 		var checklist = expectedProperties;
 		for (var i = 0; i < checklist.length; i++)
 			struct.should.have.property(checklist[i]);
+	});
+
+	it('updates all known properties in update()', function()
+	{
+		var data = {
+			is_valid: true,
+			foozles: ['three', 'four'],
+			count: 50,
+			required_prop: 'badges'
+		};
+		var obj = new Model();
+		obj.update(data);
+
+		obj.required_prop.should.equal(data.required_prop);
+		obj.count.should.equal(data.count);
+		obj.is_valid.should.equal(data.is_valid);
 	});
 
 });

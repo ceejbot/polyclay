@@ -10,7 +10,12 @@
 	},
 	"scripts": 
 	{
-		"test": "mocha -R spec test/test-*.js"
+		"test": "mocha -R spec test/test-*.js",
+		"coverage": "mocha --require blanket -R html-cov test/test-*.js > test/coverage.html",
+		"blanket":
+		{
+			"pattern": "//^((?!\/node_modules\/)(?!\/test\/)(?!\/examples\/).)*$/ig"
+		}
 	},
 	"repository":
 	{
@@ -26,7 +31,8 @@
 	"devDependencies":
 	{
 		"mocha": "*",
-		"chai": "*"
+		"chai": "*",
+		"blanket": "*"
 	},
 	"keywords":
 	[

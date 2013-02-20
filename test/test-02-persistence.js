@@ -94,10 +94,16 @@ describe('persistence layer', function()
 
 	it('can provision the database for the model', function(done)
 	{
-		Model.provision(function(err, res)
+		Model.adapter.db.exists(function (err, exists)
 		{
 			should.not.exist(err);
-			done();
+			if (exists)
+				return done();
+			Model.provision(function(err, res)
+			{
+				should.not.exist(err);
+				done();
+			});
 		});
 	});
 
