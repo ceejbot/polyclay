@@ -59,6 +59,13 @@ describe('persistence layer', function()
 	before(function()
 	{
 		Model = polyclay.Model.buildClass(modelDefinition);
+		Model.design =
+		{
+			views:
+			{
+				by_name: { map: "function(doc) {\n  emit(doc.name, doc);\n}", language: "javascript" }
+			}
+		};
 	});
 
 	it('adds functions to the prototype when persist is called', function()
@@ -77,6 +84,32 @@ describe('persistence layer', function()
 		Model.getBatch.should.be.a('function');
 		Model.all.should.be.a('function');
 		Model.provision.should.be.a('function');
+	});
+
+	it('handles models without persistable fields', function()
+	{
+		var Ephemeral = polyclay.Model.buildClass({});
+		persistence.persist(Ephemeral);
+		Ephemeral.defineAttachment('test', 'image/jpeg');
+
+		var obj = new Ephemeral();
+		obj.should.be.an('object');
+		obj.should.have.property('test');
+		obj.should.have.property('fetch_test');
+	});
+
+	it('throws when passed a model without polyclay attributes', function()
+	{
+		var willThrow = function()
+		{
+			function Bad()
+			{
+				this.foo = 'bar';
+			}
+			persistence.persist(Bad);
+		};
+
+		willThrow.should.throw(Error);
 	});
 
 	it('can be configured for database access', function(done)
@@ -107,7 +140,12 @@ describe('persistence layer', function()
 		});
 	});
 
-	it('can save the document in the db', function(done)
+	it('saves views when it creates the database', function(done)
+	{
+		done();
+	});
+
+	it('can save a document in the db', function(done)
 	{
 		instance = new Model();
 		instance.update(
@@ -258,6 +296,17 @@ describe('persistence layer', function()
 			done();
 		});
 	});
+
+	it('can fetch in batches', function(done)
+	{
+		done();
+	});
+
+	it('can fetch all', function(done)
+	{
+		done();
+	});
+
 });
 }.call(this));
 

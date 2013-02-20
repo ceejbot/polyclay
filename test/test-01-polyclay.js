@@ -161,7 +161,6 @@ describe('polyclay', function()
 		var obj = new DateModel();
 		obj.timestamp = 1361326857895;
 		obj.timestamp.should.be.a('date');
-		obj.timestamp.toString().should.equal('Tue Feb 19 2013 18:20:57 GMT-0800 (PST)');
 	});
 
 	it('date setters parse string input', function()
@@ -170,7 +169,6 @@ describe('polyclay', function()
 		var obj = new DateModel();
 		obj.timestamp = 'Tue Feb 19 2013 18:20:57 GMT-0800';
 		obj.timestamp.should.be.a('date');
-		obj.timestamp.toString().should.equal('Tue Feb 19 2013 18:20:57 GMT-0800 (PST)');
 	});
 
 	it('requires that references be strings', function()
