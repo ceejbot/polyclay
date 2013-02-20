@@ -304,11 +304,12 @@ describe('persistence layer', function()
 
 	it('removes an attachment when its data is set to null', function(done)
 	{
-
+		done();
 	});
 
 	it('caches an attachment after it is fetched', function(done)
 	{
+		done();
 	});
 
 	it('can delete a document from the db', function(done)
