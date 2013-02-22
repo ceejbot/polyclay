@@ -44,6 +44,13 @@ describe('persistence layer', function()
 		_init: function()
 		{
 			this.ran_init = true;
+		},
+		methods:
+		{
+			beforeSave: function() { this.beforeSaveCalled = true; },
+			afterSave: function() { this.afterSaveCalled = true; },
+			afterLoad: function() { this.afterLoadCalled = true; },
+			beforeDestroy: function() { this.beforeDestroyCalled = true; },
 		}
 	};
 
@@ -54,7 +61,7 @@ describe('persistence layer', function()
 		couch_db: 'polyclay_tests'
 	};
 
-	var Model, instance, another;
+	var Model, instance, another, hookTest, hookid;
 
 	before(function()
 	{
@@ -382,6 +389,54 @@ describe('persistence layer', function()
 			});
 		});
 	});
+
+	it('calls a beforeSave() hook before saving a model', function(done)
+	{
+		hookTest = new Model();
+		hookTest.name = 'hook test';
+
+		hookTest.should.not.have.property('beforeSaveCalled');
+		hookTest.save(function(err, res)
+		{
+			should.not.exist(err);
+			hookid = hookTest._id;
+			hookTest.should.have.property('beforeSaveCalled');
+			hookTest.beforeSaveCalled.should.equal(true);
+			done();
+		});
+	});
+
+	it('calls afterSave() after saving a model', function()
+	{
+		hookTest.should.have.property('afterSaveCalled');
+		hookTest.afterSaveCalled.should.equal(true);
+	});
+
+	it('calls afterLoad() after loading a model from the db', function(done)
+	{
+		hookTest.should.not.have.property('afterLoadCalled');
+		Model.get(hookid, function(err, loaded)
+		{
+			should.not.exist(err);
+			loaded.should.have.property('afterLoadCalled');
+			loaded.afterLoadCalled.should.equal(true);
+			done();
+		});
+	});
+
+	it('calls beforeDestroy() before destroying a model', function(done)
+	{
+		hookTest.should.not.have.property('beforeDestroyCalled');
+		hookTest.destroy(function(err, deleted)
+		{
+			should.not.exist(err);
+			hookTest.should.have.property('beforeDestroyCalled');
+			hookTest.beforeDestroyCalled.should.equal(true);
+			done();
+		});
+	});
+
+	// merge()
 
 	it('can delete a document from the db', function(done)
 	{
