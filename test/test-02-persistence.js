@@ -23,8 +23,6 @@ if (path.basename(testDir) !== 'test')
 	testDir = path.join(testDir, 'test');
 var attachmentdata = fs.readFileSync(path.join(testDir, 'test.png'));
 
-var credentials = {};
-
 describe('persistence layer', function()
 {
 	var modelDefinition =
@@ -132,7 +130,7 @@ describe('persistence layer', function()
 
 	it('can be configured for database access', function(done)
 	{
-		Model.configure(couch_config, credentials);
+		Model.configure(couch_config);
 		Model.adapter.should.be.ok;
 		Model.adapter.db.should.be.ok;
 		Model.adapter.connection.info(function(err, response)
