@@ -137,6 +137,15 @@ TBD
 
 TBD
 
+## Before & after hooks
+
+If you supply the following methods on your model class, they will be called when their names suggest:
+
+`afterLoad()`: after a document has been loaded from couch & a model instantiated  
+`beforeSave()`: before a document is saved to couch in `save()`  
+`afterSave()`: after a save to couch has succeeded, before callback  
+`beforeDestroy()`: before deleting a model from couch in `destroy()`
+
 
 ## Example
 

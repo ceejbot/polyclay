@@ -434,8 +434,6 @@ describe('persistence layer', function()
 		});
 	});
 
-	// merge()
-
 	it('can delete a document from the db', function(done)
 	{
 		instance.destroy(function(err, deleted)
@@ -468,10 +466,12 @@ describe('persistence layer', function()
 		});
 	});
 
-	after(function()
-	{
+	// remaining uncovered cases:
+	// merge() -- do this
+	// removeMany() can take a list of ids instead of objects -- do this
+	// removeMany() bails on bad input -- low value test
+	// saveAttachment() -- just a passthrough to cradle, so very low value
 
-	});
 });
 
 describe('dataLength()', function()
