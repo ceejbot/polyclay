@@ -23,6 +23,8 @@ if (path.basename(testDir) !== 'test')
 	testDir = path.join(testDir, 'test');
 var attachmentdata = fs.readFileSync(path.join(testDir, 'test.png'));
 
+var credentials = {};
+
 describe('persistence layer', function()
 {
 	var modelDefinition =
@@ -57,12 +59,23 @@ describe('persistence layer', function()
 	before(function()
 	{
 		Model = polyclay.Model.buildClass(modelDefinition);
+		Model.prototype.modelPlural = 'models';
+
 		Model.design =
 		{
 			views:
 			{
 				by_name: { map: "function(doc) {\n  emit(doc.name, doc);\n}", language: "javascript" }
 			}
+		};
+
+		Model.fetchByName = function(name, callback)
+		{
+			Model.adapter.db.view('models/by_name', { key: name }, function(err, documents)
+			{
+				if (err) return callback(err);
+				Model.constructMany(documents, callback);
+			});
 		};
 	});
 
@@ -112,7 +125,7 @@ describe('persistence layer', function()
 
 	it('can be configured for database access', function(done)
 	{
-		Model.configure(couch_config);
+		Model.configure(couch_config, credentials);
 		Model.adapter.should.be.ok;
 		Model.adapter.db.should.be.ok;
 		Model.adapter.connection.info(function(err, response)
@@ -204,12 +217,43 @@ describe('persistence layer', function()
 
 	it('can fetch in batches', function(done)
 	{
-		done();
+		var ids = [ instance._id ];
+		var obj = new Model();
+		obj.name = 'two';
+		obj.save(function(err, response)
+		{
+			ids.push(obj._id);
+
+			Model.get(ids, function(err, itemlist)
+			{
+				should.not.exist(err);
+				itemlist.should.be.an('array');
+				itemlist.length.should.equal(2);
+				done();
+			});
+		});
 	});
 
 	it('can fetch all', function(done)
 	{
-		done();
+		Model.all(function(err, itemlist)
+		{
+			should.not.exist(err);
+			itemlist.should.be.an('array');
+			itemlist.length.should.be.above(1);
+			done();
+		});
+	});
+
+	it('can find documents using views', function(done)
+	{
+		Model.fetchByName('two', function(err, itemlist)
+		{
+			should.not.exist(err);
+			itemlist.should.be.an('array');
+			itemlist.length.should.equal(1);
+			done();
+		});
 	});
 
 	it('has a test for merge()', function(done)
@@ -314,7 +358,7 @@ describe('persistence layer', function()
 				var cached = instance.__attachments['avatar'].body;
 				cached.should.be.okay;
 				(cached instanceof Buffer).should.equal(true);
-				persistence.dataLength(cached).should.equal(persistence.dataLength(attachmentdata))
+				persistence.dataLength(cached).should.equal(persistence.dataLength(attachmentdata));
 				done();
 			});
 		});
@@ -349,6 +393,32 @@ describe('persistence layer', function()
 			done();
 		});
 	});
+
+	it('can delete documents in batches', function(done)
+	{
+		var obj2 = new Model();
+		obj2.name = 'two';
+		obj2.save(function(err, response)
+		{
+			Model.fetchByName('two', function(err, itemlist)
+			{
+				should.not.exist(err);
+				itemlist.should.be.an('array');
+				itemlist.length.should.be.above(1);
+				Model.removeMany(itemlist, function(err, response)
+				{
+					should.not.exist(err);
+					// TODO examine response more carefully
+					done();
+				});
+			});
+		});
+	});
+
+	after(function()
+	{
+
+	});
 });
 
 describe('dataLength()', function()
@@ -376,7 +446,5 @@ describe('dataLength()', function()
 		var len = persistence.dataLength('crème brûlée');
 		len.should.equal(15);
 	});
-
-
 });
 
