@@ -145,6 +145,19 @@ describe('polyclay', function()
 		instance.pointer_id.should.equal('testref');
 	});
 
+	it('clears references when they are set to falsey values', function()
+	{
+		var obj = new Model();
+		var target = new Model();
+		target._id = 'foo';
+		obj.pointer = target;
+		obj.pointer.should.equal(target);
+		obj.pointer_id.should.equal('foo');
+		obj.pointer = null;
+		should.not.exist(obj.pointer);
+		obj.pointer_id.length.should.equal(0);
+	});
+
 	it('string setters turn nulls into empty strings', function()
 	{
 		var StringModel = polyclay.Model.buildClass({ properties: { description: 'string' } });
