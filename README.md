@@ -131,7 +131,46 @@ Clears the dirty bit. The model cannot be rolled back after this is called. Is c
 
 ## Persisting in CouchDB
 
+Once you've built a polyclay model, you can mix persistence methods into it:
+
+`polyclay.persist(ModelFunction);`
+
+You can then set up its access to CouchDB by giving it an existing Cradle connection object plus the name of the database where this model should store its objects:
+
+```javascript
+var conn = new cradle.Connection(options);
+ModelFunction.configure(conn, 'databasename');
+```
+
+
+### Specifying views
+
 TBD
+
+
+### class methods
+
+`provision()`
+
+`get()`
+
+`all()`
+
+`constructMany()`
+
+`removeMany()`
+
+### instance methods
+
+`save()`
+
+`destroy()`
+
+`merge()`
+
+`initFromStorage()`
+
+`removeAttachment()`
 
 ## Attachments
 
@@ -185,6 +224,9 @@ var Comment = polyclay.Model.buildClass(
 });
 
 polyclay.persist(Comment);
+var cradleconn = new cradle.Connection();
+Comment.configure(cradleconn, 'comments');
+
 
 var comment = new Comment();
 console.log(comment.state);

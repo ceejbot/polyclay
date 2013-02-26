@@ -11,6 +11,7 @@ var
 	;
 
 var
+	cradle = require('cradle'),
 	fs = require('fs'),
 	path = require('path'),
 	persistence = require('../lib/persistence'),
@@ -54,9 +55,9 @@ describe('persistence layer', function()
 
 	var couch_config =
 	{
-		couch_host: 'localhost',
-		couch_port: 5984,
-		couch_db: 'polyclay_tests'
+		host: 'localhost',
+		port: 5984,
+		db: 'polyclay_tests'
 	};
 
 	var Model, instance, another, hookTest, hookid;
@@ -130,7 +131,17 @@ describe('persistence layer', function()
 
 	it('can be configured for database access', function(done)
 	{
-		Model.configure(couch_config);
+		var connection = new cradle.Connection(
+				couch_config.host,
+				couch_config.port,
+				{
+					cache: false,
+					raw: false,
+					auth: couch_config.auth
+				}
+		);
+
+		Model.configure(connection, couch_config.db);
 		Model.adapter.should.be.ok;
 		Model.adapter.db.should.be.ok;
 		Model.adapter.connection.info(function(err, response)
@@ -456,7 +467,7 @@ describe('persistence layer', function()
 				should.not.exist(err);
 				itemlist.should.be.an('array');
 				itemlist.length.should.be.above(1);
-				Model.removeMany(itemlist, function(err, response)
+				Model.destroyMany(itemlist, function(err, response)
 				{
 					should.not.exist(err);
 					// TODO examine response more carefully
@@ -468,8 +479,8 @@ describe('persistence layer', function()
 
 	// remaining uncovered cases:
 	// merge() -- do this
-	// removeMany() can take a list of ids instead of objects -- do this
-	// removeMany() bails on bad input -- low value test
+	// destroyMany() can take a list of ids instead of objects -- do this
+	// destroyMany() bails on bad input -- low value test
 	// saveAttachment() -- just a passthrough to cradle, so very low value
 
 });
