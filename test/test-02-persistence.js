@@ -40,7 +40,7 @@ describe('persistence layer', function()
 		},
 		optional: [ 'computed', 'ephemeral' ],
 		required: [ 'name', 'is_valid', 'required_prop'],
-		_init: function()
+		initialize: function()
 		{
 			this.ran_init = true;
 		},

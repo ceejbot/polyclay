@@ -40,7 +40,7 @@ var modelDefinition =
 	{
 		supplied: function() { return true; }
 	},
-	_init: function()
+	initialize: function()
 	{
 		this.ran_init = true;
 	}
@@ -67,7 +67,7 @@ describe('polyclay', function()
 		assert(instance instanceof Model, 'expected Model to be a constructor');
 	});
 
-	it('runs the provided _init() function on instance construction', function()
+	it('runs the provided initialize() function on instance construction', function()
 	{
 		instance.ran_init.should.be.true;
 		delete instance.ran_init;

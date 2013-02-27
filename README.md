@@ -251,11 +251,11 @@ comment.tempfield = 'whatever'; // not persisted in couch
 * Clean up attachments API
 * Improve rollback behavior & write some vicious tests for it
 * Rethink that enumerable implementation
+* Probably should just denormalize enums to make them less fragile
 * Consider removing the dependency on cradle
 * Persistence layer is tangled with model layer in a couple of places
 * Should add a way to specify a key/id attribute name to generalize away from couchdb a bit
-* Probably should just denormalize enums to make them less fragile
-* Nuke the underscore in `_init`.
+* Nuke the underscore in `_init`. ✓
 
 
 ## License
