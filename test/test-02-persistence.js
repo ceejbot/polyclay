@@ -57,7 +57,7 @@ describe('persistence layer', function()
 	{
 		host: 'localhost',
 		port: 5984,
-		db: 'polyclay_tests'
+		db: 'polyclay_tests',
 	};
 
 	var Model, instance, another, hookTest, hookid;
@@ -169,7 +169,13 @@ describe('persistence layer', function()
 
 	it('saves views when it creates the database', function(done)
 	{
-		done();
+		Model.adapter.db.get('_design/models', function(err, response)
+		{
+			should.not.exist(err);
+			response.should.have.property('views');
+			response.views.should.have.property('by_name');
+			done();
+		});
 	});
 
 	it('can save a document in the db', function(done)
@@ -272,9 +278,37 @@ describe('persistence layer', function()
 		});
 	});
 
-	it('has a test for merge()', function(done)
+	it('constructMany() retuns an empty list when given empty input', function(done)
 	{
-		done();
+		Model.constructMany([], function(err, results)
+		{
+			should.not.exist(err);
+			results.should.be.an('array');
+			results.length.should.equal(0);
+			done();
+		});
+	});
+
+	it('merge() updates properties then saves the object', function(done)
+	{
+		Model.fetchByName('two', function(err, itemlist)
+		{
+			should.not.exist(err);
+			var item = itemlist[0];
+
+			item.merge({ is_valid: true, count: 1023 }, function(err, response)
+			{
+				should.not.exist(err);
+				Model.get(item._id, function(err, stored)
+				{
+					should.not.exist(err);
+					stored.count.should.equal(1023);
+					stored.is_valid.should.equal(true);
+					stored.name.should.equal(item.name);
+					done();
+				});
+			});
+		});
 	});
 
 	it('can add an attachment type', function()
