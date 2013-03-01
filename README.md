@@ -150,27 +150,49 @@ TBD
 
 ### class methods
 
-`provision()`
+`provision(function(err, couchResponse)`
 
-`get()`
+Create the database the model expects to use in couch. Create any views for the db that are specified in the `design` field.
 
-`all()`
+`get(id, function(err, object)`
 
-`constructMany()`
+Fetch an object from the database using the provided id.
 
-`removeMany()`
+`all(function(err, objectArray)`
+
+Fetch all objects from the database. It's up to you not to shoot yourself in the foot with this one.
+
+`constructMany(couchDocs, function(err, objectArray)`
+
+Takes a list of couch response documents produced by calls to couch views, and uses them to inflate objects. You will use this class method when writing wrappers for couch views. For a simple example, see class Comment's findByOwner() method below.
+
+`destroyMany(idArray, function(err, couchResponseArray))`
+
+Takes a list of object ids to remove. Responds with err if any failed, and an array of responses from couch.
+
 
 ### instance methods
 
-`save()`
+`save(function(err, couchResponse))`
 
-`destroy()`
+Save the model to the db. Works on new objects as well as updated objects that have already been persisted. If the object was not given an `_id` property before the call, the property will be filled in with whatever couch chose. Does nothing if the object is not marked as dirty.
 
-`merge()`
+`destroy(function(err, wasDestroyed))`
 
-`initFromStorage()`
+Removed the object from couch and set its `destroyed` flag. The object must have an `_id`.
 
-`removeAttachment()`
+`merge(hash, function(err, couchResponse))`
+
+Update the model with fields in the supplied hash, then save the result to couch.
+
+`removeAttachment(name, function(err, wasRemoved)`
+
+Remove the named attachment. Responds with wasRemoved == true if the operation was successful.
+
+`initFromStorage(hash)`
+
+Initialize a model from data returned by couchdb. You are unlikely to call this, but it's available.
+
 
 ## Attachments
 
@@ -223,9 +245,36 @@ var Comment = polyclay.Model.buildClass(
     },
 });
 
+Comment.design =
+{
+	views:
+	{
+		by_target: { map: "function(doc) {\n  emit(doc.target_id, doc);\n}", language: "javascript" },
+		by_owner: { map: "function(doc) {\n  emit(doc.owner_id, doc);\n}", language: "javascript" },
+		by_owner_target: { map: "function(doc) {\n  emit(doc.owner_id + '|' + doc.target_id, doc);\n}", language: "javascript" },
+	}
+};
+
+Comment.findByOwner = function(owner, callback)
+{
+	if (typeof owner === 'object')
+		owner = owner._id;
+
+	Comment.adapter.db.view('comments/by_owner', { key: owner }, function(err, documents)
+	{
+		if (err) return callback(err);
+		Comment.constructMany(documents, callback);
+	});
+};
+
 polyclay.persist(Comment);
 var cradleconn = new cradle.Connection();
 Comment.configure(cradleconn, 'comments');
+// create the database
+Comment.provision(function(err, response)
+{
+	// err should not exist
+}); 
 
 
 var comment = new Comment();
@@ -255,7 +304,7 @@ comment.tempfield = 'whatever'; // not persisted in couch
 * Consider removing the dependency on cradle
 * Persistence layer is tangled with model layer in a couple of places
 * Should add a way to specify a key/id attribute name to generalize away from couchdb a bit
-* Nuke the underscore in `_init`. ✓
+* Nuke the underscore in `_init` ✓
 
 
 ## License

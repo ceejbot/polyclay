@@ -1,7 +1,6 @@
 var
-	polyclay = require('../index'),
-	persistence = require('../lib/persistence'),
-	;
+	cradle = require('cradle'),
+	polyclay = require('../index');
 
 var Comment = polyclay.Model.buildClass(
 {
@@ -25,7 +24,7 @@ var Comment = polyclay.Model.buildClass(
 	},
 	optional: [ '_rev' ],
 	required: [ 'owner_id', 'target_id', 'parent_id', 'state'],
-	initialize: function()
+	_init: function()
 	{
 		this.created = Date.now();
 		this.modified = this.created;
@@ -35,5 +34,46 @@ var Comment = polyclay.Model.buildClass(
 	},
 });
 
+Comment.design =
+{
+	views:
+	{
+		by_target: { map: "function(doc) {\n  emit(doc.target_id, doc);\n}", language: "javascript" },
+		by_owner: { map: "function(doc) {\n	 emit(doc.owner_id, doc);\n}", language: "javascript" },
+		by_owner_target: { map: "function(doc) {\n	emit(doc.owner_id + '|' + doc.target_id, doc);\n}", language: "javascript" },
+	}
+};
+
+Comment.findByOwner = function(owner, callback)
+{
+	if (typeof owner === 'object')
+		owner = owner._id;
+
+	Comment.adapter.db.view('comments/by_owner', { key: owner }, function(err, documents)
+	{
+		if (err) return callback(err);
+		Comment.constructMany(documents, callback);
+	});
+};
+
 polyclay.persist(Comment);
-Comment.prototype.modelPlural = 'comments';
+var cradleconn = new cradle.Connection();
+Comment.configure(cradleconn, 'comments');
+// create the database
+Comment.provision(function(err, response)
+{
+	// err should not exist
+});
+
+
+var comment = new Comment();
+console.log(comment.state);
+comment.version = "foo"; // throws an error
+comment.version = 2; // sets the attribute
+comment.state = 'yoinks'; // throws an error
+comment.state = 'deleted';
+console.log(comment.state);
+comment.state = 1;
+console.log(comment.state);
+comment.modified = Date.now();
+console.log(comment.__dirty); // true
