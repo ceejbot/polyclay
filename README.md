@@ -31,8 +31,8 @@ Valid options:
 `methods`
 : Hash of methods to add to the object. You can instead decorate the returned constructor prototype with object methods. 
 
-`_init`
-: Function to call as the last step of the returned constructor. The name is prefixed with a single underscore. (meh) Provide an implementation to do any custom initialization for your model.`this` will be the newly constructed object.
+`initialize`
+: Function to call as the last step of the returned constructor. Provide an implementation to do any custom initialization for your model.`this` will be the newly constructed object.
 
 ### Valid data types
 
