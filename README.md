@@ -298,6 +298,7 @@ comment.tempfield = 'whatever'; // not persisted in couch
 
 * Documentation
 * Clean up attachments API
+* Settle on one of destroy/remove/delete (probably destroy)
 * Improve rollback behavior & write some vicious tests for it
 * Implement saving already-persisted objects by means of merge()
 * Rethink that enumerable implementation; probably should just denormalize enums to make them less fragile

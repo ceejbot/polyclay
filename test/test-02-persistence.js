@@ -511,11 +511,50 @@ describe('persistence layer', function()
 		});
 	});
 
+	it('destroyMany() does nothing when given empty input', function(done)
+	{
+		Model.destroyMany([], function(err)
+		{
+			should.not.exist(err);
+			done();
+		});
+	});
+
+	it('destroy responds with an error when passed an object without an id', function(done)
+	{
+		var obj = new Model();
+		obj.destroy(function(err, deleted)
+		{
+			err.should.be.an('object');
+			err.message.should.equal('cannot delete object without an id');
+			done();
+		});
+	});
+
+	it('destroy responds with an error when passed an object that has already been destroyed', function(done)
+	{
+		var obj = new Model();
+		obj._id = 'foozle';
+		obj.deleted = true;
+		obj.destroy(function(err, deleted)
+		{
+			err.should.be.an('object');
+			err.message.should.equal('object already deleted');
+			done();
+		});
+	});
+
 	// remaining uncovered cases:
-	// merge() -- do this
-	// destroyMany() can take a list of ids instead of objects -- do this
-	// destroyMany() bails on bad input -- low value test
 	// saveAttachment() -- just a passthrough to cradle, so very low value
+
+	after(function(done)
+	{
+		Model.adapter.db.destroy(function(err, response)
+		{
+			// swallow any errors because we don't actually care
+			done();
+		});
+	});
 
 });
 
