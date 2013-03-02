@@ -94,7 +94,7 @@ widget.save(function(err)
 
 ## Temporary fields
 
-You can set any other fields on an object that you with for run-time purposes. polyclay prefixes all of its internal properties with `__` (double underscore) to avoid conflicts with typical field names.
+You can set any other fields on an object that you want for run-time purposes. polyclay prefixes all of its internal properties with `__` (double underscore) to avoid conflicts with typical field names.
 
 ## Validation
 
@@ -298,7 +298,7 @@ comment.tempfield = 'whatever'; // not persisted in couch
 
 * Documentation
 * Clean up attachments API
-* Settle on one of destroy/remove/delete (probably destroy)
+* Settle on one of destroy/remove/delete (probably destroy)  ✓
 * Improve rollback behavior & write some vicious tests for it
 * Implement saving already-persisted objects by means of merge()
 * Rethink that enumerable implementation; probably should just denormalize enums to make them less fragile

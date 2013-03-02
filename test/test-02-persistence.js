@@ -479,18 +479,18 @@ describe('persistence layer', function()
 		});
 	});
 
-	it('can delete a document from the db', function(done)
+	it('can remove a document from the db', function(done)
 	{
 		instance.destroy(function(err, deleted)
 		{
 			should.not.exist(err);
 			deleted.should.be.ok;
-			instance.deleted.should.be.true;
+			instance.destroyed.should.be.true;
 			done();
 		});
 	});
 
-	it('can delete documents in batches', function(done)
+	it('can remove documents in batches', function(done)
 	{
 		var obj2 = new Model();
 		obj2.name = 'two';
@@ -523,10 +523,10 @@ describe('persistence layer', function()
 	it('destroy responds with an error when passed an object without an id', function(done)
 	{
 		var obj = new Model();
-		obj.destroy(function(err, deleted)
+		obj.destroy(function(err, destroyed)
 		{
 			err.should.be.an('object');
-			err.message.should.equal('cannot delete object without an id');
+			err.message.should.equal('cannot destroy object without an id');
 			done();
 		});
 	});
@@ -535,17 +535,18 @@ describe('persistence layer', function()
 	{
 		var obj = new Model();
 		obj._id = 'foozle';
-		obj.deleted = true;
-		obj.destroy(function(err, deleted)
+		obj.destroyed = true;
+		obj.destroy(function(err, destroyed)
 		{
 			err.should.be.an('object');
-			err.message.should.equal('object already deleted');
+			err.message.should.equal('object already destroyed');
 			done();
 		});
 	});
 
 	// remaining uncovered cases:
 	// saveAttachment() -- just a passthrough to cradle, so very low value
+	// handleAttachments() -- only called by initFromStorage(), not sure it's ever been exercised
 
 	after(function(done)
 	{
