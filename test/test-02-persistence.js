@@ -513,7 +513,7 @@ describe('persistence layer', function()
 
 	it('destroyMany() does nothing when given empty input', function(done)
 	{
-		Model.destroyMany([], function(err)
+		Model.destroyMany(null, function(err)
 		{
 			should.not.exist(err);
 			done();
