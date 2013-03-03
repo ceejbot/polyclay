@@ -149,19 +149,19 @@ TBD
 
 ### class methods
 
-`provision(function(err, couchResponse)`
+`provision(function(err, couchResponse))`
 
 Create the database the model expects to use in couch. Create any views for the db that are specified in the `design` field.
 
-`get(id, function(err, object)`
+`get(id, function(err, object))`
 
 Fetch an object from the database using the provided id.
 
-`all(function(err, objectArray)`
+`all(function(err, objectArray))`
 
 Fetch all objects from the database. It's up to you not to shoot yourself in the foot with this one.
 
-`constructMany(couchDocs, function(err, objectArray)`
+`constructMany(couchDocs, function(err, objectArray))`
 
 Takes a list of couch response documents produced by calls to couch views, and uses them to inflate objects. You will use this class method when writing wrappers for couch views. For a simple example, see class Comment's findByOwner() method below.
 
@@ -184,7 +184,7 @@ Removed the object from couch and set its `destroyed` flag. The object must have
 
 Update the model with fields in the supplied hash, then save the result to couch.
 
-`removeAttachment(name, function(err, wasRemoved)`
+`removeAttachment(name, function(err, wasRemoved))`
 
 Remove the named attachment. Responds with wasRemoved == true if the operation was successful.
 
@@ -208,8 +208,43 @@ If you supply the following methods on your model class, they will be called whe
 
 ## Mixins
 
-TBD
+A bundle of fields and methods that you wish to add to several model classes while allowing Polyclay to reduce the boilerplate for you.
 
+```javascript
+var MixinName = {};
+polyclay.mixin(ModelClass, MixinName);
+```
+
+Mixin objects have two fields.
+
+`properties`: A hash of property names & types, exactly as in a base model definition.
+`methods`: A hash of method names & implementations to add to the model prototype.
+`custom`: A hash of custom functions to add to the model prototype as getters & setters. Each entry in this hash must have the following form:
+
+```javascript
+'name':
+{
+	'getter': function() {},
+	'setter': function() {}
+}
+```
+
+Here's an example mixin:
+
+```javascript
+exports.HasTimestamps =
+{
+	properties:
+	{
+		created: 'date',
+		modified: 'date'
+	},
+	methods:
+	{
+		touch: function() { this.modified = Date.now(); }
+	}
+};
+```
 
 ## Example
 
