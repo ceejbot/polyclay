@@ -11,6 +11,7 @@
 	"scripts": 
 	{
 		"test": "mocha -R spec test/test-*.js && mocha --require blanket -R travis-cov test/test-*.js",
+		"test-cov": "mocha --require blanket -R travis-cov test/test-*.js",
 		"coverage": "mocha --require blanket -R html-cov test/test-*.js > test/coverage.html",
 		"blanket":
 		{

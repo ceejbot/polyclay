@@ -382,6 +382,16 @@ describe('persistence layer', function()
 		});
 	});
 
+	it('can store an attachment directly', function(done)
+	{
+		instance.frogs = 'Poison frogs are awesome, but I think sand frogs are adorable.';
+		instance.saveAttachment('frogs', function(err, response)
+		{
+			should.not.exist(err);
+			done();
+		});
+	});
+
 	it('can remove an attachment', function(done)
 	{
 		var prevRev = instance._rev;
