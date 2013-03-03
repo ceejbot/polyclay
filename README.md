@@ -124,10 +124,9 @@ Serialize the model as a hash. Includes optional properties.
 
 Serialize the model as a string by calling `JSON.stringify()`. Includes optional properties.
 
-### clearDirty()
+### obj.clearDirty()
 
-Clears the dirty bit. The model cannot be rolled back after this is called. Is called by the persistence layer on a successful save.
-
+Clears the dirty bit. The object cannot be rolled back after this is called. This is called by the persistence layer on a successful save.
 
 ## Persisting in CouchDB
 
@@ -194,11 +193,11 @@ Remove the named attachment. Responds with wasRemoved == true if the operation w
 Initialize a model from data returned by couchdb. You are unlikely to call this, but it's available.
 
 
-## Attachments
+### Attachments
 
 TBD
 
-## Before & after hooks
+### Before & after hooks
 
 If you supply the following methods on your model class, they will be called when their names suggest:
 
@@ -206,6 +205,10 @@ If you supply the following methods on your model class, they will be called whe
 `beforeSave()`: before a document is saved to couch in `save()`  
 `afterSave()`: after a save to couch has succeeded, before callback  
 `beforeDestroy()`: before deleting a model from couch in `destroy()`
+
+## Mixins
+
+TBD
 
 
 ## Example
@@ -297,14 +300,16 @@ comment.tempfield = 'whatever'; // not persisted in couch
 ## TODO
 
 * Documentation
+* Add mixins to the official library & document
+* Make it easy to choose between lodash & underscore using dependency injection in the require or something like that
 * Clean up attachments API
 * Settle on one of destroy/remove/delete (probably destroy)  ✓
 * Improve rollback behavior & write some vicious tests for it
 * Implement saving already-persisted objects by means of merge()
 * Rethink that enumerable implementation; probably should just denormalize enums to make them less fragile
-* Consider removing the dependency on cradle
 * Persistence layer is tangled with model layer in a couple of places
 * Should add a way to specify a key/id attribute name to generalize away from couchdb a bit
+* Consider removing the dependency on cradle
 * Nuke the underscore in `_init` ✓
 
 
