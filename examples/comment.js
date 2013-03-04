@@ -24,7 +24,7 @@ var Comment = polyclay.Model.buildClass(
 	},
 	optional: [ '_rev' ],
 	required: [ 'owner_id', 'target_id', 'parent_id', 'state'],
-	_init: function()
+	initialize: function()
 	{
 		this.created = Date.now();
 		this.modified = this.created;

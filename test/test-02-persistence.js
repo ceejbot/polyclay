@@ -1,6 +1,3 @@
-// Unit tests for the polyclay model framework.
-
-// tell jshint about mocha
 /*global describe:true, it:true, before:true, after:true */
 
 var

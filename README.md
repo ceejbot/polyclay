@@ -217,8 +217,8 @@ polyclay.mixin(ModelClass, MixinName);
 
 Mixin objects have two fields.
 
-`properties`: A hash of property names & types, exactly as in a base model definition.
-`methods`: A hash of method names & implementations to add to the model prototype.
+`properties`: A hash of property names & types, exactly as in a base model definition.  
+`methods`: A hash of method names & implementations to add to the model prototype.  
 `custom`: A hash of custom functions to add to the model prototype as getters & setters. Each entry in this hash must have the following form:
 
 ```javascript
@@ -273,7 +273,7 @@ var Comment = polyclay.Model.buildClass(
     },
     optional: [ '_rev' ],
     required: [ 'owner_id', 'target_id', 'parent_id', 'state'],
-    _init: function()
+    initialize: function()
     {
         this.created = Date.now();
         this.modified = this.created;
