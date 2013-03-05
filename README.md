@@ -147,55 +147,84 @@ ModelFunction.configure(conn, 'databasename');
 TBD
 
 
-### class methods
+### Persistence class methods
 
 `provision(function(err, couchResponse))`
 
 Create the database the model expects to use in couch. Create any views for the db that are specified in the `design` field.
 
-`get(id, function(err, object))`
+`ModelFunction.get(id, function(err, object))`
 
 Fetch an object from the database using the provided id.
 
-`all(function(err, objectArray))`
+`ModelFunction.all(function(err, objectArray))`
 
 Fetch all objects from the database. It's up to you not to shoot yourself in the foot with this one.
 
-`constructMany(couchDocs, function(err, objectArray))`
+`ModelFunction.constructMany(couchDocs, function(err, objectArray))`
 
 Takes a list of couch response documents produced by calls to couch views, and uses them to inflate objects. You will use this class method when writing wrappers for couch views. For a simple example, see class Comment's findByOwner() method below.
 
-`destroyMany(idArray, function(err, couchResponseArray))`
+`ModelFunction.destroyMany(idArray, function(err, couchResponseArray))`
 
 Takes a list of object ids to remove. Responds with err if any failed, and an array of responses from couch.
 
 
-### instance methods
+### Persistence instance methods
 
-`save(function(err, couchResponse))`
+`obj.save(function(err, couchResponse))`
 
 Save the model to the db. Works on new objects as well as updated objects that have already been persisted. If the object was not given an `_id` property before the call, the property will be filled in with whatever couch chose. Does nothing if the object is not marked as dirty.
 
-`destroy(function(err, wasDestroyed))`
+`obj.destroy(function(err, wasDestroyed))`
 
 Removed the object from couch and set its `destroyed` flag. The object must have an `_id`.
 
-`merge(hash, function(err, couchResponse))`
+`obj.merge(hash, function(err, couchResponse))`
 
 Update the model with fields in the supplied hash, then save the result to couch.
 
-`removeAttachment(name, function(err, wasRemoved))`
+`obj.removeAttachment(name, function(err, wasRemoved))`
 
 Remove the named attachment. Responds with wasRemoved == true if the operation was successful.
 
-`initFromStorage(hash)`
+`obj.initFromStorage(hash)`
 
 Initialize a model from data returned by couchdb. You are unlikely to call this, but it's available.
 
 
 ### Attachments
 
-TBD
+You can define attachments for your polyclay models and several convenience methods will be added to the prototype for you. Give your attachment a name and a mime type:
+
+`ModelFunc.defineAttachment(name, mimetype);`
+
+The prototype will have `get_name` and `set_anem` functions added to it, wrapped into the property *name*. Also, `fetch_name` will be defined to fetch the attachment data asynchronously from couch. Attachment data is saved when the model is saved, not when it is set using the property.
+
+You can also save and remove attachments directly:
+
+`obj.saveAttachment(name, function(err, couchResponse))`  
+`obj.removeAttachment(name, function(err, couchresponse))`
+
+A simple example:
+
+```javascript
+ModelFunc.defineAttachment('rendered', 'text/html');
+ModelFunc.defineAttachment('avatar', 'image/jpeg');
+var obj = new ModelFunc();
+obj.avatar = fs.readFileSync('avatar.jpg');
+console.log(obj.isDirty); // true
+var imgdata = obj.avatar;
+obj.save(function(err, resp)
+{
+	// attachment is now persisted in couch.
+	obj.avatar = null;
+	
+});
+```
+
+
+
 
 ### Before & after hooks
 

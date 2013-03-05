@@ -328,7 +328,7 @@ describe('persistence layer', function()
 		instance.save(function(err, response)
 		{
 			should.not.exist(err);
-			instance.__dirty.should.be.false;
+			instance.isDirty().should.equal.false;
 			instance._rev.should.not.equal(prevRev);
 			done();
 		});
@@ -385,6 +385,30 @@ describe('persistence layer', function()
 		instance.saveAttachment('frogs', function(err, response)
 		{
 			should.not.exist(err);
+			Model.get(instance._id, function(err, retrieved)
+			{
+				should.not.exist(err);
+				retrieved._rev.should.equal(instance._rev);
+				retrieved.fetch_frogs(function(err, frogs)
+				{
+					should.not.exist(err);
+					frogs.should.equal(instance.frogs);
+					done();
+				});
+			});
+		});
+	});
+
+	it('saveAttachment() clears the dirty bit', function(done)
+	{
+		instance.frogs = 'This is bunch of frogs.';
+		var prevRev = instance._rev;
+		instance.isDirty().should.equal(true);
+		instance.saveAttachment('frogs', function(err, response)
+		{
+			should.not.exist(err);
+			instance._rev.should.not.equal(prevRev);
+			instance.isDirty().should.equal(false);
 			done();
 		});
 	});
