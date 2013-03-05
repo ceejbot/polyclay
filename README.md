@@ -335,7 +335,7 @@ comment.tempfield = 'whatever'; // not persisted in couch
 ## TODO
 
 * Documentation
-* Add mixins to the official library & document
+* Add mixins to the official library & document ✓
 * Make it easy to choose between lodash & underscore using dependency injection in the require or something like that
 * Clean up attachments API
 * Settle on one of destroy/remove/delete (probably destroy)  ✓
