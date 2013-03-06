@@ -4,6 +4,10 @@ Polymer modeling clay for node.js. A model schema definition with type validatio
 
 [![Build Status](https://secure.travis-ci.org/ceejbot/polyclay.png)](http://travis-ci.org/ceejbot/polyclay)
 
+## Installing
+
+`npm install polyclay`
+
 ## Building a model
 
 Polyclay builds a model constructor function from options that you pass to its `buildClass` function, similar to the way Backbone builds constructors. 
@@ -96,7 +100,7 @@ widget.save(function(err)
 
 You can set any other fields on an object that you want for run-time purposes. polyclay prefixes all of its internal properties with `__` (double underscore) to avoid conflicts with typical field names.
 
-### Validation
+### Validating
 
 Validate an object by calling `valid()`. This method returns a boolean: true if valid, false if not. It tests if all typed properties contain valid data and if all required properties. If your model prototype defines a `validator()` method, this method will be called by `valid()`.
 
