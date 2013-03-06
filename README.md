@@ -57,7 +57,7 @@ Polyclay properties must have types declared. Getters and setter functions will 
 `reference`
 : pointer to another polyclay object; see documentation below; default is `null`
 
-## References
+### References
 
 *Reference* properties are pointers to other Couch-persisted objects. When Polyclay builds a reference property, it provides two sets of getter/setters. First, it defines a `model.reference_id` property, which is a string property that tracks the `_id` of the referred-to object. It also defines `model.reference()` and `model.set_reference()` functions, used to define the js property `model.reference`. This provides runtime-only access to the pointed-to object. Inflating it later is an exercise for the application using this model and the persistence layer.
 
@@ -92,11 +92,11 @@ widget.save(function(err)
 });
 ```
 
-## Temporary fields
+### Temporary fields
 
 You can set any other fields on an object that you want for run-time purposes. polyclay prefixes all of its internal properties with `__` (double underscore) to avoid conflicts with typical field names.
 
-## Validation
+### Validation
 
 Validate an object by calling `valid()`. This method returns a boolean: true if valid, false if not. It tests if all typed properties contain valid data and if all required properties. If your model prototype defines a `validator()` method, this method will be called by `valid()`.
 
@@ -106,25 +106,25 @@ If an object has errors, an `errors` field will be set. This field is a hash. Ke
 `missing`: required property is missing
 
 
-## Methods added to model prototypes
+### Methods added to model prototypes
 
-### obj.valid()
+`obj.valid()`
 
 Returns true if all required properties are present, the values of all typed properties are acceptable, and `validator()` (if defined on the model) returns true.
 
-### obj.rollback()
+`obj.rollback()`
 
 Roll back the values of fields to the last stored value. (Probably could be better.)
 
-### obj.serialize()
+`obj.serialize()`
 
 Serialize the model as a hash. Includes optional properties.
 
-### obj.toJSON()
+`obj.toJSON()`
 
 Serialize the model as a string by calling `JSON.stringify()`. Includes optional properties.
 
-### obj.clearDirty()
+`obj.clearDirty()`
 
 Clears the dirty bit. The object cannot be rolled back after this is called. This is called by the persistence layer on a successful save.
 
@@ -261,7 +261,7 @@ var MixinName = {};
 polyclay.mixin(ModelClass, MixinName);
 ```
 
-Mixin objects have two fields.
+Mixin objects have three fields.
 
 `properties`: A hash of property names & types, exactly as in a base model definition.  
 `methods`: A hash of method names & implementations to add to the model prototype.  
@@ -278,7 +278,7 @@ Mixin objects have two fields.
 Here's an example mixin:
 
 ```javascript
-exports.HasTimestamps =
+var HasTimestamps =
 {
 	properties:
 	{
@@ -297,19 +297,6 @@ exports.HasTimestamps =
 Here's an example taken verbatim from the project I wrote this module for:
 
 ```javascript
-var HasTimestamps =
-{
-	properties:
-	{
-		created: 'date',
-		modified: 'date'
-	},
-	methods:
-	{
-		touch: function() { this.modified = Date.now(); }
-	}
-};
-
 var Comment = polyclay.Model.buildClass(
 {
     properties:
@@ -362,7 +349,7 @@ Comment.findByOwner = function(owner, callback)
 	});
 };
 
-polyclay.mixin(Comment, HasTimestamps);
+polyclay.mixin(Comment, HasTimestamps); // as defined above
 polyclay.persist(Comment);
 
 var cradleconn = new cradle.Connection();
@@ -392,7 +379,7 @@ comment.tempfield = 'whatever'; // not persisted in couch
 
 ## TODO
 
-* Documentation
+* Documentation ✓
 * Add mixins to the official library & document ✓
 * Implement the original model builder using mixin machinery (augment mixins)
 * Clean up attachments API ✓
@@ -402,7 +389,7 @@ comment.tempfield = 'whatever'; // not persisted in couch
 * Rethink that enumerable implementation; probably should just denormalize enums to make them less fragile
 * Persistence layer is tangled with model layer in a couple of places
 * Should add a way to specify a key/id attribute name to generalize away from couchdb a bit
-* Consider removing the dependency on cradle
+* How much work would a generic key/value store version be?
 * Nuke the underscore in `_init` ✓
 
 
