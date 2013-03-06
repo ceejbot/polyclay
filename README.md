@@ -1,8 +1,6 @@
 # Polyclay
 
-Polymer modeling clay for node.js. A model schema definition with type validations, dirty-state tracking, and rollback. Is optionally persistable to CouchDB using [cradle](https://github.com/cloudhead/cradle).
-
-The package.json requires [lodash](https://github.com/bestiejs/lodash) as a dependency, but it'll be perfectly fine with [underscore](https://github.com/documentcloud/underscore) instead.
+Polymer modeling clay for node.js. A model schema definition with type validations, dirty-state tracking, and rollback. Models are optionally persistable to CouchDB using [cradle](https://github.com/cloudhead/cradle). Polyclay gives you the safety of type-enforcing properties without making you write a lot of boilerplate.
 
 [![Build Status](https://secure.travis-ci.org/ceejbot/polyclay.png)](http://travis-ci.org/ceejbot/polyclay)
 
@@ -70,23 +68,25 @@ var Widget = polyclay.Model.buildClass({
     properties:
     {
         _id: 'string', // couchdb key
+        name: 'string',
         owner: 'reference'
     }
 });
 polyclay.persist(Widget);
 
 var widget = new Widget();
-widget.owner = fred; // fred is an object we have already from somewhere else
-assert(widget.owner_id === fred._id);
-assert(widget.owner === fred);
+widget.name = 'eludium phosdex';
+widget.owner = marvin; // marvin is an object we have already from somewhere else
+assert(widget.owner_id === marvin._id);
+assert(widget.owner === marvin);
 widget.save(function(err)
 {
     var id = widget._id.
     Widget.get(id, function(err, dbwidget)
     {
     	// the version from the db will have the id saved, 
-    	// but not the full fred object
-        assert(dbwidget.owner_id === fred._id);
+    	// but not the full marvin object
+        assert(dbwidget.owner_id === marvin._id);
         assert(dbwidget.owner === undefined);
     });
 });
@@ -141,11 +141,25 @@ var conn = new cradle.Connection(options);
 ModelFunction.configure(conn, 'databasename');
 ```
 
+### Defining views
 
-### Specifying views
+You can define views to be added to your couch databases when they are created.  Add a `design` field to your constructor function directly. Also, specify a 'modelPlural' property on the prototype to name the document.
 
-TBD
+If you were to add some views to the Widget model you used above, you might write this:
 
+```javascript
+Widget.prototype.modelPlural = 'widgets';
+Widget.design =
+{
+	views:
+	{
+		by_owner: { map: "function(doc) {\n  emit(doc.owner_id, doc);\n}", language: "javascript" },
+		by_name: { map: "function(doc) {\n  emit(doc.name, doc);\n}", language: "javascript" }
+	}
+};
+```
+
+After you call `Widget.provision()`, the 'widgets' database will exist. It will have a design document named "_design/widgets" with the two views above defined.
 
 ### Persistence class methods
 
@@ -199,7 +213,7 @@ You can define attachments for your polyclay models and several convenience meth
 
 `ModelFunc.defineAttachment(name, mimetype);`
 
-The prototype will have `get_name` and `set_anem` functions added to it, wrapped into the property *name*. Also, `fetch_name` will be defined to fetch the attachment data asynchronously from couch. Attachment data is saved when the model is saved, not when it is set using the property.
+The prototype will have `get_name` and `set_name` functions added to it, wrapped into the property *name*. Also, `fetch_name` will be defined to fetch the attachment data asynchronously from couch. Attachment data is saved when the model is saved, not when it is set using the property.
 
 You can also save and remove attachments directly:
 
@@ -211,20 +225,23 @@ A simple example:
 ```javascript
 ModelFunc.defineAttachment('rendered', 'text/html');
 ModelFunc.defineAttachment('avatar', 'image/jpeg');
+
 var obj = new ModelFunc();
 obj.avatar = fs.readFileSync('avatar.jpg');
 console.log(obj.isDirty); // true
-var imgdata = obj.avatar;
+
 obj.save(function(err, resp)
 {
 	// attachment is now persisted in couch.
+	// Also, obj's _rev has been updated.
 	obj.avatar = null;
-	
+	obj.save(function(err, resp2)
+	{
+		// the avatar attachment has been removed
+		// obj._rev has been updated again
+	});
 });
 ```
-
-
-
 
 ### Before & after hooks
 
@@ -280,6 +297,19 @@ exports.HasTimestamps =
 Here's an example taken verbatim from the project I wrote this module for:
 
 ```javascript
+var HasTimestamps =
+{
+	properties:
+	{
+		created: 'date',
+		modified: 'date'
+	},
+	methods:
+	{
+		touch: function() { this.modified = Date.now(); }
+	}
+};
+
 var Comment = polyclay.Model.buildClass(
 {
     properties:
@@ -290,8 +320,6 @@ var Comment = polyclay.Model.buildClass(
         owner_handle: 'string',
         target: 'reference',
         parent: 'reference',
-        created: 'date',
-        modified: 'date',
         title: 'string',
         content: 'string',
         editable: 'boolean'
@@ -334,13 +362,14 @@ Comment.findByOwner = function(owner, callback)
 	});
 };
 
+polyclay.mixin(Comment, HasTimestamps);
 polyclay.persist(Comment);
+
 var cradleconn = new cradle.Connection();
 Comment.configure(cradleconn, 'comments');
-// create the database
 Comment.provision(function(err, response)
 {
-	// err should not exist
+	// database is now created & the views available to use
 }); 
 
 
@@ -353,10 +382,10 @@ comment.state = 'deleted';
 console.log(comment.state);
 comment.state = 1;
 console.log(comment.state);
-comment.modified = Date.now();
+comment.touch();
 console.log(comment.__dirty); // true
 
-comment.rollback(); // version is now 1 and modified undefined
+comment.rollback(); // version is now 1 and modified the same as created
 comment.tempfield = 'whatever'; // not persisted in couch
 ```
 
@@ -365,8 +394,8 @@ comment.tempfield = 'whatever'; // not persisted in couch
 
 * Documentation
 * Add mixins to the official library & document ✓
-* Make it easy to choose between lodash & underscore using dependency injection in the require or something like that
-* Clean up attachments API
+* Implement the original model builder using mixin machinery (augment mixins)
+* Clean up attachments API ✓
 * Settle on one of destroy/remove/delete (probably destroy)  ✓
 * Improve rollback behavior & write some vicious tests for it
 * Implement saving already-persisted objects by means of merge()
