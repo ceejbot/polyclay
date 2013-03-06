@@ -1,6 +1,6 @@
 {
 	"name": "polyclay",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "a schema-enforcing model class for node with optional couch persistence",
 	"main": "index.js",
 	"directories":
@@ -27,7 +27,7 @@
 	"dependencies":
 	{
 		"async": "*",
-		"cradle": "*",
+		"cradle": "git://github.com/ceejbot/cradle.git",
 		"lodash": "*"
 	},
 	"devDependencies":
