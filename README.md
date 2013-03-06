@@ -379,19 +379,18 @@ comment.tempfield = 'whatever'; // not persisted in couch
 
 ## TODO
 
-* Documentation ✓
-* Add mixins to the official library & document ✓
 * Implement the original model builder using mixin machinery (augment mixins)
-* Clean up attachments API ✓
-* Settle on one of destroy/remove/delete (probably destroy)  ✓
 * Improve rollback behavior & write some vicious tests for it
 * Implement saving already-persisted objects by means of merge()
 * Rethink that enumerable implementation; probably should just denormalize enums to make them less fragile
-* Persistence layer is tangled with model layer in a couple of places
 * Should add a way to specify a key/id attribute name to generalize away from couchdb a bit
 * How much work would a generic key/value store version be?
+* Documentation ✓
+* Persistence layer is tangled with model layer in a couple of places  ✓
+* Add mixins to the official library & document ✓
+* Clean up attachments API ✓
+* Settle on one of destroy/remove/delete (probably destroy)  ✓
 * Nuke the underscore in `_init` ✓
-
 
 ## License
 
