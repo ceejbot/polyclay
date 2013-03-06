@@ -27,7 +27,7 @@
 	"dependencies":
 	{
 		"async": "*",
-		"cradle": "git://github.com/ceejbot/cradle.git",
+		"cradle": "*",
 		"lodash": "*"
 	},
 	"devDependencies":
@@ -48,5 +48,5 @@
 	"author": "C J Silverio <ceejceej@gmail.com>",
 	"license": "MIT",
 	"readmeFilename": "README.md",
-	"gitHead": "6041ad9b2276066ffeaa1efadfc4c7d0e6c2cff6"
+	"gitHead": "3d5f3c31e340aa452f7833c4b5beea5025bc58ae"
 }
