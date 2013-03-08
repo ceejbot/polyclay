@@ -13,6 +13,7 @@ var
 	path = require('path'),
 	persistence = require('../lib/persistence'),
 	polyclay = require('../lib/polyclay'),
+	putil = require('../lib/util'),
 	util = require('util')
 	;
 
@@ -119,6 +120,32 @@ describe('persistence layer', function()
 		obj.should.be.an('object');
 		obj.should.have.property('test');
 		obj.should.have.property('fetch_test');
+	});
+
+	it('can be passed a key field', function()
+	{
+		var Ephemeral = polyclay.Model.buildClass(
+		{
+			properties:
+			{
+				'id': 'string'
+			}
+		});
+		persistence.persist(Ephemeral, 'id');
+
+		var keyprop = Object.getOwnPropertyDescriptor(Ephemeral.prototype, 'key');
+
+		keyprop.should.be.ok;
+		keyprop.should.be.an('object');
+
+		var obj = new Ephemeral();
+		obj.key = '4';
+
+		var obj2 = new Ephemeral();
+		obj2.key = 'foo';
+
+		assert(obj2.id === 'foo', obj2.id + ' !== ' + obj2.key);
+		assert(obj.id === '4', obj.id + ' !== ' + obj.key);
 	});
 
 	it('throws when passed a model without polyclay attributes', function()
@@ -448,7 +475,7 @@ describe('persistence layer', function()
 				var cached = instance.__attachments['avatar'].body;
 				cached.should.be.okay;
 				(cached instanceof Buffer).should.equal(true);
-				persistence.dataLength(cached).should.equal(persistence.dataLength(attachmentdata));
+				putil.dataLength(cached).should.equal(putil.dataLength(attachmentdata));
 				done();
 			});
 		});
@@ -603,25 +630,25 @@ describe('dataLength()', function()
 {
 	it('handles null data', function()
 	{
-		var len = persistence.dataLength(null);
+		var len = putil.dataLength(null);
 		len.should.equal(0);
 	});
 
 	it('handles Buffer data', function()
 	{
-		var len = persistence.dataLength(attachmentdata);
+		var len = putil.dataLength(attachmentdata);
 		len.should.equal(6776);
 	});
 
 	it('handles ascii string data', function()
 	{
-		var len = persistence.dataLength('cat');
+		var len = putil.dataLength('cat');
 		len.should.equal(3);
 	});
 
 	it('handles non-ascii string data', function()
 	{
-		var len = persistence.dataLength('crème brûlée');
+		var len = putil.dataLength('crème brûlée');
 		len.should.equal(15);
 	});
 });
