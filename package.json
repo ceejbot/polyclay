@@ -28,7 +28,9 @@
 	{
 		"async": "*",
 		"cradle": "git://github.com/ceejbot/cradle.git",
-		"lodash": "*"
+		"lodash": "*",
+		"redis": "*",
+		"hiredis": "*"
 	},
 	"devDependencies":
 	{
