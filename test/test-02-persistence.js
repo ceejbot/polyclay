@@ -11,9 +11,7 @@ var
 	cradle = require('cradle'),
 	fs = require('fs'),
 	path = require('path'),
-	persistence = require('../lib/persistence'),
-	polyclay = require('../lib/polyclay'),
-	putil = require('../lib/util'),
+	polyclay = require('../index'),
 	util = require('util')
 	;
 
@@ -94,7 +92,7 @@ describe('persistence layer', function()
 
 	it('adds functions to the prototype when persist is called', function()
 	{
-		persistence.persist(Model);
+		polyclay.persist(Model);
 		Model.name = 'model';
 		Model.prototype.modelPlural = 'models';
 		Model.prototype.save.should.be.a('function');
@@ -113,7 +111,7 @@ describe('persistence layer', function()
 	it('handles models without persistable fields', function()
 	{
 		var Ephemeral = polyclay.Model.buildClass({});
-		persistence.persist(Ephemeral);
+		polyclay.persist(Ephemeral);
 		Ephemeral.defineAttachment('test', 'image/jpeg');
 
 		var obj = new Ephemeral();
@@ -131,7 +129,7 @@ describe('persistence layer', function()
 				'id': 'string'
 			}
 		});
-		persistence.persist(Ephemeral, 'id');
+		polyclay.persist(Ephemeral, 'id');
 
 		var keyprop = Object.getOwnPropertyDescriptor(Ephemeral.prototype, 'key');
 
@@ -156,7 +154,7 @@ describe('persistence layer', function()
 			{
 				this.foo = 'bar';
 			}
-			persistence.persist(Bad);
+			polyclay.persist(Bad);
 		};
 
 		willThrow.should.throw(Error);
@@ -173,8 +171,13 @@ describe('persistence layer', function()
 					auth: couch_config.auth
 				}
 		);
+		var options =
+		{
+			connection: connection,
+			dbname: couch_config.db
+		};
 
-		Model.configure(connection, couch_config.db);
+		Model.configure(options, polyclay.CouchAdapter);
 		Model.adapter.should.be.ok;
 		Model.adapter.db.should.be.ok;
 		Model.adapter.connection.info(function(err, response)
@@ -475,7 +478,7 @@ describe('persistence layer', function()
 				var cached = instance.__attachments['avatar'].body;
 				cached.should.be.okay;
 				(cached instanceof Buffer).should.equal(true);
-				putil.dataLength(cached).should.equal(putil.dataLength(attachmentdata));
+				polyclay.dataLength(cached).should.equal(polyclay.dataLength(attachmentdata));
 				done();
 			});
 		});
@@ -630,25 +633,25 @@ describe('dataLength()', function()
 {
 	it('handles null data', function()
 	{
-		var len = putil.dataLength(null);
+		var len = polyclay.dataLength(null);
 		len.should.equal(0);
 	});
 
 	it('handles Buffer data', function()
 	{
-		var len = putil.dataLength(attachmentdata);
+		var len = polyclay.dataLength(attachmentdata);
 		len.should.equal(6776);
 	});
 
 	it('handles ascii string data', function()
 	{
-		var len = putil.dataLength('cat');
+		var len = polyclay.dataLength('cat');
 		len.should.equal(3);
 	});
 
 	it('handles non-ascii string data', function()
 	{
-		var len = putil.dataLength('crème brûlée');
+		var len = polyclay.dataLength('crème brûlée');
 		len.should.equal(15);
 	});
 });
