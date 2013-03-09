@@ -71,6 +71,7 @@ describe('redis adapter', function()
 		Model.configure(options, polyclay.RedisAdapter);
 		Model.adapter.should.be.ok;
 		Model.adapter.redis.should.be.ok;
+		Model.adapter.constructor.should.equal(Model);
 	});
 
 	it('provision does nothing', function(done)
@@ -175,7 +176,7 @@ describe('redis adapter', function()
 	it('the adapter get() can handle an id or an array of ids', function(done)
 	{
 		var ids = [ '1', '2' ];
-		Model.adapter.get(ids, Model, function(err, itemlist)
+		Model.adapter.get(ids, function(err, itemlist)
 		{
 			should.not.exist(err);
 			itemlist.should.be.an('array');
@@ -506,13 +507,13 @@ describe('redis adapter', function()
 		{
 			name: 'this is not valid json'
 		};
-		var result = polyclay.RedisAdapter.inflate(Model, bad);
+		var result = Model.adapter.inflate(bad);
 		result.name.should.equal(bad.name);
 	});
 
-	it('inflate() does not contruct an object when given a null payload', function()
+	it('inflate() does not construct an object when given a null payload', function()
 	{
-		var result = polyclay.RedisAdapter.inflate(Model, null);
+		var result = Model.adapter.inflate(null);
 		assert.equal(result, undefined, 'inflate() created a bad object!');
 	});
 
