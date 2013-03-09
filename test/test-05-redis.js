@@ -141,7 +141,7 @@ describe('redis adapter', function()
 	it('can update the document', function(done)
 	{
 		instance.name = "New name";
-		instance.__dirty.should.be.true;
+		instance.isDirty().should.be.true;
 		instance.save(function(err, response)
 		{
 			should.not.exist(err);
@@ -344,7 +344,7 @@ describe('redis adapter', function()
 		instance.save(function(err, response)
 		{
 			should.not.exist(err);
-			instance.__dirty.should.be.false;
+			instance.isDirty().should.be.false;
 			instance.fetch_avatar(function(err, imagedata)
 			{
 				should.not.exist(err);

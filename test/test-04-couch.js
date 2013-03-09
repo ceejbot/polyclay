@@ -167,7 +167,7 @@ describe('couch adapter', function()
 			should.not.exist(err);
 			id_and_rev.should.be.ok;
 			id_and_rev.should.be.an('object');
-			instance.__dirty.should.be.false;
+			instance.isDirty().should.be.false;
 			instance._id.should.equal(id_and_rev.id);
 			instance._rev.should.equal(id_and_rev.rev);
 			done();
@@ -195,13 +195,13 @@ describe('couch adapter', function()
 	{
 		var prevRev = instance._rev;
 		instance.name = "New name";
-		instance.__dirty.should.be.true;
+		instance.isDirty().should.be.true;
 		instance.save(function(err, response)
 		{
 			should.not.exist(err);
 			response.should.be.a('string');
 			response.should.equal('OK');
-			instance.__dirty.should.be.false;
+			instance.isDirty().should.be.false;
 			instance._rev.should.not.equal(prevRev);
 			done();
 		});
@@ -406,7 +406,7 @@ describe('couch adapter', function()
 		instance.save(function(err, response)
 		{
 			should.not.exist(err);
-			instance.__dirty.should.be.false;
+			instance.isDirty().should.be.false;
 			instance.fetch_avatar(function(err, imagedata)
 			{
 				should.not.exist(err);
