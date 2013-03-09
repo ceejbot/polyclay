@@ -20,6 +20,7 @@ var modelDefinition =
 {
 	properties:
 	{
+		key: 'string',
 		name: 'string',
 		created: 'date',
 		foozles: 'array',
@@ -139,7 +140,7 @@ describe('polyclay', function()
 		property.should.have.property('get');
 		property.should.have.property('set');
 
-		var ref = { _id: 'testref', foo: 'bar' };
+		var ref = { key: 'testref', foo: 'bar' };
 		instance.pointer = ref;
 		instance.pointer.should.be.an('object');
 		instance.pointer_id.should.equal('testref');
@@ -149,7 +150,7 @@ describe('polyclay', function()
 	{
 		var obj = new Model();
 		var target = new Model();
-		target._id = 'foo';
+		target.key = 'foo';
 		obj.pointer = target;
 		obj.pointer.should.equal(target);
 		obj.pointer_id.should.equal('foo');

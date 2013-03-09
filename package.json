@@ -29,7 +29,10 @@
 		"async": "*",
 		"cradle": "git://github.com/ceejbot/cradle.git",
 		"lodash": "*",
-		"redis": "*",
+		"redis": "*"
+	},
+	"optionalDependencies":
+	{
 		"hiredis": "*"
 	},
 	"devDependencies":
@@ -45,6 +48,7 @@
 		"model",
 		"couchdb",
 		"couch",
+		"redis",
 		"schema"
 	],
 	"author": "C J Silverio <ceejceej@gmail.com>",
