@@ -73,6 +73,15 @@ describe('redis adapter', function()
 		Model.adapter.redis.should.be.ok;
 	});
 
+	it('provision does nothing', function(done)
+	{
+		Model.provision(function(err)
+		{
+			should.not.exist(err);
+			done();
+		});
+	});
+
 	it('throws when asked to save a document without a key', function()
 	{
 		var noID = function()
@@ -160,6 +169,18 @@ describe('redis adapter', function()
 				itemlist.length.should.equal(2);
 				done();
 			});
+		});
+	});
+
+	it('the adapter get() can handle an id or an array of ids', function(done)
+	{
+		var ids = [ '1', '2' ];
+		Model.adapter.get(ids, Model, function(err, itemlist)
+		{
+			should.not.exist(err);
+			itemlist.should.be.an('array');
+			itemlist.length.should.equal(2);
+			done();
 		});
 	});
 
@@ -335,6 +356,17 @@ describe('redis adapter', function()
 		});
 	});
 
+	it('can fetch an attachment directly', function(done)
+	{
+		Model.adapter.attachment('1', 'avatar', function(err, body)
+		{
+			should.not.exist(err);
+			(body instanceof Buffer).should.equal(true);
+			polyclay.dataLength(body).should.equal(polyclay.dataLength(attachmentdata));
+			done();
+		});
+	});
+
 	it('removes an attachment when its data is set to null', function(done)
 	{
 		instance.avatar = null;
@@ -424,7 +456,7 @@ describe('redis adapter', function()
 				should.not.exist(err);
 				obj.should.be.an('object');
 
-				var itemlist = [obj, obj2];
+				var itemlist = [obj, obj2.key];
 				Model.destroyMany(itemlist, function(err, response)
 				{
 					should.not.exist(err);
@@ -466,6 +498,22 @@ describe('redis adapter', function()
 			err.message.should.equal('object already destroyed');
 			done();
 		});
+	});
+
+	it('inflate() handles bad json by assigning properties directly', function()
+	{
+		var bad =
+		{
+			name: 'this is not valid json'
+		};
+		var result = polyclay.RedisAdapter.inflate(Model, bad);
+		result.name.should.equal(bad.name);
+	});
+
+	it('inflate() does not contruct an object when given a null payload', function()
+	{
+		var result = polyclay.RedisAdapter.inflate(Model, null);
+		assert.equal(result, undefined, 'inflate() created a bad object!');
 	});
 
 	after(function(done)
