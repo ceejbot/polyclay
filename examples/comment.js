@@ -2,6 +2,19 @@ var
 	cradle = require('cradle'),
 	polyclay = require('../index');
 
+var HasTimestamps =
+{
+    properties:
+    {
+        created: 'date',
+        modified: 'date'
+    },
+    methods:
+    {
+        touch: function() { this.modified = Date.now(); }
+    }
+};
+
 var Comment = polyclay.Model.buildClass(
 {
 	properties:
@@ -12,8 +25,6 @@ var Comment = polyclay.Model.buildClass(
 		owner_handle: 'string',
 		target: 'reference',
 		parent: 'reference',
-		created: 'date',
-		modified: 'date',
 		title: 'string',
 		content: 'string',
 		editable: 'boolean'
@@ -33,6 +44,11 @@ var Comment = polyclay.Model.buildClass(
 		this.state = 0;
 	},
 });
+
+polyclay.mixin(Comment, HasTimestamps);
+
+Comment.prototype.plural = 'comments';
+Comment.prototype.singular = 'comment';
 
 Comment.design =
 {
@@ -56,24 +72,33 @@ Comment.findByOwner = function(owner, callback)
 	});
 };
 
-polyclay.persist(Comment);
-var cradleconn = new cradle.Connection();
-Comment.configure(cradleconn, 'comments');
+polyclay.persist(Comment, '_id');
+
+var opts =
+{
+	connection: new cradle.Connection(),
+	dbname: 'comments'
+};
+Comment.setStorage(opts, polyclay.CouchAdapter);
+
 // create the database
 Comment.provision(function(err, response)
 {
 	// err should not exist
+	var comment = new Comment();
+	console.log(comment.state);
+	comment.version = "foo"; // throws an error
+	comment.version = 2; // sets the attribute
+	comment.state = 'yoinks'; // throws an error
+	comment.state = 'deleted';
+	console.log(comment.state);
+	comment.state = 1;
+	console.log(comment.state);
+	comment.modified = Date.now();
+	console.log(comment.__dirty); // true
+
+	comment.save(function(err, response)
+	{
+		// comment should now be stored in couch
+	});
 });
-
-
-var comment = new Comment();
-console.log(comment.state);
-comment.version = "foo"; // throws an error
-comment.version = 2; // sets the attribute
-comment.state = 'yoinks'; // throws an error
-comment.state = 'deleted';
-console.log(comment.state);
-comment.state = 1;
-console.log(comment.state);
-comment.modified = Date.now();
-console.log(comment.__dirty); // true
