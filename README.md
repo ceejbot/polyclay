@@ -154,6 +154,8 @@ var adapterOptions =
 ModelFunction.setStorage(adapterOptions, polyclay.CouchAdapter);
 ```
 
+Every model instance has a pointer to the adapter on its `adapter` field. The adapter in turn gives you access to the cradle connection on `obj.adapter.connection` and the database on `obj.adapter.db`.
+
 For the redis adapter, specify host & port of your redis server. The 'dbname' option is used to namespace keys. The redis adapter will store models in hash keys of the form `<dbname>:<key>`. It will also use a set at key `<dbname>:ids` to track model ids.
 
 ```javascript
@@ -165,6 +167,8 @@ var options =
 };
 RedisModelFunc.setStorage(options, polyclay.RedisAdapter);
 ```
+
+The redis client is available at `obj.adapter.redis`.
 
 ### Defining views
 
