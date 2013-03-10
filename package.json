@@ -1,6 +1,6 @@
 {
 	"name": "polyclay",
-	"version": "1.0.1",
+	"version": "1.1.0",
 	"description": "a schema-enforcing model class for node with optional couch persistence",
 	"main": "index.js",
 	"directories":
@@ -28,7 +28,12 @@
 	{
 		"async": "*",
 		"cradle": "git://github.com/ceejbot/cradle.git",
-		"lodash": "*"
+		"lodash": "*",
+		"redis": "*"
+	},
+	"optionalDependencies":
+	{
+		"hiredis": "*"
 	},
 	"devDependencies":
 	{
@@ -43,6 +48,7 @@
 		"model",
 		"couchdb",
 		"couch",
+		"redis",
 		"schema"
 	],
 	"author": "C J Silverio <ceejceej@gmail.com>",
