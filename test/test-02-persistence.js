@@ -129,7 +129,7 @@ describe('persistence layer', function()
 
 	it('adds class methods to the Model function', function()
 	{
-		Model.configure.should.be.a('function');
+		Model.setStorage.should.be.a('function');
 		Model.get.should.be.a('function');
 		Model.getBatch.should.be.a('function');
 		Model.all.should.be.a('function');

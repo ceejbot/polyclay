@@ -68,7 +68,7 @@ describe('redis adapter', function()
 			dbname: 'test'
 		};
 
-		Model.configure(options, polyclay.RedisAdapter);
+		Model.setStorage(options, polyclay.RedisAdapter);
 		Model.adapter.should.be.ok;
 		Model.adapter.redis.should.be.ok;
 		Model.adapter.constructor.should.equal(Model);

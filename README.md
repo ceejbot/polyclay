@@ -1,6 +1,8 @@
 # Polyclay
 
-Polymer modeling clay for node.js. A model schema definition with type validations, dirty-state tracking, and rollback. Models are optionally persistable to CouchDB using [cradle](https://github.com/cloudhead/cradle). Polyclay gives you the safety of type-enforcing properties without making you write a lot of boilerplate.
+Polymer modeling clay for node.js. A model schema definition with type validations, dirty-state tracking, and rollback. Models are optionally persistable to CouchDB using [cradle](https://github.com/cloudhead/cradle). Polyclay gives you the safety of type-enforcing properties without making you write a lot of boilerplate. New! You can now persist in [Redis](http://redis.io/) if your data fits in memory and you need very fast access to it.
+
+Current version: __1.0.1__
 
 [![Build Status](https://secure.travis-ci.org/ceejbot/polyclay.png)](http://travis-ci.org/ceejbot/polyclay)
 
@@ -132,17 +134,36 @@ Serialize the model as a string by calling `JSON.stringify()`. Includes optional
 
 Clears the dirty bit. The object cannot be rolled back after this is called. This is called by the persistence layer on a successful save.
 
-## Persisting in CouchDB
+## Persisting in CouchDB or Redis
 
 Once you've built a polyclay model, you can mix persistence methods into it:
 
-`polyclay.persist(ModelFunction);`
+````javascript
+polyclay.persist(ModelFunction, '_id');
+polyclay.persist(RedisModelFunc, 'name');
+```
 
-You can then set up its access to CouchDB by giving it an existing Cradle connection object plus the name of the database where this model should store its objects:
+You can then set up its access to CouchDB by giving it an existing Cradle connection object plus the name of the database where this model should store its objects. The couch adapter wants two fields in its options hash: a cradle connection and a database name. For instance:
 
 ```javascript
-var conn = new cradle.Connection(options);
-ModelFunction.configure(conn, 'databasename');
+var adapterOptions =
+{
+	connection: new cradle.Connection(),
+	dbname: 'widgets'
+};
+ModelFunction.setStorage(adapterOptions, polyclay.CouchAdapter);
+```
+
+For the redis adapter, specify host & port of your redis server. The 'dbname' option is used to namespace keys. The redis adapter will store models in hash keys of the form `<dbname>:<key>`. It will also use a set at key `<dbname>:ids` to track model ids.
+
+```javascript
+var options =
+{
+	host: 'localhost',
+	port: 6379,
+	dbname: 'widgets'
+};
+RedisModelFunc.setStorage(options, polyclay.RedisAdapter);
 ```
 
 ### Defining views
@@ -357,7 +378,7 @@ polyclay.mixin(Comment, HasTimestamps); // as defined above
 polyclay.persist(Comment);
 
 var cradleconn = new cradle.Connection();
-Comment.configure(cradleconn, 'comments');
+Comment.setStorage(cradleconn, 'comments');
 Comment.provision(function(err, response)
 {
 	// database is now created & the views available to use
@@ -387,8 +408,10 @@ comment.tempfield = 'whatever'; // not persisted in couch
 * Improve rollback behavior & write some vicious tests for it
 * Implement saving already-persisted objects by means of merge()
 * Rethink that enumerable implementation; probably should just denormalize enums to make them less fragile
-* Should add a way to specify a key/id attribute name to generalize away from couchdb a bit
-* How much work would a generic key/value store version be?
+* Consider skipping attachment fields when doing a basic model get with redis
+* Mime types on attachments are a mess
+* Should add a way to specify a key/id attribute name to generalize away from couchdb a bit   ✓
+* How much work would a generic key/value store version be?  ✓
 * Documentation ✓
 * Persistence layer is tangled with model layer in a couple of places  ✓
 * Add mixins to the official library & document ✓

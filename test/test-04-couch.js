@@ -111,7 +111,7 @@ describe('couch adapter', function()
 			dbname: couch_config.db
 		};
 
-		Model.configure(options, polyclay.CouchAdapter);
+		Model.setStorage(options, polyclay.CouchAdapter);
 		Model.adapter.should.be.ok;
 		Model.adapter.db.should.be.ok;
 		Model.adapter.connection.info(function(err, response)
