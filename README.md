@@ -379,10 +379,14 @@ Comment.findByOwner = function(owner, callback)
 };
 
 polyclay.mixin(Comment, HasTimestamps); // as defined above
-polyclay.persist(Comment);
+polyclay.persist(Comment, '_id');
 
-var cradleconn = new cradle.Connection();
-Comment.setStorage(cradleconn, 'comments');
+var opts =
+{
+	connection: new cradle.Connection(),
+	dbname: 'comments'
+};
+Comment.setStorage(opts, polyclay.CouchAdapter);
 Comment.provision(function(err, response)
 {
 	// database is now created & the views available to use
