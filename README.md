@@ -2,7 +2,7 @@
 
 Polymer modeling clay for node.js. A model schema definition with type validations, dirty-state tracking, and rollback. Models are optionally persistable to CouchDB using [cradle](https://github.com/cloudhead/cradle). Polyclay gives you the safety of type-enforcing properties without making you write a lot of boilerplate. New! You can now persist in [Redis](http://redis.io/) if your data fits in memory and you need very fast access to it.
 
-Current version: __1.0.1__
+Current version: __1.1.0__
 
 [![Build Status](https://secure.travis-ci.org/ceejbot/polyclay.png)](http://travis-ci.org/ceejbot/polyclay)
 
@@ -408,24 +408,6 @@ console.log(comment.__dirty); // true
 comment.rollback(); // version is now 1 and modified the same as created
 comment.tempfield = 'whatever'; // not persisted in couch
 ```
-
-
-## TODO
-
-* Implement the original model builder using mixin machinery (augment mixins)
-* Improve rollback behavior & write some vicious tests for it
-* Implement saving already-persisted objects by means of merge()
-* Rethink that enumerable implementation; probably should just denormalize enums to make them less fragile
-* Consider skipping attachment fields when doing a basic model get with redis
-* Mime types on attachments are a mess
-* Should add a way to specify a key/id attribute name to generalize away from couchdb a bit   ✓
-* How much work would a generic key/value store version be?  ✓
-* Documentation ✓
-* Persistence layer is tangled with model layer in a couple of places  ✓
-* Add mixins to the official library & document ✓
-* Clean up attachments API ✓
-* Settle on one of destroy/remove/delete (probably destroy)  ✓
-* Nuke the underscore in `_init` ✓
 
 ## License
 
