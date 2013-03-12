@@ -1,8 +1,8 @@
 # Polyclay
 
-Polymer modeling clay for node.js. A model schema definition with type validations, dirty-state tracking, and rollback. Models are optionally persistable to CouchDB using [cradle](https://github.com/cloudhead/cradle). Polyclay gives you the safety of type-enforcing properties without making you write a lot of boilerplate. New! You can now persist in [Redis](http://redis.io/) if your data fits in memory and you need very fast access to it.
+Polymer modeling clay for node.js. A model schema definition with type validations, dirty-state tracking, and rollback. Models are optionally persistable to CouchDB using [cradle](https://github.com/cloudhead/cradle), [Redis](http://redis.io/), or [LevelUP](https://github.com/rvagg/node-levelup). Polyclay gives you the safety of type-enforcing properties without making you write a lot of boilerplate. 
 
-Current version: __1.1.0__
+Current version: __1.2.0__
 
 [![Build Status](https://secure.travis-ci.org/ceejbot/polyclay.png)](http://travis-ci.org/ceejbot/polyclay)
 
@@ -65,7 +65,7 @@ Polyclay properties must have types declared. Getters and setter functions will 
 
 ### References
 
-*Reference* properties are pointers to other Couch-persisted objects. When Polyclay builds a reference property, it provides two sets of getter/setters. First, it defines a `model.reference_id` property, which is a string property that tracks the `_id` of the referred-to object. It also defines `model.reference()` and `model.set_reference()` functions, used to define the js property `model.reference`. This provides runtime-only access to the pointed-to object. Inflating it later is an exercise for the application using this model and the persistence layer.
+*Reference* properties are pointers to other polyclay-persisted objects. When Polyclay builds a reference property, it provides two sets of getter/setters. First, it defines a `model.reference_id` property, which is a string property that tracks the `key` of the referred-to object. It also defines `model.reference()` and `model.set_reference()` functions, used to define the js property `model.reference`. This provides runtime-only access to the pointed-to object. Inflating it later is an exercise for the application using this model and the persistence layer.
 
 In this example, widgets have an `owner` property that points to another object:
 
@@ -83,16 +83,16 @@ polyclay.persist(Widget);
 var widget = new Widget();
 widget.name = 'eludium phosdex';
 widget.owner = marvin; // marvin is an object we have already from somewhere else
-assert(widget.owner_id === marvin._id);
+assert(widget.owner_id === marvin.key);
 assert(widget.owner === marvin);
 widget.save(function(err)
 {
-    var id = widget._id.
+    var id = widget.key.
     Widget.get(id, function(err, dbwidget)
     {
     	// the version from the db will have the id saved, 
     	// but not the full marvin object
-        assert(dbwidget.owner_id === marvin._id);
+        assert(dbwidget.owner_id === marvin.key);
         assert(dbwidget.owner === undefined);
     });
 });
@@ -134,7 +134,7 @@ Serialize the model as a string by calling `JSON.stringify()`. Includes optional
 
 Clears the dirty bit. The object cannot be rolled back after this is called. This is called by the persistence layer on a successful save.
 
-## Persisting in CouchDB or Redis
+## Persisting in CouchDB, Redis, or LevelUP
 
 Once you've built a polyclay model, you can mix persistence methods into it:
 
@@ -165,10 +165,23 @@ var options =
 	port: 6379,
 	dbname: 'widgets'
 };
-RedisModelFunc.setStorage(options, polyclay.RedisAdapter);
+ModelFunction.setStorage(options, polyclay.RedisAdapter);
 ```
 
 The redis client is available at `obj.adapter.redis`.
+
+For LevelUP:
+
+```javascript
+var options =
+{
+	dbpath: '/path/to/leveldb/dir',
+	dbname: 'widgets'
+};
+ModelFunction.setStorage(options, polyclay.LevelupAdapter);
+```
+
+The Levelup object is available at `obj.adapter.db`. The attachments data store is available at `obj.adapter.attachdb`.
 
 ### Defining views
 
@@ -188,13 +201,13 @@ Widget.design =
 };
 ```
 
-After you call `Widget.provision()`, the 'widgets' database will exist. It will have a design document named "_design/widgets" with the two views above defined.
+After you call `Widget.provision()`, the 'widgets' database will exist. It will have a design document named "_design/widgets" with the two views above defined. Does nothing for Redis- or LevelUP-backed models.
 
 ### Persistence class methods
 
 `provision(function(err, couchResponse))`
 
-Create the database the model expects to use in couch. Create any views for the db that are specified in the `design` field.
+Create the database the model expects to use in couch. Create any views for the db that are specified in the `design` field. Does nothing for Redis and LevelUP.
 
 `ModelFunction.get(id, function(err, object))`
 
@@ -206,26 +219,26 @@ Fetch all objects from the database. It's up to you not to shoot yourself in the
 
 `ModelFunction.constructMany(couchDocs, function(err, objectArray))`
 
-Takes a list of couch response documents produced by calls to couch views, and uses them to inflate objects. You will use this class method when writing wrappers for couch views. For a simple example, see class Comment's findByOwner() method below.
+Takes a list of couch response documents produced by calls to couch views, and uses them to inflate objects. You will use this class method when writing wrappers for couch views. For a simple example, see class Comment's findByOwner() method below. (Not exercised by the other adapters.)
 
-`ModelFunction.destroyMany(idArray, function(err, couchResponseArray))`
+`ModelFunction.destroyMany(idArray, function(err, response))`
 
-Takes a list of object ids to remove. Responds with err if any failed, and an array of responses from couch.
+Takes a list of object ids to remove. Responds with err if any failed, and an array of responses from couch or redis.
 
 
 ### Persistence instance methods
 
-`obj.save(function(err, couchResponse))`
+`obj.save(function(err, response))`
 
-Save the model to the db. Works on new objects as well as updated objects that have already been persisted. If the object was not given an `_id` property before the call, the property will be filled in with whatever couch chose. Does nothing if the object is not marked as dirty.
+Save the model to the db. Works on new objects as well as updated objects that have already been persisted. If the object was not given a `key` property before the call, the property will be filled in with whatever couch chose. The LevelUP and Redis adapters both demand that you provide a key before calling save(). Does nothing if the object is not marked as dirty.
 
 `obj.destroy(function(err, wasDestroyed))`
 
-Removed the object from couch and set its `destroyed` flag. The object must have an `_id`.
+Removed the object from couch and set its `destroyed` flag. The object must have a `key`.
 
-`obj.merge(hash, function(err, couchResponse))`
+`obj.merge(hash, function(err, response))`
 
-Update the model with fields in the supplied hash, then save the result to couch.
+Update the model with fields in the supplied hash, then save the result to the backing store. 
 
 `obj.removeAttachment(name, function(err, wasRemoved))`
 
@@ -233,7 +246,7 @@ Remove the named attachment. Responds with wasRemoved == true if the operation w
 
 `obj.initFromStorage(hash)`
 
-Initialize a model from data returned by couchdb. You are unlikely to call this, but it's available.
+Initialize a model from data returned by the backing store. You are unlikely to call this, but it's available.
 
 
 ### Attachments
@@ -242,12 +255,12 @@ You can define attachments for your polyclay models and several convenience meth
 
 `ModelFunc.defineAttachment(name, mimetype);`
 
-The prototype will have `get_name` and `set_name` functions added to it, wrapped into the property *name*. Also, `fetch_name` will be defined to fetch the attachment data asynchronously from couch. Attachment data is saved when the model is saved, not when it is set using the property.
+The prototype will have `get_name` and `set_name` functions added to it, wrapped into the property *name*. Also, `fetch_name` will be defined to fetch the attachment data asynchronously from backing storage. Attachment data is saved when the model is saved, not when it is set using the property.
 
 You can also save and remove attachments directly:
 
-`obj.saveAttachment(name, function(err, couchResponse))`  
-`obj.removeAttachment(name, function(err, couchresponse))`
+`obj.saveAttachment(name, function(err, response))`  
+`obj.removeAttachment(name, function(err, response))`
 
 A simple example:
 
@@ -261,7 +274,7 @@ console.log(obj.isDirty); // true
 
 obj.save(function(err, resp)
 {
-	// attachment is now persisted in couch.
+	// attachment is now persisted in storage.
 	// Also, obj's _rev has been updated.
 	obj.avatar = null;
 	obj.save(function(err, resp2)
@@ -276,10 +289,10 @@ obj.save(function(err, resp)
 
 If you supply the following methods on your model class, they will be called when their names suggest:
 
-`afterLoad()`: after a document has been loaded from couch & a model instantiated  
-`beforeSave()`: before a document is saved to couch in `save()`  
-`afterSave()`: after a save to couch has succeeded, before callback  
-`beforeDestroy()`: before deleting a model from couch in `destroy()`
+`afterLoad()`: after a document has been loaded from storage & a model instantiated  
+`beforeSave()`: before a document is saved to storage in `save()`  
+`afterSave()`: after a save to storage has succeeded, before callback  
+`beforeDestroy()`: before deleting a model from storage in `destroy()`
 
 ## Mixins
 
@@ -369,7 +382,7 @@ Comment.design =
 Comment.findByOwner = function(owner, callback)
 {
 	if (typeof owner === 'object')
-		owner = owner._id;
+		owner = owner.key;
 
 	Comment.adapter.db.view('comments/by_owner', { key: owner }, function(err, documents)
 	{
