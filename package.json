@@ -1,7 +1,7 @@
 {
 	"name": "polyclay",
-	"version": "1.1.0",
-	"description": "a schema-enforcing model class for node with optional couch persistence",
+	"version": "1.2.0",
+	"description": "a schema-enforcing model class for node with optional key-value store persistence",
 	"main": "index.js",
 	"directories":
 	{
@@ -47,13 +47,14 @@
 	[
 		"odm",
 		"model",
+		"mapper",
 		"couchdb",
 		"couch",
 		"redis",
+		"levelup",
 		"schema"
 	],
 	"author": "C J Silverio <ceejceej@gmail.com>",
 	"license": "MIT",
-	"readmeFilename": "README.md",
-	"gitHead": "3d5f3c31e340aa452f7833c4b5beea5025bc58ae"
+	"readmeFilename": "README.md"
 }
