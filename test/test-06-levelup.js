@@ -372,7 +372,6 @@ describe('levelup adapter', function()
 				should.not.exist(err);
 				retrieved.fetch_avatar(function(err, imagedata)
 				{
-					console.log(err);
 					should.not.exist(err);
 					should.not.exist(imagedata);
 					done();
@@ -468,11 +467,10 @@ describe('levelup adapter', function()
 	{
 		Model.adapter.shutdown(function(err)
 		{
-			done();
-			/*child.exec('rm -rf ./test/test.db', function(err, stdout, stderr)
+			child.exec('rm -rf ./test/TestDB', function(err, stdout, stderr)
 			{
 				done();
-			}); */
+			});
 		});
 	});
 
