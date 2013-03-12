@@ -51,13 +51,16 @@ describe('levelup adapter', function()
 		Model = polyclay.Model.buildClass(modelDefinition);
 		Model.prototype.modelPlural = 'models';
 		polyclay.persist(Model);
+
+		if (!fs.existsSync('./test/TestDB'))
+			fs.mkdirSync('./test/TestDB');
 	});
 
 	it('can be configured for database access', function()
 	{
 		var options =
 		{
-			dbpath: './test/test.db',
+			dbpath: './test/TestDB',
 			dbname: 'test'
 		};
 
@@ -463,12 +466,13 @@ describe('levelup adapter', function()
 
 	after(function(done)
 	{
-		Model.adapter.db.close(function(err)
+		Model.adapter.shutdown(function(err)
 		{
-			child.exec('rm -rf ./test/test.db', function(err, stdout, stderr)
+			done();
+			/*child.exec('rm -rf ./test/test.db', function(err, stdout, stderr)
 			{
 				done();
-			});
+			}); */
 		});
 	});
 
