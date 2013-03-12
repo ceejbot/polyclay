@@ -27,13 +27,14 @@
 	"dependencies":
 	{
 		"async": "*",
-		"cradle": "git://github.com/ceejbot/cradle.git",
-		"lodash": "*",
-		"redis": "*"
+		"lodash": "*"
 	},
 	"optionalDependencies":
 	{
-		"hiredis": "*"
+		"cradle": "git://github.com/ceejbot/cradle.git",
+		"levelup": "*",
+		"hiredis": "*",
+		"redis": "*"
 	},
 	"devDependencies":
 	{
