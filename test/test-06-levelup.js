@@ -8,6 +8,7 @@ var
 	;
 
 var
+	child = require('child_process'),
 	fs = require('fs'),
 	path = require('path'),
 	polyclay = require('../index'),
@@ -179,7 +180,6 @@ describe('levelup adapter', function()
 	{
 		Model.all(function(err, itemlist)
 		{
-			console.log(err);
 			should.not.exist(err);
 			itemlist.should.be.an('array');
 			itemlist.length.should.equal(2);
@@ -463,10 +463,12 @@ describe('levelup adapter', function()
 
 	after(function(done)
 	{
-		Model.adapter.db.close();
-		fs.unlink('./test/test.db', function()
+		Model.adapter.db.close(function(err)
 		{
-			done();
+			child.exec('rm -rf ./test/test.db', function(err, stdout, stderr)
+			{
+				done();
+			});
 		});
 	});
 
