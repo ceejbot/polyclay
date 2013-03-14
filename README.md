@@ -1,6 +1,6 @@
 # Polyclay
 
-Polymer modeling clay for node.js. A model schema definition with type validations, dirty-state tracking, and rollback. Models are optionally persistable to CouchDB using [cradle](https://github.com/cloudhead/cradle), [Redis](http://redis.io/), or [LevelUP](https://github.com/rvagg/node-levelup). Polyclay gives you the safety of type-enforcing properties without making you write a lot of boilerplate. 
+Polymer modeling clay for node.js. A model schema definition with type validations, dirty-state tracking, and rollback. Models are optionally persistable to CouchDB using [cradle](https://github.com/cloudhead/cradle), to [Redis](http://redis.io/), or to [LevelUP](https://github.com/rvagg/node-levelup). Polyclay gives you the safety of type-enforcing properties without making you write a lot of boilerplate. 
 
 Current version: __1.2.0__
 
