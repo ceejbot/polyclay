@@ -298,26 +298,7 @@ If you supply the following methods on your model class, they will be called whe
 
 A bundle of fields and methods that you wish to add to several model classes while allowing Polyclay to reduce the boilerplate for you.
 
-```javascript
-var MixinName = {};
-polyclay.mixin(ModelClass, MixinName);
-```
-
-Mixin objects have three fields.
-
-`properties`: A hash of property names & types, exactly as in a base model definition.  
-`methods`: A hash of method names & implementations to add to the model prototype.  
-`custom`: A hash of custom functions to add to the model prototype as getters & setters. Each entry in this hash must have the following form:
-
-```javascript
-'name':
-{
-	'getter': function() {},
-	'setter': function() {}
-}
-```
-
-Here's an example mixin:
+Here's an example. It defines two date fields and a method that uses one:
 
 ```javascript
 var HasTimestamps =
@@ -332,6 +313,30 @@ var HasTimestamps =
 		touch: function() { this.modified = Date.now(); }
 	}
 };
+
+polyclay.mixin(ModelClass, HasTimestamps);
+```
+
+Mixin objects have three fields.
+
+`properties`: A hash of property names & types, exactly as in a base model definition.  
+`methods`: A hash of method names & implementations to add to the model prototype.  
+`custom`: A hash of custom functions to add to the model prototype as getters & setters. 
+
+Here's a simple example of a custom property:
+
+```javascript
+var SillyNameMixin =
+{
+	custom:
+	{
+		name:
+		{
+			'getter': function() { return this._name; },
+			'setter': function(v) { this._name = v.toLowerCase(); }
+		}
+	}
+}
 ```
 
 ## Example
@@ -416,7 +421,7 @@ console.log(comment.state);
 comment.state = 1;
 console.log(comment.state);
 comment.touch();
-console.log(comment.__dirty); // true
+console.log(comment.isDirty()); // true
 
 comment.rollback(); // version is now 1 and modified the same as created
 comment.tempfield = 'whatever'; // not persisted in couch
