@@ -244,6 +244,7 @@ describe('redis adapter', function()
 	{
 		instance.avatar = attachmentdata;
 		instance.frogs = 'This is bunch of frogs.';
+		instance.isDirty().should.equal.true;
 		instance.save(function(err, response)
 		{
 			should.not.exist(err);
