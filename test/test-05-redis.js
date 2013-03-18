@@ -244,6 +244,7 @@ describe('redis adapter', function()
 	{
 		instance.avatar = attachmentdata;
 		instance.frogs = 'This is bunch of frogs.';
+		instance.isDirty().should.equal.true;
 		instance.save(function(err, response)
 		{
 			should.not.exist(err);
@@ -387,53 +388,6 @@ describe('redis adapter', function()
 		});
 	});
 
-	it('calls a beforeSave() hook before saving a model', function(done)
-	{
-		hookTest = new Model();
-		hookTest.key = '3';
-		hookTest.name = 'hook test';
-
-		hookTest.should.not.have.property('beforeSaveCalled');
-		hookTest.save(function(err, res)
-		{
-			should.not.exist(err);
-			hookid = hookTest.key;
-			hookTest.should.have.property('beforeSaveCalled');
-			hookTest.beforeSaveCalled.should.equal(true);
-			done();
-		});
-	});
-
-	it('calls afterSave() after saving a model', function()
-	{
-		hookTest.should.have.property('afterSaveCalled');
-		hookTest.afterSaveCalled.should.equal(true);
-	});
-
-	it('calls afterLoad() after loading a model from the db', function(done)
-	{
-		hookTest.should.not.have.property('afterLoadCalled');
-		Model.get(hookid, function(err, loaded)
-		{
-			should.not.exist(err);
-			loaded.should.have.property('afterLoadCalled');
-			loaded.afterLoadCalled.should.equal(true);
-			done();
-		});
-	});
-
-	it('calls beforeDestroy() before destroying a model', function(done)
-	{
-		hookTest.should.not.have.property('beforeDestroyCalled');
-		hookTest.destroy(function(err, deleted)
-		{
-			should.not.exist(err);
-			hookTest.should.have.property('beforeDestroyCalled');
-			hookTest.beforeDestroyCalled.should.equal(true);
-			done();
-		});
-	});
-
 	it('can remove a document from the db', function(done)
 	{
 		instance.destroy(function(err, deleted)
@@ -498,6 +452,33 @@ describe('redis adapter', function()
 			err.should.be.an('object');
 			err.message.should.equal('object already destroyed');
 			done();
+		});
+	});
+
+	it('removes attachments when removing an object', function(done)
+	{
+		var obj = new Model();
+		obj.key = 'cats';
+		obj.frogs = 'Cats do not eat frogs.';
+		obj.name = 'all about cats';
+
+		obj.save(function(err, reply)
+		{
+			should.not.exist(err);
+			reply.should.equal('OK');
+
+			obj.destroy(function(err, destroyed)
+			{
+				should.not.exist(err);
+				var k = Model.adapter.attachmentKey('cats');
+				Model.adapter.redis.hkeys(k, function(err, reply)
+				{
+					should.not.exist(err);
+					reply.should.be.an('array');
+					reply.length.should.equal(0);
+					done();
+				});
+			});
 		});
 	});
 
