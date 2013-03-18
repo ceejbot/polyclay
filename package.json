@@ -32,6 +32,7 @@
 	},
 	"optionalDependencies":
 	{
+		"couchbase": "*",
 		"cradle": "git://github.com/ceejbot/cradle.git",
 		"levelup": "*",
 		"hiredis": "*",
@@ -46,13 +47,14 @@
 	},
 	"keywords":
 	[
-		"odm",
-		"model",
-		"mapper",
-		"couchdb",
 		"couch",
-		"redis",
+		"couchbase",
+		"couchdb",
 		"levelup",
+		"mapper",
+		"model",
+		"odm",
+		"redis",
 		"schema"
 	],
 	"author": "C J Silverio <ceejceej@gmail.com>",
