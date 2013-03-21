@@ -77,22 +77,6 @@ describe('persistence layer', function()
 		}
 	};
 
-	var couch_config =
-	{
-		host: 'localhost',
-		port: 5984,
-		db: 'polyclay_tests',
-	};
-
-	if (process.env.CUSER && process.env.CPASS)
-	{
-		couch_config.auth =
-		{
-			username: process.env.USER,
-			password: process.env.CPASS
-		};
-	}
-
 	var Model, instance, another, hookTest, hookid;
 
 	before(function()
