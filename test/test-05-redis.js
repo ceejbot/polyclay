@@ -66,13 +66,13 @@ describe('redis adapter', function()
 		{
 			host: 'localhost',
 			port: 6379,
-			dbname: 'test'
 		};
 
 		Model.setStorage(options, polyclay.RedisAdapter);
 		Model.adapter.should.be.ok;
 		Model.adapter.redis.should.be.ok;
 		Model.adapter.constructor.should.equal(Model);
+		Model.adapter.dbname.should.equal(Model.prototype.plural);
 	});
 
 	it('provision does nothing', function(done)
