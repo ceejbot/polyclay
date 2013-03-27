@@ -35,6 +35,8 @@ var Comment = polyclay.Model.buildClass(
 	},
 	optional: [ '_rev' ],
 	required: [ 'owner_id', 'target_id', 'parent_id', 'state'],
+	singular: 'comment',
+	plural: 'comments',
 	initialize: function()
 	{
 		this.created = Date.now();
@@ -46,9 +48,6 @@ var Comment = polyclay.Model.buildClass(
 });
 
 polyclay.mixin(Comment, HasTimestamps);
-
-Comment.prototype.plural = 'comments';
-Comment.prototype.singular = 'comment';
 
 Comment.design =
 {

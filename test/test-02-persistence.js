@@ -64,6 +64,8 @@ describe('persistence layer', function()
 		},
 		optional: [ 'computed', 'ephemeral' ],
 		required: [ 'name', 'is_valid', 'required_prop'],
+		singular: 'model',
+		plural: 'models',
 		initialize: function()
 		{
 			this.ran_init = true;
@@ -82,7 +84,6 @@ describe('persistence layer', function()
 	before(function()
 	{
 		Model = polyclay.Model.buildClass(modelDefinition);
-		Model.prototype.modelPlural = 'models';
 
 		Model.design =
 		{
@@ -105,8 +106,6 @@ describe('persistence layer', function()
 	it('adds functions to the prototype when persist is called', function()
 	{
 		polyclay.persist(Model);
-		Model.name = 'model';
-		Model.prototype.modelPlural = 'models';
 		Model.prototype.save.should.be.a('function');
 		Model.prototype.destroy.should.be.a('function');
 	});

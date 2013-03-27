@@ -38,6 +38,8 @@ describe('levelup adapter', function()
 		},
 		optional: [ 'computed', 'ephemeral' ],
 		required: [ 'name', 'is_valid', 'required_prop'],
+		singular: 'model',
+		plural: 'models',
 		initialize: function()
 		{
 			this.ran_init = true;
@@ -49,7 +51,6 @@ describe('levelup adapter', function()
 	before(function()
 	{
 		Model = polyclay.Model.buildClass(modelDefinition);
-		Model.prototype.modelPlural = 'models';
 		polyclay.persist(Model);
 
 		if (!fs.existsSync('./test/TestDB'))

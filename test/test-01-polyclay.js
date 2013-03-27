@@ -32,6 +32,8 @@ var modelDefinition =
 	},
 	optional: [ 'computed', 'ephemeral' ],
 	required: [ 'name', 'is_valid', 'required_prop'],
+	singular: 'model',
+	plural: 'models',
 	enumerables:
 	{
 		enum1: ['zero', 'one', 'two'],
@@ -144,6 +146,13 @@ describe('polyclay', function()
 		instance.pointer = ref;
 		instance.pointer.should.be.an('object');
 		instance.pointer_id.should.equal('testref');
+	});
+
+	it('sets singular and plural properties on the prototype', function()
+	{
+		var obj = new Model();
+		obj.singular.should.equal('model');
+		obj.plural.should.equal('models');
 	});
 
 	it('clears references when they are set to falsey values', function()

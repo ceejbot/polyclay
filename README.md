@@ -38,6 +38,12 @@ Valid options:
 `initialize`
 : Function to call as the last step of the returned constructor. Provide an implementation to do any custom initialization for your model.`this` will be the newly constructed object.
 
+`singular`
+: The singular noun to use to describe your model. For example, "comment". Added to the model prototype as `Model.prototype.singular`.
+
+`plural`
+: The plural noun to use to describe your model; used by the persistence layer to name a database when appropriate. For example, "comments". Added to the model prototype as `Model.prototype.plural`.
+
 ### Valid data types
 
 Polyclay properties must have types declared. Getters and setter functions will be defined for each that enforce the types. Supported types are:
@@ -76,7 +82,9 @@ var Widget = polyclay.Model.buildClass({
         _id: 'string', // couchdb key
         name: 'string',
         owner: 'reference'
-    }
+    },
+    singular: 'widget',
+    plural: 'widgets'
 });
 polyclay.persist(Widget);
 
@@ -185,12 +193,11 @@ The Levelup object is available at `obj.adapter.db`. The attachments data store 
 
 ### Defining views
 
-You can define views to be added to your couch databases when they are created.  Add a `design` field to your constructor function directly. Also, specify a 'modelPlural' property on the prototype to name the document.
+You can define views to be added to your couch databases when they are created.  Add a `design` field to your constructor function directly. 
 
-If you were to add some views to the Widget model you used above, you might write this:
+Let's add some simple views to the Widget model we created above, one to fetch widgets by owner and one to fetch them by name.
 
 ```javascript
-Widget.prototype.modelPlural = 'widgets';
 Widget.design =
 {
 	views:
@@ -201,7 +208,7 @@ Widget.design =
 };
 ```
 
-After you call `Widget.provision()`, the 'widgets' database will exist. It will have a design document named "_design/widgets" with the two views above defined. Does nothing for Redis- or LevelUP-backed models.
+Call `Widget.provision()` to create the 'widgets' database in your CouchDB instance. It will have a design document named "_design/widgets" with the two views above defined. The provision method nothing for Redis- or LevelUP-backed models.
 
 ### Persistence class methods
 

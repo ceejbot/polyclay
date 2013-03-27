@@ -36,6 +36,8 @@ describe('couch adapter', function()
 		},
 		optional: [ 'computed', 'ephemeral' ],
 		required: [ 'name', 'is_valid', 'required_prop'],
+		singular: 'model',
+		plural: 'models',
 		initialize: function()
 		{
 			this.ran_init = true;
@@ -70,7 +72,6 @@ describe('couch adapter', function()
 	before(function()
 	{
 		Model = polyclay.Model.buildClass(modelDefinition);
-		Model.prototype.modelPlural = 'models';
 
 		Model.design =
 		{
@@ -90,8 +91,6 @@ describe('couch adapter', function()
 		};
 
 		polyclay.persist(Model);
-		Model.name = 'model';
-		Model.prototype.modelPlural = 'models';
 	});
 
 	it('can be configured for database access', function(done)
