@@ -1,6 +1,6 @@
 {
 	"name": "polyclay",
-	"version": "1.2.2",
+	"version": "1.2.3",
 	"description": "a schema-enforcing model class for node with optional key-value store persistence",
 	"main": "index.js",
 	"directories":
