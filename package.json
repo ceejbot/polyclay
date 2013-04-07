@@ -1,6 +1,6 @@
 {
 	"name": "polyclay",
-	"version": "1.2.3",
+	"version": "1.3.0",
 	"description": "a schema-enforcing model class for node with optional key-value store persistence",
 	"main": "index.js",
 	"directories":
@@ -27,7 +27,8 @@
 	"dependencies":
 	{
 		"async": "*",
-		"lodash": "*"
+		"lodash": "*",
+		"lucidjs": "*"
 	},
 	"optionalDependencies":
 	{

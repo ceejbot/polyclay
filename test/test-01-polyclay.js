@@ -268,9 +268,13 @@ describe('polyclay', function()
 	{
 		var name;
 		var instanceProps = Object.getOwnPropertyNames(instance);
+		var lucidprops = ['on', 'set', 'pipe', 'once', 'off', 'trigger', 'listeners'];
+
 		for (var i = 0; i < instanceProps.length; i++)
 		{
 			name = instanceProps[i];
+			if (lucidprops.indexOf(name) > -1)
+				continue;
 			assert(name.indexOf('__') === 0, 'model property "' + name + '" does not start with underscores');
 		}
 	});
@@ -422,6 +426,75 @@ describe('polyclay', function()
 		obj.required_prop.should.equal(data.required_prop);
 		obj.count.should.equal(data.count);
 		obj.is_valid.should.equal(data.is_valid);
+	});
+
+	it('emits a "change" event when a property is set', function(done)
+	{
+		var obj = new Model();
+		obj.on('change', function(val)
+		{
+			assert.equal(val, 9000, 'change event did not send new value');
+			done();
+		});
+		obj.count = 9000;
+	});
+
+	it('emits a "change.propname" event when a property is set', function(done)
+	{
+		var obj = new Model();
+		obj.on('change.count', function(val)
+		{
+			assert.equal(val, 9001, 'change.field event did not send new value');
+			done();
+		});
+		obj.count = 9001;
+	});
+
+	it('emits change events for optional properties', function(done)
+	{
+		var obj = new Model();
+		obj.on('change.ephemeral', function(val)
+		{
+			assert.equal(val, 'fleeting', 'change.field event did not send new value');
+			done();
+		});
+		obj.ephemeral = 'fleeting';
+	});
+
+	it('emits an event on rollback', function(done)
+	{
+		var obj = new Model();
+		obj.on('rollback', function()
+		{
+			assert.equal(obj.name, 'blort');
+			assert.equal(obj.count, 9000);
+			assert.ok(!obj.isDirty(), 'object is still dirty after rollback');
+			done();
+		});
+
+		obj.count = 9000;
+		obj.name = 'blort';
+		obj.clearDirty();
+		obj.name = 'foo';
+		obj.count = 2000;
+
+		obj.rollback();
+	});
+
+	it('emits an event on update', function(done)
+	{
+		var data = {
+			is_valid: true,
+			foozles: ['three', 'four'],
+			count: 50,
+			required_prop: 'badges'
+		};
+		var obj = new Model();
+		obj.on('update', function()
+		{
+			done();
+		});
+		obj.update(data);
 	});
 
 });

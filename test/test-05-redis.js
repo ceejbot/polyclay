@@ -42,13 +42,6 @@ describe('redis adapter', function()
 		initialize: function()
 		{
 			this.ran_init = true;
-		},
-		methods:
-		{
-			beforeSave: function() { this.beforeSaveCalled = true; },
-			afterSave: function() { this.afterSaveCalled = true; },
-			afterLoad: function() { this.afterLoadCalled = true; },
-			beforeDestroy: function() { this.beforeDestroyCalled = true; },
 		}
 	};
 

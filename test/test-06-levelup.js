@@ -392,11 +392,35 @@ describe('levelup adapter', function()
 		});
 	});
 
+	it('removes attachments when it removes a document', function(done)
+	{
+		var obj = new Model();
+		obj.key = 'tmp';
+		obj.avatar = attachmentdata;
+		obj.save(function(err, response)
+		{
+			should.not.exist(err);
+			obj.destroy(function(err, deleted)
+			{
+				should.not.exist(err);
+				deleted.should.be.ok;
+
+				Model.adapter.attachment('tmp', 'avatar', function(err, payload)
+				{
+					should.not.exist(err);
+					assert.ok(payload === null, 'got an attachment payload; was not deleted');
+					done();
+				});
+			});
+		});
+	});
+
 	it('can remove documents in batches', function(done)
 	{
 		var obj2 = new Model();
 		obj2.key = '4';
 		obj2.name = 'two';
+		obj2.avatar = attachmentdata;
 		obj2.save(function(err, response)
 		{
 			Model.get('2', function(err, obj)
@@ -408,10 +432,20 @@ describe('levelup adapter', function()
 				Model.destroyMany(itemlist, function(err, response)
 				{
 					should.not.exist(err);
-					// TODO examine response more carefully
+					response.should.equal(2);
 					done();
 				});
 			});
+		});
+	});
+
+	it('removes attachments when it removes in batches', function(done)
+	{
+		Model.adapter.attachment('4', 'avatar', function(err, payload)
+		{
+			should.not.exist(err);
+			assert.ok(payload === null, 'got an attachment payload; was not deleted');
+			done();
 		});
 	});
 
