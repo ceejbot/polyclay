@@ -12,6 +12,7 @@ var
 	path = require('path'),
 	polyclay = require('../index'),
 	redis = require('redis'),
+	RedisAdapter = require('../lib/adapters/redis'),
 	util = require('util')
 	;
 
@@ -61,7 +62,7 @@ describe('redis adapter', function()
 			port: 6379,
 		};
 
-		Model.setStorage(options, polyclay.RedisAdapter);
+		Model.setStorage(options, RedisAdapter);
 		Model.adapter.should.be.ok;
 		Model.adapter.redis.should.be.ok;
 		Model.adapter.constructor.should.equal(Model);
