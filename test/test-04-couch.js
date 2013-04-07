@@ -41,6 +41,11 @@ describe('couch adapter', function()
 		initialize: function()
 		{
 			this.ran_init = true;
+			this.on('before-save', this.beforeSave.bind(this));
+			this.on('after-save', this.afterSave.bind(this));
+			this.on('after-load', this.afterLoad.bind(this));
+			this.on('before-destroy', this.beforeDestroy.bind(this));
+			this.on('after-destroy', this.afterDestroy.bind(this));
 		},
 		methods:
 		{
@@ -48,6 +53,7 @@ describe('couch adapter', function()
 			afterSave: function() { this.afterSaveCalled = true; },
 			afterLoad: function() { this.afterLoadCalled = true; },
 			beforeDestroy: function() { this.beforeDestroyCalled = true; },
+			afterDestroy: function() { this.afterDestroyCalled = true; },
 		}
 	};
 
@@ -96,13 +102,13 @@ describe('couch adapter', function()
 	it('can be configured for database access', function(done)
 	{
 		var connection = new cradle.Connection(
-				couch_config.host,
-				couch_config.port,
-				{
-					cache: false,
-					raw: false,
-					auth: couch_config.auth
-				}
+			couch_config.host,
+			couch_config.port,
+			{
+				cache: false,
+				raw: false,
+				auth: couch_config.auth
+			}
 		);
 		var options =
 		{
@@ -459,30 +465,6 @@ describe('couch adapter', function()
 		hookTest.afterSaveCalled.should.equal(true);
 	});
 
-	it('calls afterLoad() after loading a model from the db', function(done)
-	{
-		hookTest.should.not.have.property('afterLoadCalled');
-		Model.get(hookid, function(err, loaded)
-		{
-			should.not.exist(err);
-			loaded.should.have.property('afterLoadCalled');
-			loaded.afterLoadCalled.should.equal(true);
-			done();
-		});
-	});
-
-	it('calls beforeDestroy() before destroying a model', function(done)
-	{
-		hookTest.should.not.have.property('beforeDestroyCalled');
-		hookTest.destroy(function(err, deleted)
-		{
-			should.not.exist(err);
-			hookTest.should.have.property('beforeDestroyCalled');
-			hookTest.beforeDestroyCalled.should.equal(true);
-			done();
-		});
-	});
-
 	it('can remove a document from the db', function(done)
 	{
 		instance.destroy(function(err, deleted)
@@ -512,39 +494,6 @@ describe('couch adapter', function()
 					done();
 				});
 			});
-		});
-	});
-
-	it('destroyMany() does nothing when given empty input', function(done)
-	{
-		Model.destroyMany(null, function(err)
-		{
-			should.not.exist(err);
-			done();
-		});
-	});
-
-	it('destroy responds with an error when passed an object without an id', function(done)
-	{
-		var obj = new Model();
-		obj.destroy(function(err, destroyed)
-		{
-			err.should.be.an('object');
-			err.message.should.equal('cannot destroy object without an id');
-			done();
-		});
-	});
-
-	it('destroy responds with an error when passed an object that has already been destroyed', function(done)
-	{
-		var obj = new Model();
-		obj._id = 'foozle';
-		obj.destroyed = true;
-		obj.destroy(function(err, destroyed)
-		{
-			err.should.be.an('object');
-			err.message.should.equal('object already destroyed');
-			done();
 		});
 	});
 

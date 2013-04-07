@@ -4,15 +4,12 @@ var
 	chai = require('chai'),
 	assert = chai.assert,
 	expect = chai.expect,
-	should = chai.should()
-	;
-
-var
-	cradle = require('cradle'),
+	should = chai.should(),
 	fs = require('fs'),
 	path = require('path'),
 	polyclay = require('../index'),
-	util = require('util')
+	util = require('util'),
+	MockDBAdapter = require('./mock-adapter')
 	;
 
 var testDir = process.cwd();
@@ -47,13 +44,13 @@ describe('dataLength()', function()
 	});
 });
 
-
 describe('persistence layer', function()
 {
 	var modelDefinition =
 	{
 		properties:
 		{
+			key: 'string',
 			name: 'string',
 			created: 'date',
 			foozles: 'array',
@@ -69,13 +66,11 @@ describe('persistence layer', function()
 		initialize: function()
 		{
 			this.ran_init = true;
+			this.on('after-load', this.afterLoad.bind(this));
 		},
 		methods:
 		{
-			beforeSave: function() { this.beforeSaveCalled = true; },
-			afterSave: function() { this.afterSaveCalled = true; },
-			afterLoad: function() { this.afterLoadCalled = true; },
-			beforeDestroy: function() { this.beforeDestroyCalled = true; },
+			afterLoad: function() { this.afterLoad = true; }
 		}
 	};
 
@@ -84,28 +79,11 @@ describe('persistence layer', function()
 	before(function()
 	{
 		Model = polyclay.Model.buildClass(modelDefinition);
-
-		Model.design =
-		{
-			views:
-			{
-				by_name: { map: "function(doc) {\n  emit(doc.name, doc);\n}", language: "javascript" }
-			}
-		};
-
-		Model.fetchByName = function(name, callback)
-		{
-			Model.adapter.db.view('models/by_name', { key: name }, function(err, documents)
-			{
-				if (err) return callback(err);
-				Model.constructMany(documents, callback);
-			});
-		};
 	});
 
 	it('adds functions to the prototype when persist is called', function()
 	{
-		polyclay.persist(Model);
+		polyclay.persist(Model, 'key');
 		Model.prototype.save.should.be.a('function');
 		Model.prototype.destroy.should.be.a('function');
 	});
@@ -171,4 +149,116 @@ describe('persistence layer', function()
 		willThrow.should.throw(Error);
 	});
 
+	it('destroyMany() does nothing when given empty input', function(done)
+	{
+		Model.destroyMany(null, function(err)
+		{
+			should.not.exist(err);
+			done();
+		});
+	});
+
+	it('destroy responds with an error when passed an object without an id', function(done)
+	{
+		var obj = new Model();
+		obj.destroy(function(err, destroyed)
+		{
+			err.should.be.an('object');
+			err.message.should.equal('cannot destroy object without an id');
+			done();
+		});
+	});
+
+	it('destroy responds with an error when passed an object that has already been destroyed', function(done)
+	{
+		var obj = new Model();
+		obj.key = 'foozle';
+		obj.destroyed = true;
+		obj.destroy(function(err, destroyed)
+		{
+			err.should.be.an('object');
+			err.message.should.equal('object already destroyed');
+			done();
+		});
+	});
+
+	it('sets the db adapter in setStorage()', function()
+	{
+		Model.setStorage({}, MockDBAdapter);
+		Model.should.have.property('adapter');
+		assert.ok(Model.adapter instanceof MockDBAdapter);
+	});
+
+
+	it('emits before-save', function(done)
+	{
+		var obj = new Model();
+		obj.key = '1';
+		obj.on('before-save', function()
+		{
+			done();
+		});
+		obj.save(function(err, resp)
+		{
+			should.not.exist(err);
+		});
+	});
+
+	it('emits after-save', function(done)
+	{
+		var obj = new Model();
+		obj.key = '2';
+		obj.on('after-save', function()
+		{
+			done();
+		});
+		obj.save(function(err, resp)
+		{
+			should.not.exist(err);
+		});
+	});
+
+	it('emits after-load', function(done)
+	{
+		Model.get('1', function(err, obj)
+		{
+			should.not.exist(err);
+			obj.afterLoad.should.be.ok;
+			done();
+		});
+	});
+
+	it('emits before-destroy', function(done)
+	{
+		Model.get('1', function(err, obj)
+		{
+			obj.on('before-destroy', function()
+			{
+				done();
+			});
+
+			obj.destroy(function(err, destroyed)
+			{
+				should.not.exist(err);
+			});
+		});
+	});
+
+	it('emits after-destroy', function(done)
+	{
+		Model.get('2', function(err, obj)
+		{
+			obj.on('after-destroy', function()
+			{
+				obj.destroyed.should.equal(true);
+				done();
+			});
+
+			obj.destroy(function(err, destroyed)
+			{
+				should.not.exist(err);
+				destroyed.should.be.ok;
+			});
+		});
+	});
 });
