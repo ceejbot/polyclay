@@ -13,7 +13,6 @@ var
 	path = require('path'),
 	polyclay = require('../index'),
 	levelup = require('levelup'),
-	LevelupAdapter = require('../lib/adapters/levelup'),
 	util = require('util')
 	;
 
@@ -66,7 +65,7 @@ describe('levelup adapter', function()
 			dbname: 'test'
 		};
 
-		Model.setStorage(options, LevelupAdapter);
+		Model.setStorage(options, polyclay.LevelupAdapter);
 		Model.adapter.should.be.ok;
 		Model.adapter.db.should.be.ok;
 		Model.adapter.constructor.should.equal(Model);

@@ -12,7 +12,6 @@ var
 	fs = require('fs'),
 	path = require('path'),
 	polyclay = require('../index'),
-	CouchAdapter = require('../lib/adapters/couch'),
 	util = require('util')
 	;
 
@@ -117,7 +116,7 @@ describe('couch adapter', function()
 			dbname: couch_config.db
 		};
 
-		Model.setStorage(options, CouchAdapter);
+		Model.setStorage(options, polyclay.CouchAdapter);
 		Model.adapter.should.be.ok;
 		Model.adapter.db.should.be.ok;
 		Model.adapter.connection.info(function(err, response)
