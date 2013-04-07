@@ -443,11 +443,12 @@ describe('couch adapter', function()
 		});
 	});
 
-	it('calls a beforeSave() hook before saving a model', function(done)
+	it('emits "before-save" before saving a model', function(done)
 	{
 		hookTest = new Model();
 		hookTest.name = 'hook test';
 
+		hookTest.should.not.have.property('afterSaveCalled');
 		hookTest.should.not.have.property('beforeSaveCalled');
 		hookTest.save(function(err, res)
 		{
@@ -459,7 +460,7 @@ describe('couch adapter', function()
 		});
 	});
 
-	it('calls afterSave() after saving a model', function()
+	it('emits "after-save" after saving a model', function()
 	{
 		hookTest.should.have.property('afterSaveCalled');
 		hookTest.afterSaveCalled.should.equal(true);

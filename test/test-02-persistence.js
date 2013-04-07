@@ -261,4 +261,40 @@ describe('persistence layer', function()
 			});
 		});
 	});
+
+	it('emits change events for attachments', function(done)
+	{
+		var Ephemeral = polyclay.Model.buildClass({});
+		polyclay.persist(Ephemeral);
+		Ephemeral.defineAttachment('test', 'text/plain');
+
+		var obj = new Ephemeral();
+		obj.on('change.test', function()
+		{
+			done();
+		});
+		obj.test = 'i am an attachment';
+	});
+
+	it('emits change events when attachments are removed', function(done)
+	{
+		var Ephemeral = polyclay.Model.buildClass({});
+		polyclay.persist(Ephemeral);
+		Ephemeral.defineAttachment('test', 'text/plain');
+		Ephemeral.setStorage({}, MockDBAdapter);
+
+		var obj = new Ephemeral();
+		obj.test = 'i am an attachment';
+		obj.save(function(err, resp)
+		{
+			obj.on('change.test', function()
+			{
+				done();
+			});
+			obj.removeAttachment('test', function(err, resp)
+			{
+				should.not.exist(err);
+			});
+		});
+	});
 });
