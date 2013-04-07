@@ -300,7 +300,7 @@ Polyclay uses [LucidJS](http://robertwhurst.github.io/LucidJS/) to emit events w
 
 `change`: when any property has been changed  
 `change.<prop>`: after a specific property has been changed  
-`update`: after the objects's properties have been updated in `update()`
+`update`: after the objects's properties have been updated in `update()`  
 `rollback`: after the object has been rolled back to a previous state  
 `after-load`: after the object has been loaded from storage & a model instantiated  
 `before-save`: before the object is saved to storage in `save()`  
