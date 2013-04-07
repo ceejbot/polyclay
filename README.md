@@ -294,14 +294,36 @@ obj.save(function(err, resp)
 });
 ```
 
-### Before & after hooks
+## Events
 
-If you supply the following methods on your model class, they will be called when their names suggest:
+Polyclay uses [LucidJS](http://robertwhurst.github.io/LucidJS/) to emit events when interesting things happen to your model object.
 
-`afterLoad()`: after a document has been loaded from storage & a model instantiated  
-`beforeSave()`: before a document is saved to storage in `save()`  
-`afterSave()`: after a save to storage has succeeded, before callback  
-`beforeDestroy()`: before deleting a model from storage in `destroy()`
+`change`: when any property has been changed  
+`change.<prop>`: after a specific property has been changed  
+`update`: after the objects's properties have been updated in `update()`
+`rollback`: after the object has been rolled back to a previous state  
+`after-load`: after the object has been loaded from storage & a model instantiated  
+`before-save`: before the object is saved to storage in `save()`  
+`after-save`: after a save to storage has succeeded, before callback  
+`before-destroy`: before deleting the object from storage in `destroy()`  
+`after-destroy`: after deleting the object from storage in `destroy()`  
+
+Here's an example of a property change listener:
+
+```javascript
+var obj = new Widget();
+obj.on('change.name', function(newval)
+{
+	assert(obj.name === newval);
+	console.log(newval); // logs 'planet x'
+});
+
+widget.name = 'planet x';
+
+```
+
+See the Lucid documentation for other things you can do with triggering and listening to events on your polyclay objects.
+
 
 ## Mixins
 
