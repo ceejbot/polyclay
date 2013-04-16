@@ -8,7 +8,7 @@
 		"example": "examples",
 		"test": "test"
 	},
-	"scripts": 
+	"scripts":
 	{
 		"test": "mocha -R spec -t 5000 test/test-*.js && mocha -t 5000 --require blanket -R travis-cov test/test-*.js",
 		"test-cov": "mocha --require blanket -R travis-cov test/test-*.js",
@@ -33,6 +33,7 @@
 	"optionalDependencies":
 	{
 		"cradle": "git://github.com/ceejbot/cradle.git",
+		"helenus": "*",
 		"levelup": "*",
 		"hiredis": "*",
 		"redis": "*"
