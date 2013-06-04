@@ -34,6 +34,7 @@ describe('cassandra adapter', function()
 			snozzers:      'hash',
 			is_valid:      'boolean',
 			count:         'number',
+			floating:      'number',
 			required_prop: 'string',
 		},
 		optional:   [ 'computed', 'ephemeral' ],
@@ -125,15 +126,16 @@ describe('cassandra adapter', function()
 		instance = new Model();
 		instance.update(
 		{
-			key: '1',
-			name: 'test',
-			created: Date.now(),
-			foozles: ['three', 'two', 'one'],
-			snozzers: { field: 'value' },
-			is_valid: true,
-			count: 3,
+			key:           '1',
+			name:          'test',
+			created:       Date.now(),
+			foozles:       ['three', 'two', 'one'],
+			snozzers:      { field: 'value' },
+			is_valid:      true,
+			count:         3,
+			floating:      3.14159,
 			required_prop: 'requirement met',
-			computed: 17
+			computed:      17
 		});
 
 		instance.save(function(err, reply)
@@ -155,10 +157,9 @@ describe('cassandra adapter', function()
 			retrieved.name.should.equal(instance.name);
 			retrieved.is_valid.should.equal(instance.is_valid);
 			retrieved.count.should.equal(instance.count);
+			retrieved.floating.should.equal(instance.floating);
 			retrieved.computed.should.equal(instance.computed);
-
-			var roundedDate = Math.floor(instance.created.getTime()/1000) * 1000;
-			retrieved.created.getTime().should.equal(roundedDate);
+			retrieved.created.getTime().should.equal(instance.created.getTime());
 
 			done();
 		});
