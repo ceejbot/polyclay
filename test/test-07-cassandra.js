@@ -1,18 +1,18 @@
 /*global describe:true, it:true, before:true, after:true */
 
 var
-	chai = require('chai'),
+	chai   = require('chai'),
 	assert = chai.assert,
 	expect = chai.expect,
 	should = chai.should()
 	;
 
 var
-	fs = require('fs'),
-	path = require('path'),
-	polyclay = require('../index'),
-	helenus = require('helenus'),
-	util = require('util')
+	fs          = require('fs'),
+	path        = require('path'),
+	polyclay    = require('../index'),
+	scamandrios = require('scamandrios'),
+	util        = require('util')
 	;
 
 var testDir = process.cwd();
@@ -22,23 +22,24 @@ var attachmentdata = fs.readFileSync(path.join(testDir, 'test.png'));
 
 describe('cassandra adapter', function()
 {
+	var testKSName = 'polyclay_unit_tests';
 	var modelDefinition =
 	{
 		properties:
 		{
-			key: 'string',
-			name: 'string',
-			created: 'date',
-			foozles: 'array',
-			snozzers: 'hash',
-			is_valid: 'boolean',
-			count: 'number',
+			key:           'string',
+			name:          'string',
+			created:       'date',
+			foozles:       'array',
+			snozzers:      'hash',
+			is_valid:      'boolean',
+			count:         'number',
 			required_prop: 'string',
 		},
-		optional: [ 'computed', 'ephemeral' ],
-		required: [ 'name', 'is_valid', 'required_prop'],
-		singular: 'model',
-		plural: 'models',
+		optional:   [ 'computed', 'ephemeral' ],
+		required:   [ 'name', 'is_valid', 'required_prop'],
+		singular:   'model',
+		plural:     'models',
 		initialize: function()
 		{
 			this.ran_init = true;
@@ -56,7 +57,7 @@ describe('cassandra adapter', function()
 
 	it('can connect to cassandra', function(done)
 	{
-		connection = new helenus.ConnectionPool({
+		connection = new scamandrios.Connection({
 			hosts:    ['localhost:9160'],
 		});
 
@@ -66,12 +67,10 @@ describe('cassandra adapter', function()
 			throw(err);
 		});
 
-		connection.connect(function(err, keyspace)
+		connection.connect().then(function(keyspace)
 		{
-			should.not.exist(err);
-			console.log(keyspace);
 			done();
-		});
+		}, function(err) { should.not.exist(err); });
 	});
 
 	it('can be configured for database access', function()
@@ -96,11 +95,13 @@ describe('cassandra adapter', function()
 		listeners.length.should.be.above(0);
 	});
 
-	it('provision creates a keyspace', function(done)
+	it('provision creates a keyspace and column family', function(done)
 	{
-		Model.provision(function(err)
+		Model.provision(function(err, response)
 		{
 			should.not.exist(err);
+			Model.adapter.keyspace.should.be.an('object');
+			Model.adapter.columnFamily.should.be.an('object');
 			done();
 		});
 	});
@@ -152,10 +153,13 @@ describe('cassandra adapter', function()
 			retrieved.should.be.an('object');
 			retrieved.key.should.equal(instance.key);
 			retrieved.name.should.equal(instance.name);
-			retrieved.created.getTime().should.equal(instance.created.getTime());
 			retrieved.is_valid.should.equal(instance.is_valid);
 			retrieved.count.should.equal(instance.count);
 			retrieved.computed.should.equal(instance.computed);
+
+			var roundedDate = Math.floor(instance.created.getTime()/1000) * 1000;
+			retrieved.created.getTime().should.equal(roundedDate);
+
 			done();
 		});
 	});
@@ -518,11 +522,13 @@ describe('cassandra adapter', function()
 
 	after(function(done)
 	{
-		connection.dropKeyspace('polyclay_unit_tests', function(err, response)
+		connection.dropKeyspace('polyclay_unit_tests')
+		.then(function(response)
+		{
+			done();
+		}, function(err)
 		{
 			should.not.exist(err);
-			console.log(response);
-			done();
 		});
 	});
 

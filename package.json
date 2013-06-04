@@ -15,7 +15,7 @@
 		"coverage": "mocha --require blanket -R html-cov test/test-*.js > test/coverage.html",
 		"blanket":
 		{
-			"pattern": "//^((?!\/node_modules\/)(?!\/test\/)(?!\/examples\/).)*$/ig"
+			"pattern": "//^((?!\/node_modules|test|examples\/).)*$/ig"
 		},
 		"travis-cov": { "threshold": 90 }
 	},
@@ -33,7 +33,7 @@
 	"optionalDependencies":
 	{
 		"cradle": "git://github.com/ceejbot/cradle.git",
-		"helenus": "*",
+		"scamandrios": "git://github.com/ceejbot/scamandrios.git",
 		"levelup": "*",
 		"hiredis": "*",
 		"redis": "*"
@@ -54,7 +54,8 @@
 		"couch",
 		"redis",
 		"levelup",
-		"schema"
+		"schema",
+		"cassandra"
 	],
 	"author": "C J Silverio <ceejceej@gmail.com>",
 	"license": "MIT",
