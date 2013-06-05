@@ -1,6 +1,6 @@
 {
 	"name":           "polyclay",
-	"version":        "1.3.0",
+	"version":        "1.4.0",
 	"description":    "a schema-enforcing model class for node with optional key-value store persistence",
 	"author":         "C J Silverio <ceejceej@gmail.com>",
 	"license":        "MIT",
@@ -16,7 +16,7 @@
 		"test":       "mocha -R spec -t 5000 test/test-*.js && mocha -t 5000 --require blanket -R travis-cov test/test-*.js",
 		"test-cov":   "mocha --require blanket -R travis-cov test/test-*.js",
 		"coverage":   "mocha --require blanket -R html-cov test/test-*.js > test/coverage.html",
-		"travis-cov": { "threshold": 90 },
+		"travis-cov": { "threshold": 80 },
 		"blanket":
 		{
 			"pattern": "//^((?!\/node_modules|test|examples\/).)*$/ig"
@@ -33,15 +33,6 @@
 		"lodash":    "*",
 		"lucidjs":   "*",
 		"p-promise": "*"
-	},
-	"optionalDependencies":
-	{
-		"cradle":      "git://github.com/ceejbot/cradle.git",
-		"scamandrios": "git://github.com/ceejbot/scamandrios.git",
-		"levelup":     "*",
-		"leveldown":   "*",
-		"hiredis":     "*",
-		"redis":       "*"
 	},
 	"devDependencies":
 	{

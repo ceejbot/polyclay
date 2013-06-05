@@ -142,7 +142,17 @@ Serialize the model as a string by calling `JSON.stringify()`. Includes optional
 
 Clears the dirty bit. The object cannot be rolled back after this is called. This is called by the persistence layer on a successful save.
 
-## Persisting in CouchDB, Redis, or LevelUP
+## Persisting in CouchDB, Redis, LevelUP, or Cassandra
+
+Four key/value store adapters exist for polyclay:
+
+- [polyclay-couch](https://github.com/ceejbot/polyclay-couch): CouchDB
+- [polyclay-redis](https://github.com/ceejbot/polyclay-redis): Redis
+- [polyclay-levelup](https://github.com/ceejbot/polyclay-levelup): LevelUP
+- [polyclay-cassandra](https://github.com/ceejbot/polyclay-cassandra): Cassandra
+
+Documentation for those adapters will eventually move from here to those repos.
+
 
 Once you've built a polyclay model, you can mix persistence methods into it:
 

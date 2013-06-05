@@ -297,4 +297,14 @@ describe('persistence layer', function()
 			});
 		});
 	});
+
+	it('propertyType() returns a hash of types for properties', function()
+	{
+		var obj = new Model();
+
+		var types = obj.propertyTypes();
+		types.should.be.an('object');
+
+	});
+
 });
