@@ -96,13 +96,15 @@ describe('cassandra adapter', function()
 		listeners.length.should.be.above(0);
 	});
 
-	it('provision creates a keyspace and column family', function(done)
+	it('provision creates a keyspace and two tables, I mean, column families', function(done)
 	{
 		Model.provision(function(err, response)
 		{
 			should.not.exist(err);
+			response.should.equal('OK');
 			Model.adapter.keyspace.should.be.an('object');
 			Model.adapter.columnFamily.should.be.an('object');
+			Model.adapter.attachments.should.be.an('object');
 			done();
 		});
 	});
@@ -284,6 +286,10 @@ describe('cassandra adapter', function()
 	{
 		Model.get(instance.key, function(err, retrieved)
 		{
+			should.not.exist(err);
+			retrieved.should.be.ok;
+			retrieved.should.be.an('object');
+
 			retrieved.fetch_frogs(function(err, frogs)
 			{
 				should.not.exist(err);
@@ -292,7 +298,8 @@ describe('cassandra adapter', function()
 				retrieved.fetch_avatar(function(err, imagedata)
 				{
 					should.not.exist(err);
-					assert(imagedata instanceof Buffer, 'expected image attachment to be a Buffer');
+					imagedata.should.be.ok;
+					assert(Buffer.isBuffer(imagedata), 'expected image attachment to be a Buffer');
 					imagedata.length.should.equal(attachmentdata.length);
 					done();
 				});
@@ -335,6 +342,7 @@ describe('cassandra adapter', function()
 				should.not.exist(err);
 				retrieved.fetch_frogs(function(err, frogs)
 				{
+					console.log(err);
 					should.not.exist(err);
 					frogs.should.equal(instance.frogs);
 					done();
