@@ -39,6 +39,7 @@
 		"cradle":      "git://github.com/ceejbot/cradle.git",
 		"scamandrios": "git://github.com/ceejbot/scamandrios.git",
 		"levelup":     "*",
+		"leveldown":   "*",
 		"hiredis":     "*",
 		"redis":       "*"
 	},
