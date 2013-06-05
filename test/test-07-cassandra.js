@@ -342,7 +342,6 @@ describe('cassandra adapter', function()
 				should.not.exist(err);
 				retrieved.fetch_frogs(function(err, frogs)
 				{
-					console.log(err);
 					should.not.exist(err);
 					frogs.should.equal(instance.frogs);
 					done();
@@ -492,6 +491,8 @@ describe('cassandra adapter', function()
 
 	it('removes attachments when removing an object', function(done)
 	{
+		var adapter = Model.adapter;
+
 		var obj = new Model();
 		obj.key = 'cats';
 		obj.frogs = 'Cats do not eat frogs.';
@@ -506,9 +507,29 @@ describe('cassandra adapter', function()
 			{
 				should.not.exist(err);
 
-				// TODO test
+				var key = 'cats:frogs';
+				adapter.connection.cql('SELECT * from %s WHERE key = ?', [adapter.attachfamily, key])
+				.then(function(rows)
+				{
+					rows.should.be.ok;
+					rows.should.be.an('array');
+					rows.length.should.equal(1);
 
-				done();
+					var row = rows[0];
+					var props = {};
+					row.forEach(function(col, value)
+					{
+						props[col] = value;
+					});
+
+					Object.keys(props).length.should.equal(1);
+					props.should.have.property('key');
+					should.not.exist(props.data);
+					should.not.exist(props.body);
+
+					done();
+				}).fail(function(err) { should.not.exist.err; })
+				.done();
 			});
 		});
 	});
