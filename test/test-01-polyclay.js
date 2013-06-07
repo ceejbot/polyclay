@@ -15,7 +15,6 @@ var
 	util = require('util')
 	;
 
-
 var modelDefinition =
 {
 	properties:
@@ -356,7 +355,9 @@ describe('polyclay', function()
 
 	it('emits a valid JSON string even when properties are invalid', function()
 	{
-		instance.toJSON().should.be.a('string');
+		var serialized = instance.toJSON();
+		serialized.should.be.an('object');
+		JSON.stringify(instance).should.be.a('string');
 	});
 
 	it('serializes missing properties to defaults', function()
@@ -400,7 +401,10 @@ describe('polyclay', function()
 	{
 		instance.ephemeral = undefined;
 
-		var json = instance.toJSON();
+		var serialized = instance.toJSON();
+		serialized.should.be.an('object');
+
+		var json = JSON.stringify(serialized);
 		json.should.be.a('string');
 		var struct = JSON.parse(json);
 
