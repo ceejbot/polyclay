@@ -31,8 +31,7 @@
 	{
 		"async":     "*",
 		"lodash":    "*",
-		"lucidjs":   "*",
-		"p-promise": "*"
+		"lucidjs":   "*"
 	},
 	"devDependencies":
 	{

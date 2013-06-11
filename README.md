@@ -1,6 +1,6 @@
 # Polyclay
 
-Polymer modeling clay for node.js. A model schema definition with type validations, dirty-state tracking, and rollback. Models are optionally persistable to CouchDB using [cradle](https://github.com/cloudhead/cradle), to [Redis](http://redis.io/), or to [LevelUP](https://github.com/rvagg/node-levelup). Polyclay gives you the safety of type-enforcing properties without making you write a lot of boilerplate. 
+Polymer modeling clay for node.js. A model schema definition with type validations, dirty-state tracking, and rollback. Models are optionally persistable to CouchDB using [cradle](https://github.com/cloudhead/cradle), [Redis](http://redis.io/), [LevelUP](https://github.com/rvagg/node-levelup), and Cassandra. Polyclay gives you the safety of type-enforcing properties without making you write a lot of boilerplate. 
 
 Current version: __1.4.0__
 
@@ -226,7 +226,7 @@ Call `Widget.provision()` to create the 'widgets' database in your CouchDB insta
 
 `provision(function(err, couchResponse))`
 
-Create the database the model expects to use in couch. Create any views for the db that are specified in the `design` field. Does nothing for Redis and LevelUP.
+Create the database the model expects to use in couch. Create any views for the db that are specified in the `design` field. Does nothing for Redis and LevelUP. Creates the keyspace and model tables/columnfamilies for Cassandra.
 
 `ModelFunction.get(id, function(err, object))`
 
