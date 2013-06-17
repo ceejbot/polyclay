@@ -10,7 +10,7 @@ var
 	;
 
 var
-	polyclay = require('../lib/polyclay'),
+	polyclay = require('../index'),
 	util = require('util')
 	;
 
@@ -557,16 +557,16 @@ describe('polyclay', function()
 
 	it('PolyClay.addType() can add a new type', function()
 	{
-		polyclay.PolyClay.addType(
+		polyclay.addType(
 		{
 			name: 'testtype',
 			validatorFunc: function(v) { return v.length > 0; },
 			defaultFunc: function() { return 'test'; },
 		});
 
-		polyclay.PolyClay.validTypes.indexOf('testtype').should.be.above(-1);
-		polyclay.PolyClay.validate.should.have.property('testtype');
-		polyclay.PolyClay.typeDefaults.should.have.property('testtype');
+		polyclay.validTypes.indexOf('testtype').should.be.above(-1);
+		polyclay.validate.should.have.property('testtype');
+		polyclay.typeDefaults.should.have.property('testtype');
 	});
 
 	it('newly-added types can be used to build models', function()
