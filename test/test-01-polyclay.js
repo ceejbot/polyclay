@@ -1,6 +1,5 @@
 // Unit tests for the polyclay model framework.
 
-// tell jshint about mocha
 /*global describe:true, it:true, before:true, after:true */
 
 var
@@ -107,6 +106,61 @@ describe('polyclay', function()
 		};
 
 		buildBad.should.throw(Error);
+	});
+
+	it('throws when setting a string property to a non-string', function()
+	{
+		function badSetter()
+		{
+			var obj = new Model();
+			obj.name = true;
+		};
+
+		badSetter.should.throw(Error);
+	});
+
+	it('throws when setting a number property to a non-number', function()
+	{
+		function badSetter()
+		{
+			var obj = new Model();
+			obj.count = 'string';
+		};
+
+		badSetter.should.throw(Error);
+	});
+
+	it('throws when setting an array property to a non-array', function()
+	{
+		function badSetter()
+		{
+			var obj = new Model();
+			obj.foozles = 'string';
+		};
+
+		badSetter.should.throw(Error);
+	});
+
+	it('throws when setting a hash property to a non-object', function()
+	{
+		function badSetter()
+		{
+			var obj = new Model();
+			obj.snozzers = 'string';
+		};
+
+		badSetter.should.throw(Error);
+	});
+
+	it('throws when setting a boolean property to a non-boolean', function()
+	{
+		function badSetter()
+		{
+			var obj = new Model();
+			obj.is_valid = 'string';
+		};
+
+		badSetter.should.throw(Error);
 	});
 
 	it('provides getters & setters for optional properties', function()
@@ -499,6 +553,38 @@ describe('polyclay', function()
 			done();
 		});
 		obj.update(data);
+	});
+
+	it('PolyClay.addType() can add a new type', function()
+	{
+		polyclay.PolyClay.addType(
+		{
+			name: 'testtype',
+			validatorFunc: function(v) { return v.length > 0; },
+			defaultFunc: function() { return 'test'; },
+		});
+
+		polyclay.PolyClay.validTypes.indexOf('testtype').should.be.above(-1);
+		polyclay.PolyClay.validate.should.have.property('testtype');
+		polyclay.PolyClay.typeDefaults.should.have.property('testtype');
+	});
+
+	it('newly-added types can be used to build models', function()
+	{
+		var TestModel = polyclay.Model.buildClass({ properties: { testtype: 'testtype' } });
+		var obj = new TestModel();
+
+		obj.should.have.property('testtype');
+		obj.testtype.should.equal('test');
+		obj.testtype = 'okay';
+		obj.testtype.should.equal('okay');
+
+		function shouldThrow()
+		{
+			obj.testtype = '';
+		}
+
+		shouldThrow.should.throw(Error);
 	});
 
 });
