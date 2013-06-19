@@ -389,6 +389,11 @@ describe('polyclay', function()
 
 	it('complains about missing required properties in valid()', function()
 	{
+		instance.__attributes.required_prop = undefined;
+		instance.__attributes.is_valid = undefined;
+		instance.__attributes.created = undefined;
+		instance.__attributes.foozles = [];
+
 		instance.valid().should.not.be.ok;
 		var errors = instance.errors;
 		assert(Object.keys(errors).length > 0, 'expected at least one error');
@@ -403,7 +408,7 @@ describe('polyclay', function()
 		assert(Object.keys(errors).length > 0, 'expected at least one error');
 		errors.should.have.property('created');
 		errors.created.should.equal('invalid data');
-		errors.should.have.property('foozles');
+		errors.should.not.have.property('foozles');
 		errors.should.not.have.property('name');
 	});
 
