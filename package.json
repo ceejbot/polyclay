@@ -29,7 +29,6 @@
 	},
 	"dependencies":
 	{
-		"async":     "*",
 		"lodash":    "*",
 		"lucidjs":   "*"
 	},
