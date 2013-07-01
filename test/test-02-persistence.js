@@ -147,9 +147,15 @@ describe('persistence layer', function()
 		polyclay.persist(Ephemeral, 'id');
 
 		var obj = new Ephemeral();
+		obj.id = 'foo';
 		obj.should.have.property('keyfield');
 		obj.keyfield.should.be.a('string');
 		assert(obj.keyfield === 'id', 'keyfield property not on object!');
+		obj.should.have.property('key');
+		obj.key.should.equal('foo');
+
+		obj.key = 'bar';
+		obj.id.should.equal('bar');
 	});
 
 	it('defaults the key field name to `key` when none is provided', function()
