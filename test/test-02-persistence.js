@@ -135,6 +135,23 @@ describe('persistence layer', function()
 		assert(obj.id === '4', obj.id + ' !== ' + obj.key);
 	});
 
+	it('stores the name of the key field on the prototype', function()
+	{
+		var Ephemeral = polyclay.Model.buildClass(
+		{
+			properties:
+			{
+				'id': 'string'
+			}
+		});
+		polyclay.persist(Ephemeral, 'id');
+
+		var obj = new Ephemeral();
+		obj.should.have.property('keyfield');
+		obj.keyfield.should.be.a('string');
+		assert(obj.keyfield === 'id', 'keyfield property not on object!');
+	});
+
 	it('throws when passed a model without polyclay attributes', function()
 	{
 		var willThrow = function()
