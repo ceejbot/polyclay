@@ -340,6 +340,14 @@ describe('polyclay', function()
 			obj.should.have.property(checklist[i]);
 	});
 
+	it('should set the default value upon initial access', function()
+	{
+		var obj = new Model();
+		obj.snozzers.widget = true;
+		obj.snozzers.should.equal(obj.snozzers);
+		obj.snozzers.widget.should.be.ok;
+	});
+
 	it('validates property types in setters', function()
 	{
 		var notAString = function() { instance.name = 0; };
