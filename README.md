@@ -466,6 +466,11 @@ comment.rollback(); // version is now 1 and modified the same as created
 comment.tempfield = 'whatever'; // not persisted in couch
 ```
 
+## Contributors
+
+C J Silverio @ceejbot  
+Kit Cambridge @kitcambridge  
+
 ## License
 
 MIT

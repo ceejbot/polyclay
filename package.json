@@ -1,8 +1,13 @@
 {
 	"name":           "polyclay",
-	"version":        "1.5.3",
+	"version":        "1.5.4",
 	"description":    "a schema-enforcing model class for node with optional key-value store persistence",
 	"author":         "C J Silverio <ceejceej@gmail.com>",
+	"contributors":
+	[
+		"C J Silverio <ceejceej@gmail.com>",
+		"Kit Cambridge <kitcambridge@me.com>"
+	],
 	"license":        "MIT",
 	"readmeFilename": "README.md",
 	"main":           "index.js",
