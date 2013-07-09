@@ -229,7 +229,6 @@ describe('persistence layer', function()
 		assert.ok(Model.adapter instanceof MockDBAdapter);
 	});
 
-
 	it('emits before-save', function(done)
 	{
 		var obj = new Model();
@@ -338,13 +337,23 @@ describe('persistence layer', function()
 		});
 	});
 
-	it('propertyType() returns a hash of types for properties', function()
+	it('propertyTypes() returns a hash of types for properties', function()
 	{
 		var obj = new Model();
 
 		var types = obj.propertyTypes();
 		types.should.be.an('object');
 
+	});
+
+	it('propertyType() can query the type of a specific property', function()
+	{
+		var obj = new Model();
+
+		obj.propertyType('key').should.equal('string');
+		obj.propertyType('required_prop').should.equal('string');
+		obj.propertyType('ephemeral').should.equal('untyped');
+		should.not.exist(obj.propertyType('nonexistent'));
 	});
 
 });
