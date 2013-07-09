@@ -369,6 +369,14 @@ describe('polyclay', function()
 		Object.keys(instance.__attributesPrev).length.should.equal(0);
 	});
 
+	it('markDirty() sets the dirty bit', function()
+	{
+		var obj = new Model();
+		obj.__dirty.should.be.false;
+		obj.markDirty();
+		obj.__dirty.should.be.true;
+	});
+
 	it('can roll back to previous version of model', function()
 	{
 		instance.name = 'second name';
