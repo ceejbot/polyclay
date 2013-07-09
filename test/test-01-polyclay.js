@@ -491,20 +491,32 @@ describe('polyclay', function()
 			struct.should.have.property(checklist[i]);
 	});
 
-	it('updates all known properties in update()', function()
+	describe('#update', function()
 	{
-		var data = {
-			is_valid: true,
-			foozles: ['three', 'four'],
-			count: 50,
-			required_prop: 'badges'
-		};
-		var obj = new Model();
-		obj.update(data);
+		it('updates all known properties', function()
+		{
+			var data = {
+				is_valid: true,
+				foozles: ['three', 'four'],
+				count: 50,
+				required_prop: 'badges'
+			};
+			var obj = new Model();
+			obj.update(data);
 
-		obj.required_prop.should.equal(data.required_prop);
-		obj.count.should.equal(data.count);
-		obj.is_valid.should.equal(data.is_valid);
+			obj.required_prop.should.equal(data.required_prop);
+			obj.count.should.equal(data.count);
+			obj.is_valid.should.equal(data.is_valid);
+		});
+
+		it('ignores primitive argument values', function()
+		{
+			var obj = new Model();
+			should.not.throw(function() { obj.update(); });
+			should.not.throw(function() { obj.update(null); });
+			should.not.throw(function() { obj.update('snozzers'); });
+			should.not.throw(function() { obj.update(false); });
+		});
 	});
 
 	it('emits a "change" event when a property is set', function(done)
