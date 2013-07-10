@@ -247,6 +247,14 @@ describe('polyclay', function()
 		obj.timestamp.should.be.a('date');
 	});
 
+	it('date setters parse ISO 8601-style strings', function()
+	{
+		var DateModel = polyclay.Model.buildClass({ properties: { timestamp: 'date' } });
+		var obj = new DateModel();
+		obj.timestamp = '2013-07-10T17:59:03.628Z';
+		obj.timestamp.should.be.a('date');
+	});
+
 	it('requires that references be strings', function()
 	{
 		var badSetter = function() { instance.pointer_id = {}; };
@@ -352,8 +360,10 @@ describe('polyclay', function()
 	{
 		var notAString = function() { instance.name = 0; };
 		var notANumber = function() { instance.count = "four"; };
+		var notADate   = function() { instance.created = 'Invalid Date'; };
 		notAString.should.throw(Error);
 		notANumber.should.throw(Error);
+		notADate.should.throw(Error);
 	});
 
 	it('setting a property marks the model dirty', function()
