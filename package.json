@@ -18,9 +18,9 @@
 	},
 	"scripts":
 	{
-		"test":       "mocha -R spec -t 5000 test/test-*.js && mocha -t 5000 --require blanket -R travis-cov test/test-*.js",
-		"test-cov":   "mocha --require blanket -R travis-cov test/test-*.js",
-		"coverage":   "mocha --require blanket -R html-cov test/test-*.js > test/coverage.html",
+		"test":       "node_modules/.bin/mocha -R spec -t 5000 test/test-*.js && node_modules/.bin/mocha -t 5000 --require blanket -R travis-cov test/test-*.js",
+		"test-cov":   "node_modules/.bin/mocha --require blanket -R travis-cov test/test-*.js",
+		"coverage":   "node_modules/.bin/mocha --require blanket -R html-cov test/test-*.js > test/coverage.html",
 		"travis-cov": { "threshold": 80 },
 		"blanket":
 		{
@@ -35,14 +35,15 @@
 	"dependencies":
 	{
 		"lodash":    "*",
-		"lucidjs":   "*"
+		"lucidjs":   "*",
+		"p-promise": "*"
 	},
 	"devDependencies":
 	{
-		"mocha":      "*",
-		"chai":       "*",
-		"blanket":    "*",
-		"travis-cov": "*"
+		"blanket":           "*",
+		"chai-as-promised":  "*",
+		"mocha-as-promised": "*",
+		"travis-cov":        "*"
 	},
 	"keywords":
 	[

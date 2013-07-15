@@ -14,6 +14,8 @@ var
 	util = require('util')
 	;
 
+require('mocha-as-promised')();
+
 var modelDefinition =
 {
 	properties:
@@ -114,7 +116,7 @@ describe('polyclay', function()
 		{
 			var obj = new Model();
 			obj.name = true;
-		};
+		}
 
 		badSetter.should.throw(Error);
 	});
@@ -125,7 +127,7 @@ describe('polyclay', function()
 		{
 			var obj = new Model();
 			obj.count = 'string';
-		};
+		}
 
 		badSetter.should.throw(Error);
 	});
@@ -136,7 +138,7 @@ describe('polyclay', function()
 		{
 			var obj = new Model();
 			obj.foozles = 'string';
-		};
+		}
 
 		badSetter.should.throw(Error);
 	});
@@ -147,7 +149,7 @@ describe('polyclay', function()
 		{
 			var obj = new Model();
 			obj.snozzers = 'string';
-		};
+		}
 
 		badSetter.should.throw(Error);
 	});
@@ -158,7 +160,7 @@ describe('polyclay', function()
 		{
 			var obj = new Model();
 			obj.is_valid = 'string';
-		};
+		}
 
 		badSetter.should.throw(Error);
 	});

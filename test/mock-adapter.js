@@ -31,7 +31,7 @@ MockDBAdapter.prototype.merge = function(key, properties, callback)
 
 MockDBAdapter.prototype.saveAttachment = function(obj, attachment, callback)
 {
-	this.attachments[obj.key + ':' + attachment.name] = attachment;
+	this.attachments[obj.key + ':' + attachment.name] = attachment.body;
 	callback(null, 'OK');
 };
 
