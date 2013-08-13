@@ -13,6 +13,7 @@ var
 	util = require('util')
 	;
 
+require('mocha-as-promised')();
 
 describe('mixins', function()
 {
