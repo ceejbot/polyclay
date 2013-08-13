@@ -226,6 +226,18 @@ describe('persistence layer', function()
 		assert.ok(Model.adapter instanceof MockDBAdapter);
 	});
 
+	it('accepts callbacks and promises', function(done)
+	{
+		var obj = new Model();
+		obj.key = 'nodeified';
+
+		obj.save(function(err, response)
+		{
+			should.not.exist(err);
+			done();
+		});
+	});
+
 	it('emits before-save', function()
 	{
 		var obj = new Model();
