@@ -12,6 +12,12 @@ var
 	MockDBAdapter = require('./mock-adapter')
 	;
 
+var chaiAsPromised = require('chai-as-promised');
+var P = require('p-promise');
+
+require('mocha-as-promised')();
+chai.use(chaiAsPromised);
+
 var testDir = process.cwd();
 if (path.basename(testDir) !== 'test')
 	testDir = path.join(testDir, 'test');
@@ -107,6 +113,7 @@ describe('persistence layer', function()
 		obj.should.be.an('object');
 		obj.should.have.property('test');
 		obj.should.have.property('fetch_test');
+		obj.should.have.property('set_test');
 	});
 
 	it('can be passed a key field', function()
@@ -189,37 +196,27 @@ describe('persistence layer', function()
 		willThrow.should.throw(Error);
 	});
 
-	it('destroyMany() does nothing when given empty input', function(done)
+	it('destroyMany() does nothing when given empty input', function()
 	{
-		Model.destroyMany(null, function(err)
-		{
-			should.not.exist(err);
-			done();
-		});
+		var promise = Model.destroyMany(null);
+		return promise.should.become(null);
 	});
 
-	it('destroy responds with an error when passed an object without an id', function(done)
+	it('destroy responds with an error when passed an object without an id', function()
 	{
 		var obj = new Model();
-		obj.destroy(function(err, destroyed)
-		{
-			err.should.be.an('object');
-			err.message.should.equal('cannot destroy object without an id');
-			done();
-		});
+		var promise = obj.destroy();
+		return promise.should.be.rejected.with(Error, 'cannot destroy object without an id');
 	});
 
-	it('destroy responds with an error when passed an object that has already been destroyed', function(done)
+	it('destroy responds with an error when passed an object that has already been destroyed', function()
 	{
 		var obj = new Model();
 		obj.key = 'foozle';
 		obj.destroyed = true;
-		obj.destroy(function(err, destroyed)
-		{
-			err.should.be.an('object');
-			err.message.should.equal('object already destroyed');
-			done();
-		});
+
+		var promise = obj.destroy();
+		return promise.should.be.rejected.with(Error, 'object already destroyed');
 	});
 
 	it('sets the db adapter in setStorage()', function()
@@ -229,93 +226,129 @@ describe('persistence layer', function()
 		assert.ok(Model.adapter instanceof MockDBAdapter);
 	});
 
-	it('emits before-save', function(done)
+	it('accepts callbacks and promises', function(done)
 	{
 		var obj = new Model();
+		obj.key = 'nodeified';
+
+		obj.save(function(err, response)
+		{
+			should.not.exist(err);
+			done();
+		});
+	});
+
+	it('emits before-save', function()
+	{
+		var obj = new Model();
+		var beforeSaveDeferred = P.defer();
+
 		obj.key = '1';
-		obj.on('before-save', function()
-		{
-			done();
-		});
-		obj.save(function(err, resp)
-		{
-			should.not.exist(err);
-		});
+		obj.on('before-save', beforeSaveDeferred.resolve);
+
+		return P.all([obj.save(), beforeSaveDeferred.promise]);
 	});
 
-	it('emits after-save', function(done)
+	it('emits after-save', function()
 	{
 		var obj = new Model();
+		var afterSaveDeferred = P.defer();
+
 		obj.key = '2';
-		obj.on('after-save', function()
-		{
-			done();
-		});
-		obj.save(function(err, resp)
-		{
-			should.not.exist(err);
-		});
+		obj.on('after-save', afterSaveDeferred.resolve);
+
+		return P.all([obj.save(), afterSaveDeferred.promise]);
 	});
 
-	it('emits after-load', function(done)
+	it('emits after-load', function()
 	{
-		Model.get('1', function(err, obj)
+		return Model.get('1')
+		.then(function(obj)
 		{
-			should.not.exist(err);
 			obj.afterLoad.should.be.ok;
-			done();
 		});
 	});
 
-	it('emits before-destroy', function(done)
+	it('emits before-destroy', function()
 	{
-		Model.get('1', function(err, obj)
+		return Model.get('1')
+		.then(function(obj)
 		{
-			obj.on('before-destroy', function()
-			{
-				done();
-			});
+			var beforeDestroyDeferred = P.defer();
+			obj.on('before-destroy', beforeDestroyDeferred.resolve);
 
-			obj.destroy(function(err, destroyed)
-			{
-				should.not.exist(err);
-			});
+			return P.all([beforeDestroyDeferred.promise, obj.destroy()]);
 		});
 	});
 
-	it('emits after-destroy', function(done)
+	it('emits after-destroy', function()
 	{
-		Model.get('2', function(err, obj)
+		return Model.get('2')
+		.then(function(obj)
 		{
-			obj.on('after-destroy', function()
-			{
-				obj.destroyed.should.equal(true);
-				done();
-			});
+			var afterDestroyDeferred = P.defer();
+			obj.on('after-destroy', afterDestroyDeferred.resolve);
 
-			obj.destroy(function(err, destroyed)
-			{
-				should.not.exist(err);
-				destroyed.should.be.ok;
-			});
+			return P.all([afterDestroyDeferred.promise, obj.destroy().should.become(true)]);
 		});
 	});
 
-	it('emits change events for attachments', function(done)
+	it('emits change events for attachments', function()
 	{
 		var Ephemeral = polyclay.Model.buildClass({});
 		polyclay.persist(Ephemeral);
 		Ephemeral.defineAttachment('test', 'text/plain');
 
 		var obj = new Ephemeral();
-		obj.on('change.test', function()
-		{
-			done();
-		});
+		var changeDeferred = P.defer();
+
+		obj.on('change.test', changeDeferred.resolve);
 		obj.test = 'i am an attachment';
+
+		return changeDeferred.promise;
 	});
 
-	it('emits change events when attachments are removed', function(done)
+	var AttachModel;
+
+	it('can save attachments', function()
+	{
+		AttachModel = polyclay.Model.buildClass({ properties: { key: 'string' } });
+		polyclay.persist(AttachModel);
+		AttachModel.defineAttachment('test', 'application/json');
+		AttachModel.setStorage({}, MockDBAdapter);
+
+		var obj = new AttachModel();
+		obj.key = 'attach';
+
+		obj.test = new Buffer('[1, 2, 3]');
+		obj.test.should.deep.equal(new Buffer('[1, 2, 3]'));
+
+		return obj.saveAttachment('test')
+		.then(function() { return obj.save(); });
+	});
+
+	it('can retrieve attachments', function(done)
+	{
+		return AttachModel.get('attach')
+		.then(function(obj)
+		{
+			return obj.fetch_test()
+			.then(function(body)
+			{
+				Buffer.isBuffer(body).should.be.ok;
+				body.should.deep.equal(new Buffer('[1, 2, 3]'));
+
+				var attach = obj.__attachments.test;
+				should.exist(attach);
+				attach.body.should.equal(body);
+
+				attach.content_type.should.equal('application/json');
+				attach.__dirty.should.not.be.ok;
+			});
+		});
+	});
+
+	it('emits change events when attachments are removed', function()
 	{
 		var Ephemeral = polyclay.Model.buildClass({});
 		polyclay.persist(Ephemeral);
@@ -324,16 +357,13 @@ describe('persistence layer', function()
 
 		var obj = new Ephemeral();
 		obj.test = 'i am an attachment';
-		obj.save(function(err, resp)
+
+		return obj.save()
+		.then(function()
 		{
-			obj.on('change.test', function()
-			{
-				done();
-			});
-			obj.removeAttachment('test', function(err, resp)
-			{
-				should.not.exist(err);
-			});
+			var changeDeferred = P.defer();
+			obj.on('change.test', changeDeferred.resolve);
+			return P.all([obj.removeAttachment('test'), changeDeferred.promise]);
 		});
 	});
 
