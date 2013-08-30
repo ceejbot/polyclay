@@ -222,6 +222,8 @@ Call `Widget.provision()` to create the 'widgets' database in your CouchDB insta
 
 ### Persistence class methods
 
+All functions return promises if a callback is not provided.
+
 `provision(function(err, couchResponse))`
 
 Create the database the model expects to use in couch. Create any views for the db that are specified in the `design` field. Does nothing for Redis and LevelUP. Creates the keyspace and model tables/columnfamilies for Cassandra.
