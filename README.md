@@ -6,7 +6,7 @@ Polymer modeling clay for node.js. A model schema definition with type validatio
 [![NPM version](https://badge.fury.io/js/polyclay.png)](http://badge.fury.io/js/polyclay)
 [![Stories in Ready](https://badge.waffle.io/ceejbot/polyclay.png)](http://waffle.io/ceejbot/polyclay)
 
-[![NPM](https://nodei.co/npm/consensus.png)](https://nodei.co/npm/consensus/)
+[![NPM](https://nodei.co/npm/polyclay.png)](https://nodei.co/npm/polyclay/)
 
 ## Installing
 
