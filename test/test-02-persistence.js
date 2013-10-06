@@ -202,21 +202,39 @@ describe('persistence layer', function()
 		return promise.should.become(null);
 	});
 
-	it('destroy responds with an error when passed an object without an id', function()
+	it('destroy responds with an error when passed an object without an id', function(done)
 	{
 		var obj = new Model();
-		var promise = obj.destroy();
-		return promise.should.be.rejected.with(Error, 'cannot destroy object without an id');
+		obj.destroy()
+		.then(function(reply)
+		{
+			should.not.exist(reply);
+		})
+		.fail(function(err)
+		{
+			err.should.be.ok;
+			err.message.should.equal('cannot destroy object without an id');
+			done();
+		}).done();
 	});
 
-	it('destroy responds with an error when passed an object that has already been destroyed', function()
+	it('destroy responds with an error when passed an object that has already been destroyed', function(done)
 	{
 		var obj = new Model();
 		obj.key = 'foozle';
 		obj.destroyed = true;
 
-		var promise = obj.destroy();
-		return promise.should.be.rejected.with(Error, 'object already destroyed');
+		obj.destroy()
+		.then(function(reply)
+		{
+			should.not.exist(reply);
+		})
+		.fail(function(err)
+		{
+			err.should.be.ok;
+			err.message.should.equal('object already destroyed');
+			done();
+		}).done();
 	});
 
 	it('sets the db adapter in setStorage()', function()
