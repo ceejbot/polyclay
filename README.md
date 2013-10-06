@@ -1,3 +1,4 @@
+[![Stories in Ready](https://badge.waffle.io/ceejbot/polyclay.png?label=ready)](https://waffle.io/ceejbot/polyclay)  
 # Polyclay
 
 Polymer modeling clay for node.js. A model schema definition with type validations, dirty-state tracking, and rollback. Models are optionally persistable to CouchDB using [cradle](https://github.com/cloudhead/cradle), [Redis](http://redis.io/), [LevelUP](https://github.com/rvagg/node-levelup), and Cassandra. Polyclay gives you the safety of type-enforcing properties without making you write a lot of boilerplate. 
