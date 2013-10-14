@@ -1,6 +1,6 @@
 {
 	"name":           "polyclay",
-	"version":        "1.6.0",
+	"version":        "1.6.1",
 	"description":    "a schema-enforcing model class for node with optional key-value store persistence",
 	"author":         "C J Silverio <ceejceej@gmail.com>",
 	"contributors":
@@ -35,7 +35,7 @@
 	"dependencies":
 	{
 		"lodash":    "*",
-		"lucidjs":   "*",
+		"lucidjs":   "~2.7.0",
 		"p-promise": "*"
 	},
 	"devDependencies":
