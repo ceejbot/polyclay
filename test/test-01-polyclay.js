@@ -165,6 +165,12 @@ describe('polyclay', function()
 		badSetter.should.throw(Error);
 	});
 
+	it('accepts null for boolean properties', function()
+	{
+		var obj = new Model();
+		obj.is_valid = null;
+	});
+
 	it('provides getters & setters for optional properties', function()
 	{
 		var property, name;
