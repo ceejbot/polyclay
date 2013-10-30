@@ -435,15 +435,25 @@ describe('polyclay', function()
 		errors.should.have.property('is_valid');
 	});
 
-	it('complains about invalid data for unset properties', function()
+	it('does not complain about invalid data for unset properties', function()
 	{
 		instance.valid().should.not.be.ok;
 		var errors = instance.errors;
 		assert(Object.keys(errors).length > 0, 'expected at least one error');
-		errors.should.have.property('created');
-		errors.created.should.equal('invalid data');
+		errors.should.not.have.property('created');
 		errors.should.not.have.property('foozles');
 		errors.should.not.have.property('name');
+	});
+
+	it('complains about type mismatches', function()
+	{
+		instance.__attributes.is_valid = 'no';
+
+		instance.valid().should.not.be.ok;
+		var errors = instance.errors;
+		assert(Object.keys(errors).length > 0, 'expected at least one error');
+		errors.should.have.property('is_valid');
+		errors.is_valid.should.equal('invalid data');
 	});
 
 	it('emits a valid JSON string even when properties are invalid', function()
