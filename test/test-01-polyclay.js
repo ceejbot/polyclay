@@ -34,6 +34,7 @@ var modelDefinition =
 	required: [ 'name', 'is_valid', 'required_prop'],
 	singular: 'model',
 	plural: 'models',
+	index: [ 'key', 'name' ],
 	enumerables:
 	{
 		enum1: ['zero', 'one', 'two'],
@@ -81,6 +82,11 @@ describe('polyclay', function()
 		Model.prototype.should.have.property('supplied');
 		(typeof Model.prototype.supplied).should.equal('function');
 		instance.supplied().should.equal(true);
+	});
+
+	it('sets the `__index` property on the prototype if index is in the options', function()
+	{
+		Model.prototype.should.have.property('__index');
 	});
 
 	it('defines getters and setters for typed properties', function()
