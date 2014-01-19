@@ -47,6 +47,10 @@ describe('mixins', function()
 		methods:
 		{
 			touch: function() { this.modified = Date.now(); }
+		},
+		statics:
+		{
+			comparator: function comparator(l, r) { return l.created.getTime() - r.created.getTime(); },
 		}
 	};
 
@@ -93,6 +97,13 @@ describe('mixins', function()
 		mixins.mixin(Model1, HasTimestamps);
 		Model1.prototype.should.have.property('touch');
 		Model1.prototype.touch.should.be.a('function');
+	});
+
+	it('adds static methods to the model constructor', function()
+	{
+		mixins.mixin(Model1, HasTimestamps);
+		Model1.should.have.property('comparator');
+		Model1.comparator.should.be.a('function');
 	});
 
 	it('adds custom getters & setters for custom properties', function()

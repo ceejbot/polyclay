@@ -2,7 +2,8 @@
 
 Polymer modeling clay for node.js. A model schema definition with type validations, dirty-state tracking, and rollback. Models are optionally persistable to CouchDB using [cradle](https://github.com/cloudhead/cradle), [Redis](http://redis.io/), [LevelUP](https://github.com/rvagg/node-levelup), and Cassandra. Polyclay gives you the safety of type-enforcing properties without making you write a lot of boilerplate. 
 
-[![Build Status](https://secure.travis-ci.org/ceejbot/polyclay.png)](http://travis-ci.org/ceejbot/polyclay) [![Dependencies](https://david-dm.org/ceejbot/polyclay.png)](https://david-dm.org/ceejbot/polyclay) 
+[![Build Status](https://secure.travis-ci.org/ceejbot/polyclay.png)](http://travis-ci.org/ceejbot/polyclay)
+[![Dependencies](https://david-dm.org/ceejbot/polyclay.png)](https://david-dm.org/ceejbot/polyclay)
 [![NPM version](https://badge.fury.io/js/polyclay.png)](http://badge.fury.io/js/polyclay)
 [![Stories in Ready](https://badge.waffle.io/ceejbot/polyclay.png)](http://waffle.io/ceejbot/polyclay)
 
@@ -356,6 +357,10 @@ var HasTimestamps =
 	methods:
 	{
 		touch: function() { this.modified = Date.now(); }
+	},
+	statics:
+	{
+		comparator: function comparator(l, r) { return l.created.getTime() - r.created.getTime(); },
 	}
 };
 
@@ -366,6 +371,7 @@ Mixin objects have three fields.
 
 `properties`: A hash of property names & types, exactly as in a base model definition.  
 `methods`: A hash of method names & implementations to add to the model prototype.  
+`statics`: Functions to add to the model function directly; class methods.  
 `custom`: A hash of custom functions to add to the model prototype as getters & setters. 
 
 Here's a simple example of a custom property:
