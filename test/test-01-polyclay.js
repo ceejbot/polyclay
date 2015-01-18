@@ -1,41 +1,32 @@
-// Unit tests for the polyclay model framework.
-
 /*global describe:true, it:true, before:true, after:true */
 
 var
-	chai = require('chai'),
-	assert = chai.assert,
-	expect = chai.expect,
-	should = chai.should()
+    demand   = require('must'),
+    polyclay = require('../index'),
+    util     = require('util')
 	;
-
-var
-	polyclay = require('../index'),
-	util = require('util')
-	;
-
-require('mocha-as-promised')();
 
 var modelDefinition =
 {
 	properties:
 	{
-		key: 'string',
-		name: 'string',
-		created: 'date',
-		foozles: 'array',
-		snozzers: 'hash',
-		is_valid: 'boolean',
-		count: 'number',
-		required_prop: 'string',
-		pointer: 'reference'
-	},
-	optional: [ 'computed', 'ephemeral' ],
-	required: [ 'name', 'is_valid', 'required_prop'],
-	singular: 'model',
-	plural: 'models',
-	index: [ 'key', 'name' ],
-	enumerables:
+        key:           'string',
+        name:          'string',
+        created:       'date',
+        foozles:       'array',
+        snozzers:      'hash',
+        is_valid:      'boolean',
+        count:         'number',
+        required_prop: 'string',
+        pointer:       'reference',
+        freeform:      'untyped'
+    },
+    optional:    [ 'computed', 'ephemeral' ],
+    required:    [ 'name', 'is_valid', 'required_prop'],
+    singular:    'model',
+    plural:      'models',
+    index:       [ 'key', 'name' ],
+    enumerables:
 	{
 		enum1: ['zero', 'one', 'two'],
 		enum2: ['alpha', 'beta', 'gamma']
@@ -66,27 +57,27 @@ describe('polyclay', function()
 	it('can construct a model class from a definition', function()
 	{
 		Model = polyclay.Model.buildClass(modelDefinition);
-		Model.should.be.a('function');
+		Model.must.be.a.function();
 		instance = new Model();
-		assert(instance instanceof Model, 'expected Model to be a constructor');
+		instance.must.be.instanceof(Model);
 	});
 
 	it('runs the provided initialize() function on instance construction', function()
 	{
-		instance.ran_init.should.be.true;
+		instance.ran_init.must.be.true();
 		delete instance.ran_init;
 	});
 
 	it('adds any methods in the options to the prototype', function()
 	{
-		Model.prototype.should.have.property('supplied');
-		(typeof Model.prototype.supplied).should.equal('function');
-		instance.supplied().should.equal(true);
+		Model.prototype.must.have.property('supplied');
+		Model.prototype.supplied.must.be.a.function();
+		instance.supplied().must.equal(true);
 	});
 
 	it('sets the `__index` property on the prototype if index is in the options', function()
 	{
-		Model.prototype.should.have.property('__index');
+		Model.prototype.must.have.property('__index');
 	});
 
 	it('defines getters and setters for typed properties', function()
@@ -99,9 +90,9 @@ describe('polyclay', function()
 		{
 			name = checklist[i];
 			property = Object.getOwnPropertyDescriptor(proto, name);
-			property.should.be.an('object');
-			property.should.have.property('get');
-			property.should.have.property('set');
+			property.must.be.an.object();
+			property.must.have.property('get');
+			property.must.have.property('set');
 		}
 	});
 
@@ -113,7 +104,7 @@ describe('polyclay', function()
 			var MyBadClass = polyclay.Model.buildClass(badModel);
 		};
 
-		buildBad.should.throw(Error);
+		buildBad.must.throw(Error);
 	});
 
 	it('throws when setting a string property to a non-string', function()
@@ -124,7 +115,7 @@ describe('polyclay', function()
 			obj.name = true;
 		}
 
-		badSetter.should.throw(Error);
+		badSetter.must.throw(Error);
 	});
 
 	it('throws when setting a number property to a non-number', function()
@@ -135,7 +126,7 @@ describe('polyclay', function()
 			obj.count = 'string';
 		}
 
-		badSetter.should.throw(Error);
+		badSetter.must.throw(Error);
 	});
 
 	it('throws when setting an array property to a non-array', function()
@@ -146,7 +137,7 @@ describe('polyclay', function()
 			obj.foozles = 'string';
 		}
 
-		badSetter.should.throw(Error);
+		badSetter.must.throw(Error);
 	});
 
 	it('throws when setting a hash property to a non-object', function()
@@ -157,7 +148,7 @@ describe('polyclay', function()
 			obj.snozzers = 'string';
 		}
 
-		badSetter.should.throw(Error);
+		badSetter.must.throw(Error);
 	});
 
 	it('throws when setting a boolean property to a non-boolean', function()
@@ -168,7 +159,7 @@ describe('polyclay', function()
 			obj.is_valid = 'string';
 		}
 
-		badSetter.should.throw(Error);
+		badSetter.must.throw(Error);
 	});
 
 	it('accepts null for boolean properties', function()
@@ -186,11 +177,11 @@ describe('polyclay', function()
 		for (var i = 0; i < checklist.length; i++)
 		{
 			name = checklist[i];
-			instance.should.not.have.property(name);
+			instance.name.must.be.falsy();
 			property = Object.getOwnPropertyDescriptor(proto, name);
-			property.should.be.an('object');
-			property.should.have.property('get');
-			property.should.have.property('set');
+			property.must.be.an.object();
+			property.must.have.property('get');
+			property.must.have.property('set');
 
 			instance[name] = 'calc ' + name;
 		}
@@ -200,26 +191,34 @@ describe('polyclay', function()
 	{
 		var proto = Object.getPrototypeOf(instance);
 		var property = Object.getOwnPropertyDescriptor(proto, 'pointer');
-		property.should.be.an('object');
-		property.should.have.property('get');
-		property.should.have.property('set');
+		property.must.be.an.object();
+		property.must.have.property('get');
+		property.must.have.property('set');
 
 		property = Object.getOwnPropertyDescriptor(proto, 'pointer_id');
-		property.should.be.an('object');
-		property.should.have.property('get');
-		property.should.have.property('set');
+		property.must.be.an.object();
+		property.must.have.property('get');
+		property.must.have.property('set');
 
 		var ref = { key: 'testref', foo: 'bar' };
 		instance.pointer = ref;
-		instance.pointer.should.be.an('object');
-		instance.pointer_id.should.equal('testref');
+		instance.pointer.must.be.an.object();
+		instance.pointer_id.must.equal('testref');
+	});
+
+	it('returns a bare object as default reference', function()
+	{
+		var obj = new Model();
+		var def = obj.pointer;
+		def.must.be.an.object();
+		Object.keys(def).length.must.equal(0);
 	});
 
 	it('sets singular and plural properties on the prototype', function()
 	{
 		var obj = new Model();
-		obj.singular.should.equal('model');
-		obj.plural.should.equal('models');
+		obj.singular.must.equal('model');
+		obj.plural.must.equal('models');
 	});
 
 	it('clears references when they are set to falsey values', function()
@@ -228,11 +227,10 @@ describe('polyclay', function()
 		var target = new Model();
 		target.key = 'foo';
 		obj.pointer = target;
-		obj.pointer.should.equal(target);
-		obj.pointer_id.should.equal('foo');
+		obj.pointer.must.equal(target);
+		obj.pointer_id.must.equal('foo');
 		obj.pointer = null;
-		should.not.exist(obj.pointer);
-		obj.pointer_id.length.should.equal(0);
+		obj.pointer_id.length.must.equal(0);
 	});
 
 	it('string setters turn nulls into empty strings', function()
@@ -241,8 +239,8 @@ describe('polyclay', function()
 		var obj = new StringModel();
 		obj.description = 'some text';
 		obj.description = null;
-		obj.description.should.be.a('string');
-		obj.description.should.equal('');
+		obj.description.must.be.a.string();
+		obj.description.must.equal('');
 	});
 
 	it('date setters handle numeric input', function()
@@ -250,7 +248,7 @@ describe('polyclay', function()
 		var DateModel = polyclay.Model.buildClass({ properties: { timestamp: 'date' } });
 		var obj = new DateModel();
 		obj.timestamp = 1361326857895;
-		obj.timestamp.should.be.a('date');
+		obj.timestamp.must.be.a.date();
 	});
 
 	it('date setters parse string input', function()
@@ -258,7 +256,7 @@ describe('polyclay', function()
 		var DateModel = polyclay.Model.buildClass({ properties: { timestamp: 'date' } });
 		var obj = new DateModel();
 		obj.timestamp = 'Tue Feb 19 2013 18:20:57 GMT-0800';
-		obj.timestamp.should.be.a('date');
+		obj.timestamp.must.be.a.date();
 	});
 
 	it('date setters parse ISO 8601-style strings', function()
@@ -266,13 +264,13 @@ describe('polyclay', function()
 		var DateModel = polyclay.Model.buildClass({ properties: { timestamp: 'date' } });
 		var obj = new DateModel();
 		obj.timestamp = '2013-07-10T17:59:03.628Z';
-		obj.timestamp.should.be.a('date');
+		obj.timestamp.must.be.a.date();
 	});
 
 	it('requires that references be strings', function()
 	{
 		var badSetter = function() { instance.pointer_id = {}; };
-		badSetter.should.throw(Error);
+		badSetter.must.throw(Error);
 	});
 
 	it('provides getters & setters for enumerables', function()
@@ -286,57 +284,57 @@ describe('polyclay', function()
 		{
 			name = checklist[i];
 			property = Object.getOwnPropertyDescriptor(proto, name);
-			property.should.be.an('object');
-			property.should.have.property('get');
-			property.should.have.property('set');
+			property.must.be.an.object();
+			property.must.have.property('get');
+			property.must.have.property('set');
 		}
 	});
 
 	it('adds enumerables to the properties list with type number', function()
 	{
 		var idx = instance.__properties.indexOf('enum1');
-		idx.should.not.equal(-1);
-		instance.__types['enum1'].should.equal('number');
+		idx.must.not.equal(-1);
+		instance.__types['enum1'].must.equal('number');
 	});
 
 	it('can set an enumerable property by number', function()
 	{
 		instance.enum1 = 1;
-		instance.enum1.should.equal('one');
+		instance.enum1.must.equal('one');
 		instance.enum2 = 2;
-		instance.enum2.should.equal('gamma');
+		instance.enum2.must.equal('gamma');
 	});
 
 	it('can set an enumerable property by value', function()
 	{
 		instance.enum1 = 'one';
-		instance.enum1.should.equal('one');
-		instance.__attributes['enum1'].should.equal(1);
+		instance.enum1.must.equal('one');
+		instance.__attributes['enum1'].must.equal(1);
 
 		instance.enum2 = 'beta';
-		instance.enum2.should.equal('beta');
-		instance.__attributes['enum2'].should.equal(1);
+		instance.enum2.must.equal('beta');
+		instance.__attributes['enum2'].must.equal(1);
 	});
 
 	it('setting an enum to empty string sets it to value 0', function()
 	{
 		var obj = new Model();
 		obj.enum1 = 'one';
-		obj.__attributes['enum1'].should.equal(1);
+		obj.__attributes['enum1'].must.equal(1);
 		obj.enum1 = '';
-		obj.__attributes['enum1'].should.equal(0);
+		obj.__attributes['enum1'].must.equal(0);
 	});
 
 	it('throws when attempting to set an enum to an illegal numeric value', function()
 	{
 		var invalidEnum = function() { instance.enum1 = 17; };
-		invalidEnum.should.throw(Error);
+		invalidEnum.must.throw(Error);
 	});
 
 	it('throws when attempting to set an enum to an illegal string value', function()
 	{
 		var invalidEnum = function() { instance.enum1 = 'jibberjabber'; };
-		invalidEnum.should.throw(Error);
+		invalidEnum.must.throw(Error);
 	});
 
 	it('prefixes implementation detail properties with two underscores', function()
@@ -350,7 +348,7 @@ describe('polyclay', function()
 			name = instanceProps[i];
 			if (lucidprops.indexOf(name) > -1)
 				continue;
-			assert(name.indexOf('__') === 0, 'model property "' + name + '" does not start with underscores');
+			name.indexOf('__').must.equal(0);
 		}
 	});
 
@@ -359,15 +357,15 @@ describe('polyclay', function()
 		var checklist = Object.keys(modelDefinition.properties);
 		var obj = new Model();
 		for (var i = 0; i < checklist.length; i++)
-			obj.should.have.property(checklist[i]);
+			obj.must.have.property(checklist[i]);
 	});
 
 	it('should set the default value upon initial access', function()
 	{
 		var obj = new Model();
 		obj.snozzers.widget = true;
-		obj.snozzers.should.equal(obj.snozzers);
-		obj.snozzers.widget.should.be.ok;
+		obj.snozzers.must.equal(obj.snozzers);
+		obj.snozzers.widget.must.exist();
 	});
 
 	it('validates property types in setters', function()
@@ -375,39 +373,39 @@ describe('polyclay', function()
 		var notAString = function() { instance.name = 0; };
 		var notANumber = function() { instance.count = "four"; };
 		var notADate   = function() { instance.created = 'Invalid Date'; };
-		notAString.should.throw(Error);
-		notANumber.should.throw(Error);
-		notADate.should.throw(Error);
+		notAString.must.throw(Error);
+		notANumber.must.throw(Error);
+		notADate.must.throw(Error);
 	});
 
 	it('setting a property marks the model dirty', function()
 	{
 		instance.name = 'new name';
-		instance.__dirty.should.be.true;
+		instance.__dirty.must.be.true();
 	});
 
 	it('can clear the dirty state', function()
 	{
 		instance.clearDirty();
-		instance.__dirty.should.be.false;
-		Object.keys(instance.__attributesPrev).length.should.equal(0);
+		instance.__dirty.must.be.false();
+		Object.keys(instance.__attributesPrev).length.must.equal(0);
 	});
 
 	it('markDirty() sets the dirty bit', function()
 	{
 		var obj = new Model();
-		obj.__dirty.should.be.false;
+		obj.__dirty.must.be.false();
 		obj.markDirty();
-		obj.__dirty.should.be.true;
+		obj.__dirty.must.be.true();
 	});
 
 	it('can roll back to previous version of model', function()
 	{
 		instance.name = 'second name';
-		instance.name.should.equal('second name');
-		instance.__dirty.should.be.true;
-		instance.rollback().should.be.ok;
-		instance.name.should.equal('new name');
+		instance.name.must.equal('second name');
+		instance.__dirty.must.be.true();
+		instance.rollback().must.exist();
+		instance.name.must.equal('new name');
 	});
 
 	it('can roll back enumerable properties', function()
@@ -415,16 +413,16 @@ describe('polyclay', function()
 		var another = new Model();
 		var initial = another.enum1;
 		another.enum1 = 2;
-		another.enum1.should.equal('two');
-		another.__dirty.should.be.true;
-		another.rollback().should.be.ok;
-		another.enum1.should.equal(initial);
+		another.enum1.must.equal('two');
+		another.__dirty.must.be.true();
+		another.rollback().must.exist();
+		another.enum1.must.equal(initial);
 	});
 
 	it('rollback() returns false when there is nothing to roll back', function()
 	{
 		var another = new Model();
-		another.rollback().should.equal(false);
+		another.rollback().must.equal(false);
 	});
 
 	it('complains about missing required properties in valid()', function()
@@ -434,52 +432,52 @@ describe('polyclay', function()
 		instance.__attributes.created = undefined;
 		instance.__attributes.foozles = [];
 
-		instance.valid().should.not.be.ok;
+		instance.valid().must.be.false();
 		var errors = instance.errors;
-		assert(Object.keys(errors).length > 0, 'expected at least one error');
-		errors.should.have.property('required_prop');
-		errors.should.have.property('is_valid');
+		Object.keys(errors).length.must.be.above(0);
+		errors.must.have.property('required_prop');
+		errors.must.have.property('is_valid');
 	});
 
 	it('does not complain about invalid data for unset properties', function()
 	{
-		instance.valid().should.not.be.ok;
+		instance.valid().must.be.false();
 		var errors = instance.errors;
-		assert(Object.keys(errors).length > 0, 'expected at least one error');
-		errors.should.not.have.property('created');
-		errors.should.not.have.property('foozles');
-		errors.should.not.have.property('name');
+		Object.keys(errors).length.must.be.above(0);
+		errors.must.not.have.property('created');
+		errors.must.not.have.property('foozles');
+		errors.must.not.have.property('name');
 	});
 
 	it('complains about type mismatches', function()
 	{
 		instance.__attributes.is_valid = 'no';
 
-		instance.valid().should.not.be.ok;
+		instance.valid().must.be.false();
 		var errors = instance.errors;
-		assert(Object.keys(errors).length > 0, 'expected at least one error');
-		errors.should.have.property('is_valid');
-		errors.is_valid.should.equal('invalid data');
+		Object.keys(errors).length.must.be.above(0);
+		errors.must.have.property('is_valid');
+		errors.is_valid.must.equal('invalid data');
 	});
 
 	it('emits a valid JSON string even when properties are invalid', function()
 	{
 		var serialized = instance.toJSON();
-		serialized.should.be.an('object');
-		JSON.stringify(instance).should.be.a('string');
+		serialized.must.be.an.object();
+		JSON.stringify(instance).must.be.a.string();
 	});
 
 	it('serializes missing properties to defaults', function()
 	{
 		var struct = instance.serialize();
-		struct.should.be.an('object');
+		struct.must.be.an.object();
 
 		var checklist = expectedProperties;
 		for (var i = 0; i < checklist.length; i++)
-			struct.should.have.property(checklist[i]);
+			struct.must.have.property(checklist[i]);
 
-		struct.count.should.equal(0);
-		struct.foozles.length.should.equal(0);
+		struct.count.must.equal(0);
+		struct.foozles.length.must.equal(0);
 	});
 
 	it('serializes when properties are valid', function()
@@ -490,20 +488,21 @@ describe('polyclay', function()
 		instance.snozzers = {};
 		instance.count = 1;
 		instance.required_prop = 'satisfied';
+		instance.freeform = 'whatever';
 
 		var struct = instance.serialize();
-		struct.should.be.an('object');
+		struct.must.be.an.object();
 
 		var checklist = expectedProperties;
 		for (var i = 0; i < checklist.length; i++)
-			struct.should.have.property(checklist[i]);
+			struct.must.have.property(checklist[i]);
 	});
 
 	it('calls a custom validation function when one is present', function()
 	{
-		instance.valid().should.be.ok;
+		instance.valid().must.exist();
 		Model.prototype.validator = function() { return false; };
-		instance.valid().should.not.be.ok;
+		instance.valid().must.be.false();
 	});
 
 	it('includes all checked properties & only set checked properties in toJSON()', function()
@@ -511,18 +510,18 @@ describe('polyclay', function()
 		instance.ephemeral = undefined;
 
 		var serialized = instance.toJSON();
-		serialized.should.be.an('object');
+		serialized.must.be.an.object();
 
 		var json = JSON.stringify(serialized);
-		json.should.be.a('string');
+		json.must.be.a.string();
 		var struct = JSON.parse(json);
 
-		struct.should.have.property('computed');
-		struct.should.not.have.property('ephemeral');
+		struct.must.have.property('computed');
+		struct.must.not.have.property('ephemeral');
 
 		var checklist = expectedProperties;
 		for (var i = 0; i < checklist.length; i++)
-			struct.should.have.property(checklist[i]);
+			struct.must.have.property(checklist[i]);
 	});
 
 	describe('#update', function()
@@ -538,18 +537,23 @@ describe('polyclay', function()
 			var obj = new Model();
 			obj.update(data);
 
-			obj.required_prop.should.equal(data.required_prop);
-			obj.count.should.equal(data.count);
-			obj.is_valid.should.equal(data.is_valid);
+			obj.required_prop.must.equal(data.required_prop);
+			obj.count.must.equal(data.count);
+			obj.is_valid.must.equal(data.is_valid);
 		});
 
 		it('ignores primitive argument values', function()
 		{
 			var obj = new Model();
-			should.not.throw(function() { obj.update(); });
-			should.not.throw(function() { obj.update(null); });
-			should.not.throw(function() { obj.update('snozzers'); });
-			should.not.throw(function() { obj.update(false); });
+			function update1() { obj.update(); }
+			function update2() { obj.update(null); }
+			function update3() { obj.update('snozzers'); }
+			function update4() { obj.update(false); }
+
+			update1.must.not.throw();
+			update2.must.not.throw();
+			update3.must.not.throw();
+			update4.must.not.throw();
 		});
 	});
 
@@ -558,7 +562,7 @@ describe('polyclay', function()
 		var obj = new Model();
 		obj.on('change', function(val)
 		{
-			assert.equal(val, 9000, 'change event did not send new value');
+			val.must.equal(9000);
 			done();
 		});
 		obj.count = 9000;
@@ -569,7 +573,7 @@ describe('polyclay', function()
 		var obj = new Model();
 		obj.on('change.count', function(val)
 		{
-			assert.equal(val, 9001, 'change.field event did not send new value');
+			val.must.equal(9001);
 			done();
 		});
 		obj.count = 9001;
@@ -580,7 +584,7 @@ describe('polyclay', function()
 		var obj = new Model();
 		obj.on('change.ephemeral', function(val)
 		{
-			assert.equal(val, 'fleeting', 'change.field event did not send new value');
+			val.must.equal('fleeting');
 			done();
 		});
 		obj.ephemeral = 'fleeting';
@@ -591,9 +595,9 @@ describe('polyclay', function()
 		var obj = new Model();
 		obj.on('rollback', function()
 		{
-			assert.equal(obj.name, 'blort');
-			assert.equal(obj.count, 9000);
-			assert.ok(!obj.isDirty(), 'object is still dirty after rollback');
+			obj.name.must.equal('blort');
+			obj.count.must.equal(9000);
+			obj.isDirty().must.be.false();
 			done();
 		});
 
@@ -631,9 +635,9 @@ describe('polyclay', function()
 			defaultFunc: function() { return 'test'; },
 		});
 
-		polyclay.validTypes.indexOf('testtype').should.be.above(-1);
-		polyclay.validate.should.have.property('testtype');
-		polyclay.typeDefaults.should.have.property('testtype');
+		polyclay.validTypes.indexOf('testtype').must.be.above(-1);
+		polyclay.validate.must.have.property('testtype');
+		polyclay.typeDefaults.must.have.property('testtype');
 	});
 
 	it('newly-added types can be used to build models', function()
@@ -641,17 +645,17 @@ describe('polyclay', function()
 		var TestModel = polyclay.Model.buildClass({ properties: { testtype: 'testtype' } });
 		var obj = new TestModel();
 
-		obj.should.have.property('testtype');
-		obj.testtype.should.equal('test');
+		obj.must.have.property('testtype');
+		obj.testtype.must.equal('test');
 		obj.testtype = 'okay';
-		obj.testtype.should.equal('okay');
+		obj.testtype.must.equal('okay');
 
 		function shouldThrow()
 		{
 			obj.testtype = '';
 		}
 
-		shouldThrow.should.throw(Error);
+		shouldThrow.must.throw(Error);
 	});
 
 });

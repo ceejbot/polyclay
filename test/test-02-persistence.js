@@ -1,52 +1,57 @@
 /*global describe:true, it:true, before:true, after:true */
 
 var
-	chai = require('chai'),
-	assert = chai.assert,
-	expect = chai.expect,
-	should = chai.should(),
-	fs = require('fs'),
-	path = require('path'),
-	polyclay = require('../index'),
-	util = require('util'),
-	MockDBAdapter = require('./mock-adapter')
+    demand        = require('must'),
+    fs            = require('fs'),
+    P             = require('p-promise'),
+    path          = require('path'),
+    polyclay      = require('../index'),
+    util          = require('util'),
+    MockDBAdapter = require('./mock-adapter')
 	;
-
-var chaiAsPromised = require('chai-as-promised');
-var P = require('p-promise');
-
-require('mocha-as-promised')();
-chai.use(chaiAsPromised);
 
 var testDir = process.cwd();
 if (path.basename(testDir) !== 'test')
 	testDir = path.join(testDir, 'test');
 var attachmentdata = fs.readFileSync(path.join(testDir, 'test.png'));
 
+function compareBuffers(left, right)
+{
+	if (left.length !== right.length)
+		return left.length - right.length;
+
+	for (var i = 0; i < left.length; i++)
+	{
+		if (left[i] !== right[i]) return (left[i] - right[i]);
+	}
+
+	return 0;
+}
+
 describe('dataLength()', function()
 {
 	it('handles null data', function()
 	{
 		var len = polyclay.dataLength(null);
-		len.should.equal(0);
+		len.must.equal(0);
 	});
 
 	it('handles Buffer data', function()
 	{
 		var len = polyclay.dataLength(attachmentdata);
-		len.should.equal(6776);
+		len.must.equal(6776);
 	});
 
 	it('handles ascii string data', function()
 	{
 		var len = polyclay.dataLength('cat');
-		len.should.equal(3);
+		len.must.equal(3);
 	});
 
 	it('handles non-ascii string data', function()
 	{
 		var len = polyclay.dataLength('crème brûlée');
-		len.should.equal(15);
+		len.must.equal(15);
 	});
 });
 
@@ -72,11 +77,10 @@ describe('persistence layer', function()
 		initialize: function()
 		{
 			this.ran_init = true;
-			this.on('after-load', this.afterLoad.bind(this));
 		},
 		methods:
 		{
-			afterLoad: function() { this.afterLoad = true; }
+			afterSave: function() { this._afterSave = true; },
 		}
 	};
 
@@ -90,17 +94,17 @@ describe('persistence layer', function()
 	it('adds functions to the prototype when persist is called', function()
 	{
 		polyclay.persist(Model, 'key');
-		Model.prototype.save.should.be.a('function');
-		Model.prototype.destroy.should.be.a('function');
+		Model.prototype.save.must.be.a.function();
+		Model.prototype.destroy.must.be.a.function();
 	});
 
 	it('adds class methods to the Model function', function()
 	{
-		Model.setStorage.should.be.a('function');
-		Model.get.should.be.a('function');
-		Model.getBatch.should.be.a('function');
-		Model.all.should.be.a('function');
-		Model.provision.should.be.a('function');
+		Model.setStorage.must.be.a.function();
+		Model.get.must.be.a.function();
+		Model.getBatch.must.be.a.function();
+		Model.all.must.be.a.function();
+		Model.provision.must.be.a.function();
 	});
 
 	it('handles models without persistable fields', function()
@@ -110,10 +114,10 @@ describe('persistence layer', function()
 		Ephemeral.defineAttachment('test', 'image/jpeg');
 
 		var obj = new Ephemeral();
-		obj.should.be.an('object');
-		obj.should.have.property('test');
-		obj.should.have.property('fetch_test');
-		obj.should.have.property('set_test');
+		obj.must.be.an.object();
+		obj.must.have.property('test');
+		obj.must.have.property('fetch_test');
+		obj.must.have.property('set_test');
 	});
 
 	it('can be passed a key field', function()
@@ -129,8 +133,8 @@ describe('persistence layer', function()
 
 		var keyprop = Object.getOwnPropertyDescriptor(Ephemeral.prototype, 'key');
 
-		keyprop.should.be.ok;
-		keyprop.should.be.an('object');
+		keyprop.must.exist();
+		keyprop.must.be.an.object();
 
 		var obj = new Ephemeral();
 		obj.key = '4';
@@ -138,8 +142,8 @@ describe('persistence layer', function()
 		var obj2 = new Ephemeral();
 		obj2.key = 'foo';
 
-		assert(obj2.id === 'foo', obj2.id + ' !== ' + obj2.key);
-		assert(obj.id === '4', obj.id + ' !== ' + obj.key);
+		obj2.id.must.equal('foo');
+		obj.id.must.equal('4');
 	});
 
 	it('stores the name of the key field on the prototype', function()
@@ -155,14 +159,14 @@ describe('persistence layer', function()
 
 		var obj = new Ephemeral();
 		obj.id = 'foo';
-		obj.should.have.property('keyfield');
-		obj.keyfield.should.be.a('string');
-		assert(obj.keyfield === 'id', 'keyfield property not on object!');
-		obj.should.have.property('key');
-		obj.key.should.equal('foo');
+		obj.must.have.property('keyfield');
+		obj.keyfield.must.be.a.string();
+		obj.keyfield.must.equal('id');
+		obj.must.have.property('key');
+		obj.key.must.equal('foo');
 
 		obj.key = 'bar';
-		obj.id.should.equal('bar');
+		obj.id.must.equal('bar');
 	});
 
 	it('defaults the key field name to `key` when none is provided', function()
@@ -177,9 +181,9 @@ describe('persistence layer', function()
 		polyclay.persist(Ephemeral);
 
 		var obj = new Ephemeral();
-		obj.should.have.property('keyfield');
-		obj.keyfield.should.be.a('string');
-		assert(obj.keyfield === 'key', 'keyfield property is not `key`!');
+		obj.must.have.property('keyfield');
+		obj.keyfield.must.be.a.string();
+		obj.keyfield.must.equal('key');
 	});
 
 	it('throws when passed a model without polyclay attributes', function()
@@ -193,13 +197,17 @@ describe('persistence layer', function()
 			polyclay.persist(Bad);
 		};
 
-		willThrow.should.throw(Error);
+		willThrow.must.throw(Error);
 	});
 
-	it('destroyMany() does nothing when given empty input', function()
+	it('destroyMany() does nothing when given empty input', function(done)
 	{
-		var promise = Model.destroyMany(null);
-		return promise.should.become(null);
+		Model.destroyMany(null)
+		.then(function(result)
+		{
+			demand(result).be.null();
+			done();
+		}).done();
 	});
 
 	it('destroy responds with an error when passed an object without an id', function(done)
@@ -208,12 +216,13 @@ describe('persistence layer', function()
 		obj.destroy()
 		.then(function(reply)
 		{
-			should.not.exist(reply);
+			demand(reply).not.exist();
 		})
 		.fail(function(err)
 		{
-			err.should.be.ok;
-			err.message.should.equal('cannot destroy object without an id');
+			err.must.exist();
+			err.must.be.instanceof(Error);
+			err.message.must.equal('cannot destroy object without an id');
 			done();
 		}).done();
 	});
@@ -227,12 +236,13 @@ describe('persistence layer', function()
 		obj.destroy()
 		.then(function(reply)
 		{
-			should.not.exist(reply);
+			demand(reply).not.exist();
 		})
 		.fail(function(err)
 		{
-			err.should.be.ok;
-			err.message.should.equal('object already destroyed');
+			err.must.exist();
+			err.must.be.instanceof(Error);
+			err.message.must.equal('object already destroyed');
 			done();
 		}).done();
 	});
@@ -240,8 +250,8 @@ describe('persistence layer', function()
 	it('sets the db adapter in setStorage()', function()
 	{
 		Model.setStorage({}, MockDBAdapter);
-		Model.should.have.property('adapter');
-		assert.ok(Model.adapter instanceof MockDBAdapter);
+		Model.must.have.property('adapter');
+		Model.adapter.must.be.instanceof(MockDBAdapter);
 	});
 
 	it('accepts callbacks and promises', function(done)
@@ -251,84 +261,92 @@ describe('persistence layer', function()
 
 		obj.save(function(err, response)
 		{
-			should.not.exist(err);
+			demand(err).not.exist();
 			done();
 		});
 	});
 
-	it('emits before-save', function()
+	it('emits before-save', function(done)
 	{
 		var obj = new Model();
-		var beforeSaveDeferred = P.defer();
-
 		obj.key = '1';
-		obj.on('before-save', beforeSaveDeferred.resolve);
 
-		return P.all([obj.save(), beforeSaveDeferred.promise]);
+		var gotEvent = false;
+		obj.on('before-save', function() { gotEvent = true; })
+
+		obj.save()
+		.then(function()
+		{
+			gotEvent.must.be.true();
+			done();
+		}).done();
 	});
 
-	it('emits after-save', function()
+	it('emits after-save', function(done)
 	{
 		var obj = new Model();
-		var afterSaveDeferred = P.defer();
-
 		obj.key = '2';
-		obj.on('after-save', afterSaveDeferred.resolve);
 
-		return P.all([obj.save(), afterSaveDeferred.promise]);
+		var gotEvent = false;
+		obj.on('after-save', function() { gotEvent = true; })
+
+		obj.save().then(function()
+		{
+			gotEvent.must.be.true();
+			done();
+		}).done();
 	});
 
-	it('emits after-load', function()
+	it('emits before-destroy', function(done)
 	{
+		var obj;
+		var gotEvent = false;
+
 		return Model.get('1')
-		.then(function(obj)
+		.then(function(r)
 		{
-			obj.afterLoad.should.be.ok;
-		});
+			obj = r;
+			obj.on('before-destroy', function() { gotEvent = true; })
+			return obj.destroy();
+		}).then(function(ok)
+		{
+			ok.must.be.true();
+			gotEvent.must.be.true();
+			done();
+		}).done();
 	});
 
-	it('emits before-destroy', function()
+	it('emits after-destroy', function(done)
 	{
-		return Model.get('1')
-		.then(function(obj)
-		{
-			var beforeDestroyDeferred = P.defer();
-			obj.on('before-destroy', beforeDestroyDeferred.resolve);
+		var obj;
 
-			return P.all([beforeDestroyDeferred.promise, obj.destroy()]);
-		});
+		Model.get('2')
+		.then(function(r)
+		{
+			obj = r;
+			obj.on('after-destroy', done);
+			return obj.destroy();
+		}).then(function(ok)
+		{
+			ok.must.be.true();
+		}).done();
 	});
 
-	it('emits after-destroy', function()
-	{
-		return Model.get('2')
-		.then(function(obj)
-		{
-			var afterDestroyDeferred = P.defer();
-			obj.on('after-destroy', afterDestroyDeferred.resolve);
-
-			return P.all([afterDestroyDeferred.promise, obj.destroy().should.become(true)]);
-		});
-	});
-
-	it('emits change events for attachments', function()
+	it('emits change events for attachments', function(done)
 	{
 		var Ephemeral = polyclay.Model.buildClass({});
 		polyclay.persist(Ephemeral);
 		Ephemeral.defineAttachment('test', 'text/plain');
 
 		var obj = new Ephemeral();
-		var changeDeferred = P.defer();
 
-		obj.on('change.test', changeDeferred.resolve);
+		obj.on('change.test', done);
 		obj.test = 'i am an attachment';
-
-		return changeDeferred.promise;
 	});
 
 	var AttachModel;
 
-	it('can save attachments', function()
+	it('can save attachments', function(done)
 	{
 		AttachModel = polyclay.Model.buildClass({ properties: { key: 'string' } });
 		polyclay.persist(AttachModel);
@@ -339,34 +357,40 @@ describe('persistence layer', function()
 		obj.key = 'attach';
 
 		obj.test = new Buffer('[1, 2, 3]');
-		obj.test.should.deep.equal(new Buffer('[1, 2, 3]'));
 
 		return obj.saveAttachment('test')
-		.then(function() { return obj.save(); });
+		.then(function() { return obj.save(); })
+		.then(function(ok) { done(); })
+		.done();
 	});
 
 	it('can retrieve attachments', function(done)
 	{
+		var obj;
+
 		return AttachModel.get('attach')
-		.then(function(obj)
+		.then(function(r)
 		{
-			return obj.fetch_test()
-			.then(function(body)
-			{
-				Buffer.isBuffer(body).should.be.ok;
-				body.should.deep.equal(new Buffer('[1, 2, 3]'));
+			obj = r;
+			return obj.fetch_test();
+		})
+		.then(function(body)
+		{
+			Buffer.isBuffer(body).must.be.true();
+			compareBuffers(body, new Buffer('[1, 2, 3]')).must.equal(0);
 
-				var attach = obj.__attachments.test;
-				should.exist(attach);
-				attach.body.should.equal(body);
+			var attach = obj.__attachments.test;
+			attach.must.exist();
+			compareBuffers(body, attach.body).must.equal(0);
 
-				attach.content_type.should.equal('application/json');
-				attach.__dirty.should.not.be.ok;
-			});
-		});
+			attach.content_type.must.equal('application/json');
+			attach.__dirty.must.be.false();
+
+			done();
+		}).done();
 	});
 
-	it('emits change events when attachments are removed', function()
+	it('emits change events when attachments are removed', function(done)
 	{
 		var Ephemeral = polyclay.Model.buildClass({});
 		polyclay.persist(Ephemeral);
@@ -376,13 +400,21 @@ describe('persistence layer', function()
 		var obj = new Ephemeral();
 		obj.test = 'i am an attachment';
 
+		obj.on('change.test', function(v)
+		{
+			done();
+		});
+
 		return obj.save()
 		.then(function()
 		{
-			var changeDeferred = P.defer();
-			obj.on('change.test', changeDeferred.resolve);
-			return P.all([obj.removeAttachment('test'), changeDeferred.promise]);
-		});
+			return obj.removeAttachment('test');
+		})
+		.then(function(results)
+		{
+			console.log(results);
+		})
+		.done();
 	});
 
 	it('propertyTypes() returns a hash of types for properties', function()
@@ -390,18 +422,17 @@ describe('persistence layer', function()
 		var obj = new Model();
 
 		var types = obj.propertyTypes();
-		types.should.be.an('object');
-
+		types.must.be.an.object();
 	});
 
 	it('propertyType() can query the type of a specific property', function()
 	{
 		var obj = new Model();
 
-		obj.propertyType('key').should.equal('string');
-		obj.propertyType('required_prop').should.equal('string');
-		obj.propertyType('ephemeral').should.equal('untyped');
-		should.not.exist(obj.propertyType('nonexistent'));
+		obj.propertyType('key').must.equal('string');
+		obj.propertyType('required_prop').must.equal('string');
+		obj.propertyType('ephemeral').must.equal('untyped');
+		demand(obj.propertyType('nonexistent')).not.exist();
 	});
 
 });

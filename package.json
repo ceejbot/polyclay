@@ -1,60 +1,58 @@
 {
-	"name":           "polyclay",
-	"version":        "1.6.6",
-	"description":    "a schema-enforcing model class for node with optional key-value store persistence",
-	"author":         "C J Silverio <ceejceej@gmail.com>",
-	"contributors":
-	[
-		"C J Silverio <ceejceej@gmail.com>",
-		"Kit Cambridge <kitcambridge@me.com>"
-	],
-	"license":        "MIT",
-	"readmeFilename": "README.md",
-	"main":           "index.js",
-	"directories":
-	{
-		"example": "examples",
-		"test":    "test"
-	},
-	"scripts":
-	{
-		"test":       "mocha -R spec -t 5000 test/test-*.js && node_modules/.bin/mocha -t 5000 --require blanket -R travis-cov test/test-*.js",
-		"test-cov":   "mocha --require blanket -R travis-cov test/test-*.js",
-		"coverage":   "mocha --require blanket -R html-cov test/test-*.js > test/coverage.html",
-		"travis-cov": { "threshold": 80 }
-	},
-	"config":
-	{
-		"blanket": { "pattern": "//^((?!\/node_modules|test|examples\/).)*$/ig" }
-	},
-	"repository":
-	{
-		"type": "git",
-		"url":  "git://github.com/ceejbot/polyclay.git"
-	},
-	"dependencies":
-	{
-		"lodash":    "~2.4.1",
-		"lucidjs":   "~2.7.0",
-		"p-promise": "~0.2.5"
-	},
-	"devDependencies":
-	{
-		"blanket":           "*",
-		"chai-as-promised":  "*",
-		"mocha-as-promised": "*",
-		"travis-cov":        "*"
-	},
-	"keywords":
-	[
-		"odm",
-		"model",
-		"mapper",
-		"schema",
-		"couchdb",
-		"couch",
-		"redis",
-		"levelup",
-		"cassandra"
-	]
+  "name": "polyclay",
+  "version": "1.6.6",
+  "description": "a schema-enforcing model class for node with optional key-value store persistence",
+  "author": "C J Silverio <ceejceej@gmail.com>",
+  "contributors": [
+    "C J Silverio <ceejceej@gmail.com>",
+    "Kit Cambridge <kitcambridge@me.com>"
+  ],
+  "license": "MIT",
+  "readmeFilename": "README.md",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha --check-leaks --ui exports --require blanket -R mocoverage",
+    "test-cov": "mocha --require blanket -R travis-cov test/test-*.js"
+  },
+  "config": {
+    "blanket": {
+      "pattern": "lib",
+      "data-cover-never": [
+        "node_modules",
+        "test",
+        "examples"
+      ],
+      "output-reporter": "spec"
+    },
+    "travis-cov": {
+      "threshold": 80
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/ceejbot/polyclay.git"
+  },
+  "dependencies": {
+    "lodash": "~2.4.1",
+    "lucidjs": "~2.7.0",
+    "p-promise": "~0.5.0"
+  },
+  "devDependencies": {
+    "blanket": "*",
+    "mocha": "~2.1.0",
+    "mocoverage": "~1.0.0",
+    "must": "~0.12.0",
+    "travis-cov": "~0.2.5"
+  },
+  "keywords": [
+    "odm",
+    "model",
+    "mapper",
+    "schema",
+    "couchdb",
+    "couch",
+    "redis",
+    "levelup",
+    "cassandra"
+  ]
 }

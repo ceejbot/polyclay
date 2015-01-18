@@ -1,19 +1,11 @@
 /*global describe:true, it:true, before:true, after:true, beforeEach: true */
 
 var
-	chai = require('chai'),
-	assert = chai.assert,
-	expect = chai.expect,
-	should = chai.should()
-	;
-
-var
+    demand   = require('must'),
 	polyclay = require('../lib/polyclay'),
 	mixins = require('../lib/mixins'),
 	util = require('util')
 	;
-
-require('mocha-as-promised')();
 
 describe('mixins', function()
 {
@@ -87,23 +79,23 @@ describe('mixins', function()
 		var proto = Object.getPrototypeOf(instance);
 
 		var property = Object.getOwnPropertyDescriptor(proto, 'created');
-		property.should.be.an('object');
-		property.should.have.property('get');
-		property.should.have.property('set');
+		property.must.be.an.object();
+		property.must.have.property('get');
+		property.must.have.property('set');
 	});
 
 	it('adds methods to a model prototype', function()
 	{
 		mixins.mixin(Model1, HasTimestamps);
-		Model1.prototype.should.have.property('touch');
-		Model1.prototype.touch.should.be.a('function');
+		Model1.prototype.must.have.property('touch');
+		Model1.prototype.touch.must.be.a.function();
 	});
 
 	it('adds static methods to the model constructor', function()
 	{
 		mixins.mixin(Model1, HasTimestamps);
-		Model1.should.have.property('comparator');
-		Model1.comparator.should.be.a('function');
+		Model1.must.have.property('comparator');
+		Model1.comparator.must.be.a.function();
 	});
 
 	it('adds custom getters & setters for custom properties', function()
@@ -113,22 +105,22 @@ describe('mixins', function()
 		var proto = Object.getPrototypeOf(instance);
 
 		var property = Object.getOwnPropertyDescriptor(proto, 'fred');
-		property.should.be.an('object');
-		property.should.have.property('get');
-		property.should.have.property('set');
+		property.must.be.an.object();
+		property.must.have.property('get');
+		property.must.have.property('set');
 
 		instance.fred = 'foo';
-		instance._antifred.should.equal('foo NOT!');
+		instance._antifred.must.equal('foo NOT!');
 	});
 
 	it('can add more than one mixin to a prototype', function()
 	{
 		mixins.mixin(Model1, HasTimestamps);
 		mixins.mixin(Model1, HasVersion);
-		Model1.prototype.should.have.property('touch');
-		Model1.prototype.touch.should.be.a('function');
-		Model1.prototype.should.have.property('upgrade');
-		Model1.prototype.upgrade.should.be.a('function');
+		Model1.prototype.must.have.property('touch');
+		Model1.prototype.touch.must.be.a.function();
+		Model1.prototype.must.have.property('upgrade');
+		Model1.prototype.upgrade.must.be.a.function();
 	});
 
 });
