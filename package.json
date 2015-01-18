@@ -34,7 +34,6 @@
   },
   "dependencies": {
     "lodash": "~2.4.1",
-    "lucidjs": "~2.7.0",
     "p-promise": "~0.5.0"
   },
   "devDependencies": {

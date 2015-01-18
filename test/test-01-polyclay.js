@@ -64,8 +64,24 @@ describe('polyclay', function()
 
 	it('runs the provided initialize() function on instance construction', function()
 	{
+		instance.__init.must.be.a.function();
+		instance.must.have.property('ran_init');
 		instance.ran_init.must.be.true();
 		delete instance.ran_init;
+	});
+
+	it('mixes in events.EventEmitter', function()
+	{
+		var obj = new Model();
+		obj.must.have.property('emit');
+		obj.emit.must.be.a.function();
+	});
+
+	it('adds functions like clearDirty() to the prototype', function()
+	{
+		var obj = new Model();
+		obj.must.have.property('clearDirty');
+		obj.clearDirty.must.be.a.function();
 	});
 
 	it('adds any methods in the options to the prototype', function()
@@ -341,12 +357,12 @@ describe('polyclay', function()
 	{
 		var name;
 		var instanceProps = Object.getOwnPropertyNames(instance);
-		var lucidprops = ['on', 'set', 'pipe', 'once', 'off', 'trigger', 'listeners'];
+		var eventProps = [ 'domain', '_maxListeners', '_events'];
 
 		for (var i = 0; i < instanceProps.length; i++)
 		{
 			name = instanceProps[i];
-			if (lucidprops.indexOf(name) > -1)
+			if (eventProps.indexOf(name) > -1)
 				continue;
 			name.indexOf('__').must.equal(0);
 		}
