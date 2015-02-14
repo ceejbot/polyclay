@@ -435,4 +435,7 @@ describe('persistence layer', function()
 		demand(obj.propertyType('nonexistent')).not.exist();
 	});
 
+    it('clearDirty() wipes the dirty bit');
+    it('clearDirty() wipes the dirty bit on all attachments');
+
 });
