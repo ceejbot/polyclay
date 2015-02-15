@@ -2,7 +2,7 @@
 
 Polymer modeling clay for node.js. A model schema definition with type validations, dirty-state tracking, and rollback. Models are optionally persistable to CouchDB using [cradle](https://github.com/cloudhead/cradle), [Redis](http://redis.io/), [LevelUP](https://github.com/rvagg/node-levelup), and Cassandra. Polyclay gives you the safety of type-enforcing properties without making you write a lot of boilerplate.
 
-[![on npm](http://img.shields.io/npm/v/numbat-emitter.svg?style=flat)](https://www.npmjs.org/package/polyclay)  [![Tests](http://img.shields.io/travis/ceejbot/polyclay.svg?style=flat)](http://travis-ci.org/ceejbot/polyclay) ![Coverage](http://img.shields.io/badge/coverage-83%25-yellow.svg?style=flat) [![Dependencies](http://img.shields.io/david/ceejbot/polyclay.svg?style=flat)](https://david-dm.org/ceejbot/polyclay)
+[![on npm](http://img.shields.io/npm/v/polyclay.svg?style=flat)](https://www.npmjs.org/package/polyclay)  [![Tests](http://img.shields.io/travis/ceejbot/polyclay.svg?style=flat)](http://travis-ci.org/ceejbot/polyclay) ![Coverage](http://img.shields.io/badge/coverage-83%25-yellow.svg?style=flat) [![Dependencies](http://img.shields.io/david/ceejbot/polyclay.svg?style=flat)](https://david-dm.org/ceejbot/polyclay)
 
 ## Installing
 
