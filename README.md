@@ -1,13 +1,8 @@
 # Polyclay
 
-Polymer modeling clay for node.js. A model schema definition with type validations, dirty-state tracking, and rollback. Models are optionally persistable to CouchDB using [cradle](https://github.com/cloudhead/cradle), [Redis](http://redis.io/), [LevelUP](https://github.com/rvagg/node-levelup), and Cassandra. Polyclay gives you the safety of type-enforcing properties without making you write a lot of boilerplate. 
+Polymer modeling clay for node.js. A model schema definition with type validations, dirty-state tracking, and rollback. Models are optionally persistable to CouchDB using [cradle](https://github.com/cloudhead/cradle), [Redis](http://redis.io/), [LevelUP](https://github.com/rvagg/node-levelup), and Cassandra. Polyclay gives you the safety of type-enforcing properties without making you write a lot of boilerplate.
 
-[![Build Status](https://secure.travis-ci.org/ceejbot/polyclay.png)](http://travis-ci.org/ceejbot/polyclay)
-[![Dependencies](https://david-dm.org/ceejbot/polyclay.png)](https://david-dm.org/ceejbot/polyclay)
-[![NPM version](https://badge.fury.io/js/polyclay.png)](http://badge.fury.io/js/polyclay)
-[![Stories in Ready](https://badge.waffle.io/ceejbot/polyclay.png)](http://waffle.io/ceejbot/polyclay)
-
-[![NPM](https://nodei.co/npm/polyclay.png)](https://nodei.co/npm/polyclay/)
+[![on npm](http://img.shields.io/npm/v/numbat-emitter.svg?style=flat)](https://www.npmjs.org/package/polyclay)  [![Tests](http://img.shields.io/travis/ceejbot/polyclay.svg?style=flat)](http://travis-ci.org/ceejbot/polyclay) ![Coverage](http://img.shields.io/badge/coverage-83%25-yellow.svg?style=flat) [![Dependencies](http://img.shields.io/david/ceejbot/polyclay.svg?style=flat)](https://david-dm.org/ceejbot/polyclay)
 
 ## Installing
 
@@ -15,7 +10,7 @@ Polymer modeling clay for node.js. A model schema definition with type validatio
 
 ## Building a model
 
-Polyclay builds a model constructor function from options that you pass to its `buildClass` function, similar to the way Backbone builds constructors. 
+Polyclay builds a model constructor function from options that you pass to its `buildClass` function, similar to the way Backbone builds constructors.
 
 ```javascript
 var MyModel = polyclay.model.buildClass(options);
@@ -27,7 +22,7 @@ Valid options:
 : hash of named properties with types; see detailed discussion below
 
 `optional`
-: Array of string names of properties the model might have. Optional properties don't have types, but they do have convenient getters & setters defined for you. They are also persisted in CouchDB if they are present. 
+: Array of string names of properties the model might have. Optional properties don't have types, but they do have convenient getters & setters defined for you. They are also persisted in CouchDB if they are present.
 
 `required`
 : Array of string names of properties that must be present. The model will not validate if required properties are missing.
@@ -36,7 +31,7 @@ Valid options:
 : enum; a property that is constrained to values in the given array of strings. The provided setter accepts either integer or string name values. The provided getter returns the string. The value persisted in the database is an int representing the position in the array.
 
 `methods`
-: Hash of methods to add to the object. You can instead decorate the returned constructor prototype with object methods. 
+: Hash of methods to add to the object. You can instead decorate the returned constructor prototype with object methods.
 
 `initialize`
 : Function to call as the last step of the returned constructor. Provide an implementation to do any custom initialization for your model.`this` will be the newly constructed object.
@@ -101,7 +96,7 @@ widget.save(function(err)
     var id = widget.key.
     Widget.get(id, function(err, dbwidget)
     {
-    	// the version from the db will have the id saved, 
+    	// the version from the db will have the id saved,
     	// but not the full marvin object
         assert(dbwidget.owner_id === marvin.key);
         assert(dbwidget.owner === undefined);
@@ -175,7 +170,7 @@ var adapterOptions =
 ModelFunction.setStorage(adapterOptions, polyclay.CouchAdapter);
 ```
 
-If you do not pass a dbname, the adapter will fall back to using the model's `plural`. This is often the expected name for a database. 
+If you do not pass a dbname, the adapter will fall back to using the model's `plural`. This is often the expected name for a database.
 
 Every model instance has a pointer to the adapter on its `adapter` field. The adapter in turn gives you access to the cradle connection on `obj.adapter.connection` and the database on `obj.adapter.db`.
 
@@ -208,7 +203,7 @@ The Levelup object is available at `obj.adapter.db`. The attachments data store 
 
 ### Defining views
 
-You can define views to be added to your couch databases when they are created.  Add a `design` field to your constructor function directly. 
+You can define views to be added to your couch databases when they are created.  Add a `design` field to your constructor function directly.
 
 Let's add some simple views to the Widget model we created above, one to fetch widgets by owner and one to fetch them by name.
 
@@ -262,7 +257,7 @@ Removed the object from couch and set its `destroyed` flag. The object must have
 
 `obj.merge(hash, function(err, response))`
 
-Update the model with fields in the supplied hash, then save the result to the backing store. 
+Update the model with fields in the supplied hash, then save the result to the backing store.
 
 `obj.removeAttachment(name, function(err, wasRemoved))`
 
@@ -372,7 +367,7 @@ Mixin objects have three fields.
 `properties`: A hash of property names & types, exactly as in a base model definition.  
 `methods`: A hash of method names & implementations to add to the model prototype.  
 `statics`: Functions to add to the model function directly; class methods.  
-`custom`: A hash of custom functions to add to the model prototype as getters & setters. 
+`custom`: A hash of custom functions to add to the model prototype as getters & setters.
 
 Here's a simple example of a custom property:
 
@@ -459,7 +454,7 @@ Comment.setStorage(opts, polyclay.CouchAdapter);
 Comment.provision(function(err, response)
 {
 	// database is now created & the views available to use
-}); 
+});
 
 
 var comment = new Comment();
