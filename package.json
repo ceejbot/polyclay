@@ -1,19 +1,8 @@
 {
   "name": "polyclay",
-  "version": "1.7.1",
   "description": "a schema-enforcing model class for node with optional key-value store persistence",
+  "version": "1.7.1",
   "author": "C J Silverio <ceejceej@gmail.com>",
-  "contributors": [
-    "C J Silverio <ceejceej@gmail.com>",
-    "Kit Cambridge <kitcambridge@me.com>"
-  ],
-  "license": "MIT",
-  "readmeFilename": "README.md",
-  "main": "index.js",
-  "scripts": {
-    "test": "mocha --check-leaks --ui exports --require blanket -R mocoverage",
-    "test-cov": "mocha --require blanket -R travis-cov test/test-*.js"
-  },
   "config": {
     "blanket": {
       "pattern": "lib",
@@ -28,10 +17,10 @@
       "threshold": 80
     }
   },
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/ceejbot/polyclay.git"
-  },
+  "contributors": [
+    "C J Silverio <ceejceej@gmail.com>",
+    "Kit Cambridge <kitcambridge@me.com>"
+  ],
   "dependencies": {
     "lodash": "~3.10.1",
     "p-promise": "~0.5.0"
@@ -44,14 +33,26 @@
     "travis-cov": "~0.2.5"
   },
   "keywords": [
-    "odm",
-    "model",
-    "mapper",
-    "schema",
-    "couchdb",
+    "cassandra",
     "couch",
-    "redis",
+    "couchdb",
     "levelup",
-    "cassandra"
-  ]
+    "mapper",
+    "model",
+    "odm",
+    "redis",
+    "schema"
+  ],
+  "license": "MIT",
+  "main": "index.js",
+  "readmeFilename": "README.md",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/ceejbot/polyclay.git"
+  },
+  "scripts": {
+    "lint": "jshint lib/*.js test/*.js index.js && jscs lib index.js",
+    "test": "mocha --check-leaks --ui exports --require blanket -R mocoverage",
+    "test-cov": "mocha --require blanket -R travis-cov test/test-*.js"
+  }
 }

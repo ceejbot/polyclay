@@ -126,7 +126,7 @@ describe('persistence layer', function()
 		{
 			properties:
 			{
-				'id': 'string'
+				id: 'string'
 			}
 		});
 		polyclay.persist(Ephemeral, 'id');
@@ -150,10 +150,7 @@ describe('persistence layer', function()
 	{
 		var Ephemeral = polyclay.Model.buildClass(
 		{
-			properties:
-			{
-				'id': 'string'
-			}
+			properties: { id: 'string' }
 		});
 		polyclay.persist(Ephemeral, 'id');
 
@@ -173,10 +170,7 @@ describe('persistence layer', function()
 	{
 		var Ephemeral = polyclay.Model.buildClass(
 		{
-			properties:
-			{
-				'key': 'string'
-			}
+			properties: { key: 'string' }
 		});
 		polyclay.persist(Ephemeral);
 
@@ -272,7 +266,7 @@ describe('persistence layer', function()
 		obj.key = '1';
 
 		var gotEvent = false;
-		obj.on('before-save', function() { gotEvent = true; })
+		obj.on('before-save', function() { gotEvent = true; });
 
 		obj.save()
 		.then(function()
@@ -288,7 +282,7 @@ describe('persistence layer', function()
 		obj.key = '2';
 
 		var gotEvent = false;
-		obj.on('after-save', function() { gotEvent = true; })
+		obj.on('after-save', function() { gotEvent = true; });
 
 		obj.save().then(function()
 		{
@@ -306,7 +300,7 @@ describe('persistence layer', function()
 		.then(function(r)
 		{
 			obj = r;
-			obj.on('before-destroy', function() { gotEvent = true; })
+			obj.on('before-destroy', function() { gotEvent = true; });
 			return obj.destroy();
 		}).then(function(ok)
 		{
@@ -435,7 +429,7 @@ describe('persistence layer', function()
 		demand(obj.propertyType('nonexistent')).not.exist();
 	});
 
-    it('clearDirty() wipes the dirty bit');
-    it('clearDirty() wipes the dirty bit on all attachments');
+	it('clearDirty() wipes the dirty bit');
+	it('clearDirty() wipes the dirty bit on all attachments');
 
 });
