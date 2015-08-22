@@ -357,7 +357,7 @@ describe('polyclay', function()
 	{
 		var name;
 		var instanceProps = Object.getOwnPropertyNames(instance);
-		var eventProps = [ 'domain', '_maxListeners', '_events'];
+		var eventProps = [ 'domain', '_maxListeners', '_events', '_eventsCount'];
 
 		for (var i = 0; i < instanceProps.length; i++)
 		{
