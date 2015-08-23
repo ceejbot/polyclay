@@ -1,7 +1,7 @@
 {
   "name": "polyclay",
   "description": "a schema-enforcing model class for node with optional key-value store persistence",
-  "version": "1.7.1",
+  "version": "1.7.2",
   "author": "C J Silverio <ceejceej@gmail.com>",
   "config": {
     "blanket": {
