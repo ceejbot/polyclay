@@ -3,33 +3,18 @@
   "description": "a schema-enforcing model class for node with optional key-value store persistence",
   "version": "1.7.2",
   "author": "C J Silverio <ceejceej@gmail.com>",
-  "config": {
-    "blanket": {
-      "pattern": "lib",
-      "data-cover-never": [
-        "node_modules",
-        "test",
-        "examples"
-      ],
-      "output-reporter": "spec"
-    },
-    "travis-cov": {
-      "threshold": 80
-    }
-  },
   "contributors": [
     "C J Silverio <ceejceej@gmail.com>",
     "Kit Cambridge <kitcambridge@me.com>"
   ],
   "dependencies": {
-    "lodash": "~3.10.1",
+    "lodash": "~4.6.1",
     "p-promise": "~0.5.0"
   },
   "devDependencies": {
-    "blanket": "~1.1.7",
-    "mocha": "~2.2.5",
-    "mocoverage": "~1.0.0",
-    "must": "~0.12.0",
+    "mocha": "~2.4.5",
+    "must": "~0.13.1",
+    "nyc": "~6.0.0",
     "travis-cov": "~0.2.5"
   },
   "keywords": [
@@ -52,7 +37,7 @@
   },
   "scripts": {
     "lint": "jshint lib/*.js test/*.js index.js && jscs lib index.js",
-    "test": "mocha --check-leaks --ui exports --require blanket -R mocoverage",
-    "test-cov": "mocha --require blanket -R travis-cov test/test-*.js"
+    "test": "mocha -R spec",
+    "test-cov": "nyc mocha -R spec"
   }
 }
