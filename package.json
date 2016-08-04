@@ -12,7 +12,7 @@
     "p-promise": "~0.5.0"
   },
   "devDependencies": {
-    "mocha": "~2.4.5",
+    "mocha": "~3.0.1",
     "must": "~0.13.1",
     "nyc": "~6.4.4"
   },
