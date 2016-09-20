@@ -8,7 +8,7 @@
     "Kit Cambridge <kitcambridge@me.com>"
   ],
   "dependencies": {
-    "lodash": "~4.11.0",
+    "lodash": "~4.16.1",
     "p-promise": "~0.5.0"
   },
   "devDependencies": {
